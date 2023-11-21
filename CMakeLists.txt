@@ -7,4 +7,8 @@ add_executable(python__ main.cpp
         console.hpp
         console.cpp
         parsing.hpp
-        parsing.cpp)
+        parsing.cpp
+        parseStructs.hpp
+        parseStructs.cpp
+        interpreter.hpp
+        interpreter.cpp)

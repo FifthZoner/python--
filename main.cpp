@@ -1,5 +1,6 @@
 // This program is a python-ish language interpreter
 #include "parsing.hpp"
+#include "interpreter.hpp"
 
 int main(int argc, char** argv) {
 
@@ -14,6 +15,6 @@ int main(int argc, char** argv) {
 
     }
 
-
+    RunInterpreter();
     return 0;
 }
