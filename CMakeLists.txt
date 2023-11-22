@@ -11,4 +11,8 @@ add_executable(python__ main.cpp
         parseStructs.hpp
         parseStructs.cpp
         interpreter.hpp
-        interpreter.cpp)
+        interpreter.cpp
+        checks.cpp
+        variables.cpp
+        variables.hpp
+)

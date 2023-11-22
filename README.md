@@ -21,19 +21,55 @@ Why not? I like using english in programming.
 </ul>
 <h2>Syntax:</h2>
 A "Hello world" in python--:
-
-~~~
+```
 Print("Hello world!")
 > Hello world!
-~~~
+```
 Nothing special, right? </br>
 Then feast your eyes upon this unholy print statement:
 
-~~~
+```
 Print( 5 + " + " + 6 + " = " + (5 + 6))
 > 5 + 6 = 11
-~~~
+```
 What? </br>
-In python-- Print() is a type of function mentioned earlier, it converts all its arguments to strings implicitly. The values in brackets are seen as one per another point. This empowers the user to create incredible feats of lexical gymnastics like this in a single statement!
+In python-- Print() has the "implicit" keyword before it's string argument, it converts all its arguments to strings implicitly. 
 
-<h3>The rest of this and the language in under construction, hold on!</h3>
+```
+Print(implicit string message)
+```
+All the bracket-less arguments are affected and then added. This empowers the user to create incredible feats of lexical gymnastics like this in a single statement </br>
+You can also see the next difference: functions are typed and don't need ':' after them. Actually this makes writing multiple expressions in a line impossible, and the parser much simpler. </br>
+Some functions have c++ native binds, these are realised via a special type of function, not possible to create from the language itself and are fully separate from user functions.</br></br>
+This function doesn't return any value, but when one does, it does so explicitly:
+```
+int StringLength(implicit string str)
+```
+Yeah, there are no objects.</br></br>
+Indentations are important:
+```
+implicit int foo(int a, string b)
+    return a + b
+Println(foo(3, "4"))
+Print("This is so silly!")
+> 7
+> This is so silly!
+```
+The keyword "implicit" can be used anywhere with variables, but in some cases it can generate exceptions:
+```
+implicit int foo(string a)
+    a = a + "not a number"
+    return a <- exception here
+    
+implicit int b = 5 + " + " + 7 + " = " + (5 + 7) <- exception here
+```
+There is a "convert" keyword:
+```
+int var = 10
+var = "something" <- this does not work
+var = 5 <- this works
+convert var string
+var = "something" <- this works
+var = 5 <- this does not work
+```
+<h3>The rest of this and the language in under construction, even the functions here don't work yet, hold on!</h3>
