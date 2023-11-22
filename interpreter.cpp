@@ -6,11 +6,11 @@
 
 #include <iostream>
 void RunLine(std::string line){
-    auto tokens = SplitInterpreterLine(line);
-    for (auto& n : tokens){
-        std::cout << n << " ";
-    }
-    std::cout << "\n";
+    auto parsed = SplitInterpreterLine(line);
+//    for (auto& n : tokens){
+//        std::cout << n << " ";
+//    }
+//    std::cout << "\n";
 }
 
 void RunInterpreter(){

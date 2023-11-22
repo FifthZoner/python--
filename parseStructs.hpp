@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <utility>
 
 // allows for declarations like this
 
@@ -30,26 +31,26 @@ struct ParseStruct {
 struct ParseAssign : ParseStruct {
     ParseStruct* target;
     std::vector<ParseStruct*> tokens;
-    ParseAssign(std::string left, std::string right);
+    ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<unsigned int, unsigned int> right);
     const uint8_t type() const;
 };
 
 struct ParseValue : ParseStruct {
     std::string token;
-    ParseValue(std::string string);
+    ParseValue(std::pair<unsigned int, unsigned int> range);
     const uint8_t type() const;
 };
 
 struct ParseUnknown : ParseStruct {
     std::string token;
-    ParseUnknown(std::string string);
+    ParseUnknown(std::pair<unsigned int, unsigned int> range);
     const uint8_t type() const;
 };
 
 struct ParseFunction : ParseStruct {
     std::string token;
     std::vector<ParseStruct*> children;
-    ParseFunction(std::string string);
+    ParseFunction(std::pair<unsigned int, unsigned int> range);
     const uint8_t type() const;
 
 };

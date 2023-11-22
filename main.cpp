@@ -12,9 +12,8 @@ int main(int argc, char** argv) {
     }
     // launch interpreter interface
     else {
-
+        RunInterpreter();
     }
 
-    RunInterpreter();
     return 0;
 }

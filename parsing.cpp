@@ -1,6 +1,5 @@
 #include <utility>
 #include <unordered_map>
-#include <cstdint>
 
 #include "parsing.hpp"
 
@@ -16,7 +15,7 @@ std::vector <std::string> ParseCommandLine(const std::string& line) {
         }
     }
 
-    if (start != line.length() - 1){
+    if (!line.empty() and line[line.length() - 1] != ' '){
         vec.push_back(line.substr(start, line.length() - start));
     }
 
@@ -30,8 +29,8 @@ std::vector <std::vector <std::string>> ParseCommandArguments(const int argc, ch
     }
     return vec;
 }
-
-std::string specialCharacters = ",.\"(){}[]=+-*/%^!\'<>:";
+std::vector <std::string> parsedLine;
+std::string specialCharacters = ",.(){}[]=+-*/%^!<>:";
 std::pair<char, char> doubleOperators[4] =
         {
         std::make_pair<char, char>('=', '='),
@@ -40,7 +39,45 @@ std::pair<char, char> doubleOperators[4] =
         std::make_pair<char, char>('<', '=')
                 };
 
-std::vector <std::string> SplitInterpreterLine(std::string line){
+// keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert, variableString, variableInt, variableUnknown, variableValue, operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction
+
+std::unordered_map<std::string, uint8_t> tokenMap =
+        {
+                {"if", ParseStruct::keywordIf},
+                {"for", ParseStruct::keywordFor},
+                {"while", ParseStruct::keywordWhile},
+                {"return", ParseStruct::keywordReturn},
+                {"string", ParseStruct::keywordString},
+                {"int", ParseStruct::keywordInt},
+                {"implicit", ParseStruct::keywordImplicit},
+                {"convert", ParseStruct::keywordConvert},
+                {"=", ParseStruct::operatorAssign}
+        };
+
+ParseStruct* ParseLine(std::pair<unsigned int, unsigned int> range){
+    ParseStruct* parseStruct;
+    for (unsigned int n = range.first; n < range.second; n++){
+        if (auto found = tokenMap.find(parsedLine[n]); found != tokenMap.end()) {
+            switch (tokenMap[parsedLine[n]]){
+                case ParseStruct::operatorAssign:
+                    parseStruct = new ParseAssign(
+                            std::pair<unsigned int, unsigned int>(range.first, n),
+                            std::pair<unsigned int, unsigned int>(n + 1, range.second));
+                    break;
+
+                default:
+                    // this case is a missing function or an error
+                    break;
+            }
+        }
+        else {
+            // function / variable name or a value
+        }
+    }
+    return parseStruct;
+}
+
+ParseStruct* SplitInterpreterLine(std::string line){
 
     // splitting special characters
     for (unsigned int n = 0; n < line.length(); n++) {
@@ -83,45 +120,21 @@ std::vector <std::string> SplitInterpreterLine(std::string line){
     }
 
     // splitting into vector of strings
-    std::vector <std::string> vec;
+    parsedLine.clear();
     unsigned int start = 0;
     for (unsigned int n = 0; n < line.length(); n++){
         if (line[n] == ' '){
             if (n != start) {
-                vec.push_back(line.substr(start, n - start));
+                parsedLine.push_back(line.substr(start, n - start));
             }
             start = n + 1;
         }
     }
 
-    if (line[line.length() - 1] != ' '){
-        vec.push_back(line.substr(start, line.length() - start));
+    if (!line.empty() and line[line.length() - 1] != ' '){
+        parsedLine.push_back(line.substr(start, line.length() - start));
     }
 
-    return vec;
+    return ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()));
 }
 
-// keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert, variableString, variableInt, variableUnknown, variableValue, operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction
-
-std::unordered_map<std::string, uint8_t> tokenMap =
-        {
-                {"if", ParseStruct::keywordIf},
-                {"for", ParseStruct::keywordFor},
-                {"while", ParseStruct::keywordWhile},
-                {"return", ParseStruct::keywordReturn},
-                {"string", ParseStruct::keywordString},
-                {"int", ParseStruct::keywordInt},
-                {"implicit", ParseStruct::keywordImplicit},
-                {"convert", ParseStruct::keywordConvert},
-                {"=", ParseStruct::operatorAssign}
-        };
-
-ParseStruct* ParseLine(std::vector <std::string> line){
-    ParseStruct* parseStruct;
-    for (auto& n : line){
-        //if ( auto findit = myMap.find(id); findit != myMap.end() )
-        if (auto found = tokenMap.find(n); found != tokenMap.end()){
-
-        }
-    }
-}
