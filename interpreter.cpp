@@ -6,7 +6,7 @@
 
 #include <iostream>
 void RunLine(std::string line){
-    auto tokens = ParseInterpreterLine(line);
+    auto tokens = SplitInterpreterLine(line);
     for (auto& n : tokens){
         std::cout << n << " ";
     }
@@ -14,5 +14,5 @@ void RunLine(std::string line){
 }
 
 void RunInterpreter(){
-    RunLine("var=10-(5235+3256)-243");
+    RunLine("var = 10");
 }

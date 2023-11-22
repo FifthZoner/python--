@@ -19,7 +19,9 @@
 // do not use
 struct ParseStruct {
     enum {
-        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert, variableString, variableInt, variableUnknown, variableValue, operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction
+        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert, keywordInt, keywordString,
+        variableString, variableInt, variableUnknown, variableValue,
+        operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorOpenBracket, operatorCloseBracket
     };
 
     virtual const uint8_t type() const;
