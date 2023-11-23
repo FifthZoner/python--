@@ -1,5 +1,10 @@
 #include "parseStructs.hpp"
 #include "checks.hpp"
+#include "defines.hpp"
+
+#ifdef PYTHON___DEBUG
+#include <iostream>
+#endif
 
 ParseValue::ParseValue(const std::string& value){
     this->value = value;
@@ -25,6 +30,13 @@ ParseInt::ParseInt(const std::string& token){
 const uint8_t ParseInt::type() const{
     return ParseStruct::variableInt;
 }
+Variable* ParseInt::run(){
+    #ifdef PYTHON___DEBUG
+    std::cout << "New variable: int " << token;
+    #endif
+
+    // TODO: create a variable here and return it back
+}
 
 ParseString::ParseString(const std::string& token){
     this->token = token;
@@ -38,4 +50,17 @@ ParseVariable::ParseVariable(const std::string& token){
 }
 const uint8_t ParseVariable::type() const{
     return ParseStruct::variableVariable;
+}
+Variable* ParseVariable::run(){
+
+    // TODO: add global/local check here
+
+    #ifdef PYTHON___DEBUG
+    std::cout << "Variable: ";
+    #endif
+
+    #ifdef PYTHON___DEBUG
+    std::cout << token;
+    #endif
+
 }

@@ -8,6 +8,9 @@
 #include <utility>
 #include <memory>
 
+#include "exceptions.hpp"
+#include "variables.hpp"
+
 // allows for declarations like this
 
 // def func(int var1, string var2):
@@ -21,13 +24,13 @@
 // do not use
 struct ParseStruct {
     enum {
-        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert, keywordInt, keywordString,
+        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert,
         variableString, variableInt, variableVariable, variableValue,
         operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorOpenBracket, operatorCloseBracket
     };
 
     virtual const uint8_t type() const;
-    virtual ParseStruct* getPointer();
+    ParseStruct* getPointer();
 };
 
 struct ParseAssign : ParseStruct {
@@ -35,6 +38,7 @@ struct ParseAssign : ParseStruct {
     std::unique_ptr<ParseStruct> from;
     ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<unsigned int, unsigned int> right);
     [[nodiscard]] const uint8_t type() const override;
+    void run();
 };
 
 struct ParseValue : ParseStruct {
@@ -42,6 +46,7 @@ struct ParseValue : ParseStruct {
     uint8_t valueType;
     explicit ParseValue(const std::string& value);
     [[nodiscard]] const uint8_t type() const override;
+    std::string run();
 };
 
 struct ParseString : ParseStruct {
@@ -54,12 +59,14 @@ struct ParseInt : ParseStruct {
     std::string token;
     explicit ParseInt(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
+    Variable* run();
 };
 
 struct ParseVariable : ParseStruct {
     std::string token;
     explicit ParseVariable(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
+    Variable* run();
 };
 
 struct ParseImplicit : ParseStruct {
@@ -73,7 +80,6 @@ struct ParseFunction : ParseStruct {
     std::vector<std::unique_ptr<ParseStruct>> children;
     explicit ParseFunction(std::pair<unsigned int, unsigned int> range);
     [[nodiscard]] const uint8_t type() const override;
-
 };
 
 

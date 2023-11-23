@@ -8,7 +8,8 @@
 struct Variable {
 
     [[nodiscard]] virtual const uint8_t type() const;
-    virtual std::unique_ptr<Variable> convert(const uint8_t type);
+    [[nodiscard]] virtual std::unique_ptr<Variable> convert(uint8_t type) const;
+    Variable* getPointer();
 
     enum {
         none, typeInt, typeString
@@ -18,16 +19,16 @@ struct Variable {
 
 struct VariableString : Variable {
     std::string value;
-    VariableString(std::string value);
-    [[nodiscard]] const uint8_t type() const;
-    std::unique_ptr<Variable> convert(const uint8_t type);
+    explicit VariableString(const std::string& value);
+    [[nodiscard]] const uint8_t type() const override;
+    [[nodiscard]] std::unique_ptr<Variable> convert(uint8_t type) const override;
 };
 
 struct VariableInt : Variable {
     long long value;
-    VariableInt(long long value);
-    [[nodiscard]] const uint8_t type() const;
-    std::unique_ptr<Variable> convert(const uint8_t type);
+    explicit VariableInt(long long value);
+    [[nodiscard]] const uint8_t type() const override;
+    [[nodiscard]] std::unique_ptr<Variable> convert(uint8_t type) const override;
 };
 
 

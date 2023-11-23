@@ -2,6 +2,11 @@
 #include <unordered_map>
 
 #include "parsing.hpp"
+#include "defines.hpp"
+
+#ifdef PYTHON___DEBUG
+#include <iostream>
+#endif
 
 std::vector <std::string> ParseCommandLine(const std::string& line) {
     std::vector <std::string> vec;
@@ -47,14 +52,19 @@ std::unordered_map<std::string, uint8_t> tokenMap =
                 {"for", ParseStruct::keywordFor},
                 {"while", ParseStruct::keywordWhile},
                 {"return", ParseStruct::keywordReturn},
-                {"string", ParseStruct::keywordString},
-                {"int", ParseStruct::keywordInt},
                 {"implicit", ParseStruct::keywordImplicit},
                 {"convert", ParseStruct::keywordConvert},
                 {"=", ParseStruct::operatorAssign}
         };
 
 std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> range){
+    #ifdef PYTHON___DEBUG
+        std::cout << "Parsing line from function with input:\n";
+        for (unsigned int n = range.first; n < range.second; n++){
+            std::cout << parsedLine[n] << " ";
+        }
+        std::cout << "\n";
+    #endif
     std::unique_ptr<ParseStruct> parseStruct;
     for (unsigned int n = range.first; n < range.second; n++){
         if (auto found = tokenMap.find(parsedLine[n]); found != tokenMap.end()) {
