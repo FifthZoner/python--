@@ -54,15 +54,15 @@ std::unordered_map<std::string, uint8_t> tokenMap =
                 {"=", ParseStruct::operatorAssign}
         };
 
-ParseStruct* ParseLine(std::pair<unsigned int, unsigned int> range){
-    ParseStruct* parseStruct;
+std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> range){
+    std::unique_ptr<ParseStruct> parseStruct;
     for (unsigned int n = range.first; n < range.second; n++){
         if (auto found = tokenMap.find(parsedLine[n]); found != tokenMap.end()) {
             switch (tokenMap[parsedLine[n]]){
                 case ParseStruct::operatorAssign:
-                    parseStruct = new ParseAssign(
+                    parseStruct = std::unique_ptr<ParseStruct>(new ParseAssign(
                             std::pair<unsigned int, unsigned int>(range.first, n),
-                            std::pair<unsigned int, unsigned int>(n + 1, range.second));
+                            std::pair<unsigned int, unsigned int>(n + 1, range.second)));
                     break;
 
                 default:
@@ -77,7 +77,7 @@ ParseStruct* ParseLine(std::pair<unsigned int, unsigned int> range){
     return parseStruct;
 }
 
-ParseStruct* SplitInterpreterLine(std::string line){
+std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
 
     // splitting special characters
     for (unsigned int n = 0; n < line.length(); n++) {

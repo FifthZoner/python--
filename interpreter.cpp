@@ -3,10 +3,14 @@
 
 
 #include <iostream>
+
 void RunLine(std::string line) {
-    ParseStruct *parsed = SplitInterpreterLine(line);
+    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(line);
+    std::cout << int(parsed->getPointer()->type()) << "\n";
+    std::cout << int(reinterpret_cast<ParseAssign*>(parsed->getPointer())->target->type()) << "\n";
+
 }
 
 void RunInterpreter(){
-    RunLine("var = 10");
+    RunLine("string var = 10");
 }

@@ -9,6 +9,6 @@
 std::vector <std::vector <std::string>> ParseCommandArguments(const int argc, char** argv);
 
 // returns a vector of strings containing tokens, keywords, values and operators
-ParseStruct* SplitInterpreterLine(std::string line);
+std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line);
 
 #endif //PYTHON___PARSING_HPP

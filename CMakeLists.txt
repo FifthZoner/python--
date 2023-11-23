@@ -15,4 +15,8 @@ add_executable(python__ main.cpp
         checks.cpp
         variables.cpp
         variables.hpp
+        defines.hpp
+        checks.hpp
+        parseVariables.cpp
+        parseOperators.cpp
 )

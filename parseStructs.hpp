@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <memory>
 
 // allows for declarations like this
 
@@ -21,37 +22,57 @@
 struct ParseStruct {
     enum {
         none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert, keywordInt, keywordString,
-        variableString, variableInt, variableUnknown, variableValue,
+        variableString, variableInt, variableVariable, variableValue,
         operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorOpenBracket, operatorCloseBracket
     };
 
     virtual const uint8_t type() const;
+    virtual ParseStruct* getPointer();
 };
 
 struct ParseAssign : ParseStruct {
-    ParseStruct* target;
-    std::vector<ParseStruct*> tokens;
+    std::unique_ptr<ParseStruct> target;
+    std::unique_ptr<ParseStruct> from;
     ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<unsigned int, unsigned int> right);
-    const uint8_t type() const;
+    [[nodiscard]] const uint8_t type() const override;
 };
 
 struct ParseValue : ParseStruct {
-    std::string token;
-    ParseValue(std::pair<unsigned int, unsigned int> range);
-    const uint8_t type() const;
+    std::string value;
+    uint8_t valueType;
+    explicit ParseValue(const std::string& value);
+    [[nodiscard]] const uint8_t type() const override;
 };
 
-struct ParseUnknown : ParseStruct {
+struct ParseString : ParseStruct {
     std::string token;
-    ParseUnknown(std::pair<unsigned int, unsigned int> range);
-    const uint8_t type() const;
+    explicit ParseString(const std::string& token);
+    [[nodiscard]] const uint8_t type() const override;
+};
+
+struct ParseInt : ParseStruct {
+    std::string token;
+    explicit ParseInt(const std::string& token);
+    [[nodiscard]] const uint8_t type() const override;
+};
+
+struct ParseVariable : ParseStruct {
+    std::string token;
+    explicit ParseVariable(const std::string& token);
+    [[nodiscard]] const uint8_t type() const override;
+};
+
+struct ParseImplicit : ParseStruct {
+    std::vector <std::unique_ptr <ParseStruct>> tokens;
+    explicit ParseImplicit(std::pair<unsigned int, unsigned int> range);
+    [[nodiscard]] const uint8_t type() const override;
 };
 
 struct ParseFunction : ParseStruct {
     std::string token;
-    std::vector<ParseStruct*> children;
-    ParseFunction(std::pair<unsigned int, unsigned int> range);
-    const uint8_t type() const;
+    std::vector<std::unique_ptr<ParseStruct>> children;
+    explicit ParseFunction(std::pair<unsigned int, unsigned int> range);
+    [[nodiscard]] const uint8_t type() const override;
 
 };
 
