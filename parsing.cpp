@@ -3,6 +3,7 @@
 
 #include "parsing.hpp"
 #include "defines.hpp"
+#include "checks.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
@@ -44,8 +45,9 @@ std::pair<char, char> doubleOperators[4] =
         std::make_pair<char, char>('<', '=')
                 };
 
-// keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert, variableString, variableInt, variableUnknown, variableValue, operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction
-
+//none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordImplicit, keywordConvert,
+//variableString, variableInt, variableVariable, variableValue,
+//operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorEquation
 std::unordered_map<std::string, uint8_t> tokenMap =
         {
                 {"if", ParseStruct::keywordIf},
@@ -54,8 +56,23 @@ std::unordered_map<std::string, uint8_t> tokenMap =
                 {"return", ParseStruct::keywordReturn},
                 {"implicit", ParseStruct::keywordImplicit},
                 {"convert", ParseStruct::keywordConvert},
+                {"string", ParseStruct::variableString},
+                {"int", ParseStruct::variableInt},
+                {"+", ParseStruct::operatorPlus},
+                {"-", ParseStruct::operatorMinus},
+                {"==", ParseStruct::operatorEqual},
                 {"=", ParseStruct::operatorAssign}
         };
+
+uint8_t CheckTokenType(const std::string& token){
+    if (auto found = tokenMap.find(token); found != tokenMap.end()) {
+        return tokenMap[token];
+    }
+    if (IsGlobalVariable(token)){
+        return ParseStruct::variableVariable;
+    }
+    return ParseStruct::variableValue;
+}
 
 std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> range){
     #ifdef PYTHON___DEBUG

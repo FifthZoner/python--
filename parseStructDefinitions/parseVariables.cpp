@@ -1,10 +1,14 @@
-#include "parseStructs.hpp"
-#include "checks.hpp"
-#include "defines.hpp"
+#include <unordered_map>
+
+#include "../parseStructs.hpp"
+#include "../checks.hpp"
+#include "../defines.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
 #endif
+
+extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 ParseValue::ParseValue(const std::string& value){
     this->value = value;
@@ -17,11 +21,17 @@ ParseValue::ParseValue(const std::string& value){
         valueType = ParseStruct::variableInt;
     }
     else {
-        // error
+        ParserException("Value somehow could not be created!");
     }
 }
 const uint8_t ParseValue::type() const{
     return ParseStruct::variableValue;
+}
+std::string ParseValue::run() const{
+    #ifdef PYTHON___DEBUG
+    std::cout << "\"" << value;
+    #endif
+    return value;
 }
 
 ParseInt::ParseInt(const std::string& token){
@@ -30,12 +40,14 @@ ParseInt::ParseInt(const std::string& token){
 const uint8_t ParseInt::type() const{
     return ParseStruct::variableInt;
 }
-Variable* ParseInt::run(){
+Variable* ParseInt::run() const{
     #ifdef PYTHON___DEBUG
-    std::cout << "New variable: int " << token;
+    std::cout << "New variable \"int " << token;
     #endif
 
     // TODO: create a variable here and return it back
+    globalVariables[token] = std::unique_ptr<Variable>(new VariableInt(0));
+    return globalVariables[token]->getPointer();
 }
 
 ParseString::ParseString(const std::string& token){
@@ -51,16 +63,23 @@ ParseVariable::ParseVariable(const std::string& token){
 const uint8_t ParseVariable::type() const{
     return ParseStruct::variableVariable;
 }
-Variable* ParseVariable::run(){
+Variable* ParseVariable::run() const{
 
     // TODO: add global/local check here
+    if (!IsGlobalVariable(token)){
+        InterpreterException("Variable \"" + token + "\" does not exist!");
+    }
+
 
     #ifdef PYTHON___DEBUG
-    std::cout << "Variable: ";
-    #endif
-
-    #ifdef PYTHON___DEBUG
+    if (globalVariables[token]->type() == Variable::typeInt){
+        std::cout << "\"int ";
+    }
+    else if (globalVariables[token]->type() == Variable::typeString){
+        std::cout << "\"string ";
+    }
     std::cout << token;
     #endif
 
+    return globalVariables[token]->getPointer();
 }

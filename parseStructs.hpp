@@ -24,9 +24,9 @@
 // do not use
 struct ParseStruct {
     enum {
-        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordDef, keywordImplicit, keywordConvert,
+        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordImplicit, keywordConvert,
         variableString, variableInt, variableVariable, variableValue,
-        operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorOpenBracket, operatorCloseBracket
+        operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorEquation
     };
 
     virtual const uint8_t type() const;
@@ -41,12 +41,29 @@ struct ParseAssign : ParseStruct {
     void run();
 };
 
+struct ParsePlus : ParseStruct {
+    std::unique_ptr<ParseStruct> left, right;
+    ParsePlus(const std::string& left, const std::string& right);
+    ParsePlus(ParseStruct* left, const std::string& right);
+    ParsePlus(const std::string& left, ParseStruct* right);
+    [[nodiscard]] const uint8_t type() const override;
+    std::string run(uint8_t type);
+};
+
 struct ParseValue : ParseStruct {
     std::string value;
     uint8_t valueType;
     explicit ParseValue(const std::string& value);
     [[nodiscard]] const uint8_t type() const override;
-    std::string run();
+    std::string run() const;
+};
+
+struct ParseEquation : ParseStruct {
+    std::unique_ptr<ParseStruct> from;
+    explicit ParseEquation(std::pair<unsigned int, unsigned int> range);
+    // use this with implicit only
+    [[nodiscard]] const uint8_t type() const override;
+    std::string run(uint8_t type) const;
 };
 
 struct ParseString : ParseStruct {
@@ -59,14 +76,14 @@ struct ParseInt : ParseStruct {
     std::string token;
     explicit ParseInt(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
-    Variable* run();
+    Variable* run() const;
 };
 
 struct ParseVariable : ParseStruct {
     std::string token;
     explicit ParseVariable(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
-    Variable* run();
+    Variable* run() const;
 };
 
 struct ParseImplicit : ParseStruct {
