@@ -29,7 +29,7 @@ struct ParseStruct {
         operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorEquation
     };
 
-    virtual const uint8_t type() const;
+    [[nodiscard]] virtual const uint8_t type() const;
     ParseStruct* getPointer();
 };
 
@@ -44,8 +44,7 @@ struct ParseAssign : ParseStruct {
 struct ParsePlus : ParseStruct {
     std::unique_ptr<ParseStruct> left, right;
     ParsePlus(const std::string& left, const std::string& right);
-    ParsePlus(ParseStruct* left, const std::string& right);
-    ParsePlus(const std::string& left, ParseStruct* right);
+    ParsePlus(const std::string& left, std::unique_ptr <ParseStruct>& right);
     [[nodiscard]] const uint8_t type() const override;
     std::string run(uint8_t type);
 };
@@ -55,7 +54,7 @@ struct ParseValue : ParseStruct {
     uint8_t valueType;
     explicit ParseValue(const std::string& value);
     [[nodiscard]] const uint8_t type() const override;
-    std::string run() const;
+    [[nodiscard]] std::string run() const;
 };
 
 struct ParseEquation : ParseStruct {
@@ -63,7 +62,7 @@ struct ParseEquation : ParseStruct {
     explicit ParseEquation(std::pair<unsigned int, unsigned int> range);
     // use this with implicit only
     [[nodiscard]] const uint8_t type() const override;
-    std::string run(uint8_t type) const;
+    [[nodiscard]] std::string run(uint8_t type) const;
 };
 
 struct ParseString : ParseStruct {
@@ -76,14 +75,14 @@ struct ParseInt : ParseStruct {
     std::string token;
     explicit ParseInt(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
-    Variable* run() const;
+    [[nodiscard]] Variable* run() const;
 };
 
 struct ParseVariable : ParseStruct {
     std::string token;
     explicit ParseVariable(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
-    Variable* run() const;
+    [[nodiscard]] Variable* run() const;
 };
 
 struct ParseImplicit : ParseStruct {

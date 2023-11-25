@@ -209,21 +209,7 @@ ParsePlus::ParsePlus(const std::string& left, const std::string& right) {
     }
 
 }
-ParsePlus::ParsePlus(ParseStruct* left, const std::string& right){
-    this->left = std::unique_ptr <ParseStruct> (left);
-    switch (CheckTokenType(right)){
-        case ParseStruct::variableVariable:
-            this->right = std::unique_ptr <ParseStruct> (new ParseVariable(right));
-            break;
-        case ParseStruct::variableValue:
-            this->right = std::unique_ptr <ParseStruct> (new ParseValue(right));
-            break;
-        default:
-            ParserException("Wrong values in right size plus parsing!");
-            return;
-    }
-}
-ParsePlus::ParsePlus(const std::string& left, ParseStruct* right){
+ParsePlus::ParsePlus(const std::string& left, std::unique_ptr <ParseStruct>& right){
     switch (CheckTokenType(left)){
         case ParseStruct::variableVariable:
             this->left = std::unique_ptr <ParseStruct> (new ParseVariable(left));
@@ -235,14 +221,18 @@ ParsePlus::ParsePlus(const std::string& left, ParseStruct* right){
             ParserException("Wrong values in left side plus parsing!");
             return;
     }
-    this->right = std::unique_ptr <ParseStruct> (right);
+    //this->right = std::move(right);
+    // but WHY DOES IT NOT WORK
+    this->right = std::unique_ptr <ParseStruct> (new ParseValue(reinterpret_cast<ParsePlus*>(right->getPointer())->run(ParseStruct::variableInt)));
 }
 [[nodiscard]] const uint8_t ParsePlus::type() const {
     return ParseStruct::operatorPlus;
 }
 std::string ParsePlus::run(uint8_t type){
+
     if (type == ParseStruct::variableInt){
-        long long value;
+
+        long long value = 0;
         if (left->type() == ParseStruct::variableVariable){
             value = reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (left->getPointer())->run())->value;
         }
@@ -258,12 +248,12 @@ std::string ParsePlus::run(uint8_t type){
         else if (right->type() == ParseStruct::variableValue){
             return std::to_string(value + std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run()));
         }
-        else if (right->type() == ParseStruct::variableValue){
+        else if (right->type() == ParseStruct::operatorPlus){
             return std::to_string(value + std::stoll(reinterpret_cast <ParsePlus*> (left->getPointer())->run(type)));
         }
     }
     else if (type == ParseStruct::variableString) {
-        std::string value;
+        std::string value = "";
         if (left->type() == ParseStruct::variableVariable){
             value = reinterpret_cast <VariableString*> (reinterpret_cast <ParseVariable*> (left->getPointer())->run())->value;
         }
@@ -279,11 +269,12 @@ std::string ParsePlus::run(uint8_t type){
         else if (right->type() == ParseStruct::variableValue){
             return value + reinterpret_cast <ParseValue*> (right->getPointer())->run();
         }
-        else if (right->type() == ParseStruct::variableValue){
+        else if (right->type() == ParseStruct::operatorPlus){
             return value + reinterpret_cast <ParsePlus*> (left->getPointer())->run(type);
         }
     }
     else {
         InterpreterException("Wrong variable type in plus!");
     }
+    return "";
 }

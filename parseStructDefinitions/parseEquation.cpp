@@ -54,15 +54,16 @@ ParseEquation::ParseEquation(std::pair<unsigned int, unsigned int> range) {
         }
     }
 
-    ParseStruct* temp = nullptr;
+    std::unique_ptr <ParseStruct> temp = nullptr;
     // parsing the structure, for now simple and only with pluses
-    for (int n = analyzers.size() - 2; n >= 0; n -= 2) {
+    for (long n = analyzers.size() - 2; n >= 0; n -= 2) {
         if (analyzers[n].type == ParseStruct::operatorPlus){
             if (temp != nullptr){
-                temp = new ParsePlus(parsedLine[n + range.first - 1], temp);
+                temp = std::move(std::unique_ptr <ParseStruct> (new ParsePlus(parsedLine[n + range.first - 1], temp)));
+
             }
             else {
-                temp = new ParsePlus(parsedLine[n + range.first - 1], parsedLine[n + range.first + 1]);
+                temp = std::move(std::unique_ptr <ParseStruct> (new ParsePlus(parsedLine[n + range.first - 1], parsedLine[n + range.first + 1])));
             }
         }
         else {
@@ -70,8 +71,7 @@ ParseEquation::ParseEquation(std::pair<unsigned int, unsigned int> range) {
             return;
         }
     }
-    from = std::unique_ptr <ParseStruct> (temp);
-
+    from = std::move(temp);
 }
 const uint8_t ParseEquation::type() const{
     return ParseStruct::operatorEquation;

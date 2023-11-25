@@ -42,6 +42,6 @@ void RunInterpreter(){
     RunLine("int var = 10");
     RunLine("int var2 = 20");
     std::cout << reinterpret_cast <VariableInt*>(globalVariables["var"]->getPointer())->value << "\n";
-    RunLine("var = var2 + 5");
+    RunLine("var = var2 + 5 + 6 + var2");
     std::cout << reinterpret_cast <VariableInt*>(globalVariables["var"]->getPointer())->value << "\n";
 }

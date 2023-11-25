@@ -113,8 +113,8 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
                 if (n > 0){
                     if (n > 1){
                         bool isDouble = false;
-                        for (auto& m : doubleOperators) {
-                            if (m.second == line[n] and m.first == line[n - 1]) {
+                        for (auto& k : doubleOperators) {
+                            if (k.second == line[n] and k.first == line[n - 1]) {
                                 isDouble = true;
                             }
                         }
@@ -130,8 +130,8 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
                 }
                 if (n < line.length() - 1) {
                     bool isDouble = false;
-                    for (auto& m : doubleOperators) {
-                        if (m.first == line[n] and m.second == line[n + 1]) {
+                    for (auto& k : doubleOperators) {
+                        if (k.first == line[n] and k.second == line[n + 1]) {
                             isDouble = true;
                         }
                     }
