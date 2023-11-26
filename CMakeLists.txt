@@ -4,17 +4,15 @@ project(python__)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(python__ main.cpp
-        console.hpp
-        console.cpp
         parsing.hpp
         parsing.cpp
-        parseStructs.hpp
-        parseStructs.cpp
+        parseStructDefinitions/parseStructs.hpp
+        parseStructDefinitions/parseStructs.cpp
         interpretation/interpreter.hpp
         interpretation/interpreter.cpp
         checks.cpp
-        variables.cpp
-        variables.hpp
+        content/variables.cpp
+        content/variables.hpp
         defines.hpp
         checks.hpp
         parseStructDefinitions/parseVariables.cpp
@@ -22,6 +20,9 @@ add_executable(python__ main.cpp
         exceptions.cpp
         exceptions.hpp
         parseStructDefinitions/parseMathematicalOperation.cpp
-        interpretation/InterpreterInterface.cpp
-        interpretation/InterpreterInterface.hpp
+        interpretation/interpreterInterface.cpp
+        interpretation/interpreterInterface.hpp
+        content/function.cpp
+        content/function.hpp
+        parseStructDefinitions/parseImplicit.cpp
 )

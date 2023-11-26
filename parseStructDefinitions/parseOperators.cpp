@@ -1,7 +1,7 @@
 #include <unordered_map>
 #include <cmath>
 
-#include "../parseStructs.hpp"
+#include "parseStructs.hpp"
 #include "../checks.hpp"
 #include "../defines.hpp"
 #include "../parsing.hpp"
@@ -27,14 +27,17 @@ ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<u
     std::cout << "\n";
     #endif
 
+    bool isImplicit = false;
+
     // left side parsing
     if (parsedLine[left.first] == "implicit"){
+        isImplicit = true;
+        left.first++;
         #ifdef PYTHON___DEBUG
         std::cout << "Added implicit to left\n";
         #endif
-        target = std::unique_ptr<ParseStruct>(new ParseImplicit(std::pair<unsigned int, unsigned int>(left.first + 1, left.second)));
     }
-    else if (left.second - left.first > 2){
+    if (left.second - left.first > 2){
         ParserException("Left side is wrong!");
         return;
     }
@@ -73,6 +76,10 @@ ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<u
         return;
     }
 
+    if (isImplicit){
+        from = std::unique_ptr <ParseStruct> (new ParseImplicit(right));
+    }
+
     from = std::unique_ptr <ParseStruct> (ParseMathematicalOperation(right));
 }
 const uint8_t ParseAssign::type() const {
@@ -89,6 +96,9 @@ void ParseAssign::run() const{
         case ParseStruct::variableInt:
             var = reinterpret_cast <ParseInt*>(target->getPointer())->run();
             break;
+        case ParseStruct::variableString:
+            var = reinterpret_cast <ParseString*>(target->getPointer())->run();
+            break;
 
         default:
             InterpreterException("Wrong assignment target!");
@@ -104,40 +114,33 @@ void ParseAssign::run() const{
 
             switch (var->type()){
                 case Variable::typeInt:
-
                     reinterpret_cast <VariableInt*>(var->getPointer())->value = std::stoll(reinterpret_cast <ParseValue*>(from->getPointer())->run());
-
                     break;
-
                 case Variable::typeString:
-
                     reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <ParseValue*>(from->getPointer())->run();
-
                     break;
-
             }
-
             break;
-
         case ParseStruct::variableVariable:
-
             switch (var->type()){
                 case Variable::typeInt:
-
                     reinterpret_cast <VariableInt*>(var->getPointer())->value = reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (from->getPointer())->run())->value;
-
                     break;
-
                 case Variable::typeString:
-
                     reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <VariableString*> (reinterpret_cast <ParseVariable*> (from->getPointer())->run())->value;
-
                     break;
-
             }
-
             break;
-
+        case ParseStruct::keywordImplicit:
+            switch (var->type()){
+                case Variable::typeInt:
+                    reinterpret_cast <VariableInt*>(var->getPointer())->value = std::stoll(reinterpret_cast<ParseImplicit*>(from.get())->run(ParseStruct::variableInt));
+                    break;
+                case Variable::typeString:
+                    reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast<ParseImplicit*>(from.get())->run(ParseStruct::variableInt);
+                    break;
+            }
+            break;
         case ParseStruct::operatorPlus:
             switch (var->type()){
                 case Variable::typeInt:
@@ -195,7 +198,13 @@ void ParseAssign::run() const{
     }
 
     #ifdef PYTHON___DEBUG
-    std::cout << "\n";
+    std::cout << " making its value: ";
+    if (var->type() == Variable::typeInt) {
+        std::cout << reinterpret_cast<VariableInt*>(var->getPointer())->value << "\n";
+    }
+    else if (var->type() == Variable::typeString) {
+        std::cout << reinterpret_cast<VariableString*>(var->getPointer())->value << "\n";
+    }
     #endif
 }
 

@@ -1,4 +1,4 @@
-#include "../parseStructs.hpp"
+#include "parseStructs.hpp"
 #include "../parsing.hpp"
 #include "../checks.hpp"
 #include "../defines.hpp"

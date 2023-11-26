@@ -1,6 +1,0 @@
-#ifndef PYTHON___CONSOLE_HPP
-#define PYTHON___CONSOLE_HPP
-
-
-
-#endif //PYTHON___CONSOLE_HPP

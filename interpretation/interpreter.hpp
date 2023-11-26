@@ -1,7 +1,7 @@
 #ifndef PYTHON___INTERPRETER_HPP
 #define PYTHON___INTERPRETER_HPP
 
-#include "InterpreterInterface.hpp"
+#include "interpreterInterface.hpp"
 
 void RunInterpreter(InterpreterInterface* interface);
 

@@ -1,6 +1,6 @@
 #include <unordered_map>
 
-#include "../parseStructs.hpp"
+#include "parseStructs.hpp"
 #include "../checks.hpp"
 #include "../defines.hpp"
 
@@ -15,6 +15,7 @@ ParseValue::ParseValue(const std::string& value){
 
     // checking if it's a string or not
     if (value.length() > 1 and value.starts_with('\"') and value.ends_with('\"')){
+        this->value = value.substr(1, value.size() - 2);
         valueType = ParseStruct::variableString;
     }
     else if (IsConvertibleToInt(value)){
@@ -36,6 +37,12 @@ std::string ParseValue::run() const{
 
 ParseInt::ParseInt(const std::string& token){
     this->token = token;
+    if (IsGlobalVariable(token) or IsLocalVariable(token)){
+        ParserException("Variable redefinition!");
+    }
+    if (!IsConvertibleToInt(token)){
+        ParserException("Argument not convertible to int!");
+    }
 }
 const uint8_t ParseInt::type() const{
     return ParseStruct::variableInt;
@@ -45,16 +52,27 @@ Variable* ParseInt::run() const{
     std::cout << "New variable \"int " << token << "\"";
     #endif
 
-    // TODO: add local vairable declaration if in such a condition, probably a function that creates one
+    // TODO: add local variable declaration if in such a condition, probably a function that creates one
     globalVariables[token] = std::unique_ptr<Variable>(new VariableInt(0));
     return globalVariables[token]->getPointer();
 }
 
 ParseString::ParseString(const std::string& token){
     this->token = token;
+    if (IsGlobalVariable(token) or IsLocalVariable(token)){
+        ParserException("Variable redefinition!");
+    }
 }
 const uint8_t ParseString::type() const{
     return ParseStruct::variableString;
+}
+Variable* ParseString::run() const{
+    #ifdef PYTHON___DEBUG
+    std::cout << "New variable \"string " << token << "\"";
+    #endif
+
+    globalVariables[token] = std::unique_ptr<Variable>(new VariableString(""));
+    return globalVariables[token]->getPointer();
 }
 
 ParseVariable::ParseVariable(const std::string& token){
@@ -82,8 +100,7 @@ Variable* ParseVariable::run() const{
     else if (IsLocalVariable(token)){
 
     }
-    else {
-        InterpreterException("Variable \"" + token + "\" does not exist!");
-        return nullptr;
-    }
+
+    InterpreterException("Variable \"" + token + "\" does not exist!");
+    return nullptr;
 }

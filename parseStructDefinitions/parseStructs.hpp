@@ -8,8 +8,8 @@
 #include <utility>
 #include <memory>
 
-#include "exceptions.hpp"
-#include "variables.hpp"
+#include "../exceptions.hpp"
+#include "../content/variables.hpp"
 
 // do not use the base in AST tree
 struct ParseStruct {
@@ -80,6 +80,7 @@ struct ParseString : ParseStruct {
     std::string token;
     explicit ParseString(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
+    [[nodiscard]] Variable* run() const;
 };
 
 struct ParseInt : ParseStruct {
@@ -100,6 +101,7 @@ struct ParseImplicit : ParseStruct {
     std::vector <std::unique_ptr <ParseStruct>> tokens;
     explicit ParseImplicit(std::pair<unsigned int, unsigned int> range);
     [[nodiscard]] const uint8_t type() const override;
+    [[nodiscard]] std::string run(uint8_t type) const;
 };
 
 struct ParseFunction : ParseStruct {

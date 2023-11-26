@@ -1,7 +1,7 @@
 #include "interpreter.hpp"
 #include "../parsing.hpp"
 #include "../defines.hpp"
-#include "../variables.hpp"
+#include "../content/variables.hpp"
 #include "../exceptions.hpp"
 
 #include <iostream>
@@ -42,9 +42,13 @@ void RunLine(std::string line) {
 void RunInterpreter(InterpreterInterface* interface){
     std::unique_ptr <InterpreterInterface> stream = std::unique_ptr <InterpreterInterface> (interface);
 
-    // TODO: add some ending condition
     while (true) {
-        RunLine(stream->getNextLine());
+        std::string temp = stream->getNextLine();
+        if (temp == "exit"){
+            break;
+        }
+        RunLine(std::move(temp));
     }
 
+    stream->endMessage();
 }

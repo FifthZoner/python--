@@ -5,7 +5,7 @@
 #include <string>
 #include <cstdint>
 
-#include "parseStructs.hpp"
+#include "parseStructDefinitions/parseStructs.hpp"
 
 std::vector <std::vector <std::string>> ParseCommandArguments(int argc, char** argv);
 

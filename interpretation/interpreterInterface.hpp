@@ -7,6 +7,7 @@
 class InterpreterInterface {
 public:
     virtual std::string getNextLine();
+    virtual void endMessage();
 };
 
 // gets lines from user via command line interface
@@ -14,6 +15,7 @@ class InterpreterFromUser : public InterpreterInterface {
 public:
     InterpreterFromUser();
     std::string getNextLine() override;
+    void endMessage();
 };
 
 // gets lines from given files in given order via file stream

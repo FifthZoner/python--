@@ -116,6 +116,13 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
     // splitting special characters
     for (unsigned int n = 0; n < line.length(); n++) {
         for (char m : specialCharacters){
+            if (line[n] == '\"') {
+                n++;
+                while (line[n] != '\"' or (line[n] == '\"' and n > 0 and line[n - 1] == '\\')) {
+                    n++;
+                }
+                n++;
+            }
             if (line[n] == m){
                 if (n > 0){
                     if (n > 1){
@@ -157,6 +164,23 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
     parsedLine.clear();
     unsigned int start = 0;
     for (unsigned int n = 0; n < line.length(); n++){
+        if (line[n] == '\"'){
+            start = n;
+            n++;
+            while (line[n] != '\"' or (line[n] == '\"' and n > 0 and line[n - 1] == '\\')){
+                n++;
+            }
+            std::string temp = line.substr(start, n - start + 1);
+            for (unsigned int m = 1; m < temp.length() - 2; m++){
+                if (temp[m] == '\\' and temp[m + 1] == '\"'){
+                    temp.erase(m, 1);
+                    m--;
+                }
+            }
+            parsedLine.push_back(temp);
+            n++;
+            start = n;
+        }
         if (line[n] == ' '){
             if (n != start) {
                 parsedLine.push_back(line.substr(start, n - start));
@@ -165,7 +189,7 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
         }
     }
 
-    if (!line.empty() and line[line.length() - 1] != ' '){
+    if (!line.empty() and line[line.length() - 1] != ' ' and line[line.length() - 1] != '\"'){
         parsedLine.push_back(line.substr(start, line.length() - start));
     }
 
