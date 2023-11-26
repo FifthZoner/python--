@@ -155,7 +155,7 @@ void ParseAssign::run() const{
                     break;
                 case Variable::typeString:
                     InterpreterException("Cannot subtract strings!");
-                    break;
+                    return;
             }
             break;
         case ParseStruct::operatorMultiply:
@@ -165,7 +165,7 @@ void ParseAssign::run() const{
                     break;
                 case Variable::typeString:
                     InterpreterException("Cannot multiply strings!");
-                    break;
+                    return;
             }
             break;
         case ParseStruct::operatorDivide:
@@ -175,7 +175,7 @@ void ParseAssign::run() const{
                     break;
                 case Variable::typeString:
                     InterpreterException("Cannot divide strings!");
-                    break;
+                    return;
             }
             break;
         case ParseStruct::operatorPower:
@@ -185,19 +185,18 @@ void ParseAssign::run() const{
                     break;
                 case Variable::typeString:
                     InterpreterException("Cannot power-ize strings!");
-                    break;
+                    return;
             }
             break;
 
         default:
             InterpreterException("Wrong assignment origin!");
-            break;
+           return;
     }
 
     #ifdef PYTHON___DEBUG
-    std::cout  << "\"\n";
+    std::cout << "\n";
     #endif
-
 }
 
 ParsePlus::ParsePlus(const std::pair <unsigned int, unsigned int> left, const std::pair <unsigned int, unsigned int> right) {
@@ -333,6 +332,10 @@ ParseMinus::ParseMinus(const std::pair <unsigned int, unsigned int> left, const 
 }
 std::string ParseMinus::run(uint8_t type) const{
 
+    #ifdef PYTHON___DEBUG
+    std::cout << "(";
+    #endif
+
     if (type == ParseStruct::variableInt){
 
         long long value = 0;
@@ -361,31 +364,41 @@ std::string ParseMinus::run(uint8_t type) const{
             InterpreterException("Wrong operator left side integer in operation!");
             return "";
         }
+
+        #ifdef PYTHON___DEBUG
+        std::cout << " - ";
+        #endif
+
         if (right->type() == ParseStruct::variableVariable){
-            return std::to_string(value - reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value);
+            value -= reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value;
         }
         else if (right->type() == ParseStruct::variableValue){
-            return std::to_string(value - std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run()));
+            value -= std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run());
         }
         else if (right->type() == ParseStruct::operatorPlus){
-            return std::to_string(value - std::stoll(reinterpret_cast <ParsePlus*> (left->getPointer())->run(type)));
+            value -= std::stoll(reinterpret_cast <ParsePlus*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorMinus){
-            return std::to_string(value - std::stoll(reinterpret_cast <ParseMinus*> (left->getPointer())->run(type)));
+            value -= std::stoll(reinterpret_cast <ParseMinus*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorMultiply){
-            return std::to_string(value - std::stoll(reinterpret_cast <ParseMultiply*> (left->getPointer())->run(type)));
+            value -= std::stoll(reinterpret_cast <ParseMultiply*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorDivide){
-            return std::to_string(value - std::stoll(reinterpret_cast <ParseDivide*> (left->getPointer())->run(type)));
+            value -= std::stoll(reinterpret_cast <ParseDivide*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorPower){
-            return std::to_string(value - std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run(type)));
+            value -= std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run(type));
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
             return "";
         }
+
+        #ifdef PYTHON___DEBUG
+        std::cout << ")";
+        #endif
+        return std::to_string(value);
     }
     else {
         InterpreterException("Wrong variable type in minus!");
@@ -402,6 +415,10 @@ ParseMultiply::ParseMultiply(const std::pair <unsigned int, unsigned int> left, 
 }
 std::string ParseMultiply::run(uint8_t type) const{
 
+    #ifdef PYTHON___DEBUG
+    std::cout << "(";
+    #endif
+
     if (type == ParseStruct::variableInt){
 
         long long value = 0;
@@ -430,31 +447,41 @@ std::string ParseMultiply::run(uint8_t type) const{
             InterpreterException("Wrong operator left side integer in operation!");
             return "";
         }
+
+        #ifdef PYTHON___DEBUG
+        std::cout << " * ";
+        #endif
+
         if (right->type() == ParseStruct::variableVariable){
-            return std::to_string(value * reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value);
+            value *= reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value;
         }
         else if (right->type() == ParseStruct::variableValue){
-            return std::to_string(value * std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run()));
+            value *= std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run());
         }
         else if (right->type() == ParseStruct::operatorPlus){
-            return std::to_string(value * std::stoll(reinterpret_cast <ParsePlus*> (left->getPointer())->run(type)));
+            value *= std::stoll(reinterpret_cast <ParsePlus*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorMinus){
-            return std::to_string(value * std::stoll(reinterpret_cast <ParseMinus*> (left->getPointer())->run(type)));
+            value *= std::stoll(reinterpret_cast <ParseMinus*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorMultiply){
-            return std::to_string(value * std::stoll(reinterpret_cast <ParseMultiply*> (left->getPointer())->run(type)));
+            value *= std::stoll(reinterpret_cast <ParseMultiply*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorDivide){
-            return std::to_string(value * std::stoll(reinterpret_cast <ParseDivide*> (left->getPointer())->run(type)));
+            value *= std::stoll(reinterpret_cast <ParseDivide*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorPower){
-            return std::to_string(value * std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run(type)));
+            value *= std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run(type));
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
             return "";
         }
+
+        #ifdef PYTHON___DEBUG
+        std::cout << ")";
+        #endif
+        return std::to_string(value);
     }
     else {
         InterpreterException("Wrong variable type in multiply!");
@@ -471,6 +498,10 @@ ParseDivide::ParseDivide(const std::pair <unsigned int, unsigned int> left, cons
 }
 std::string ParseDivide::run(uint8_t type) const{
 
+    #ifdef PYTHON___DEBUG
+    std::cout << "(";
+    #endif
+
     if (type == ParseStruct::variableInt){
 
         long long value = 0;
@@ -499,31 +530,41 @@ std::string ParseDivide::run(uint8_t type) const{
             InterpreterException("Wrong operator left side integer in operation!");
             return "";
         }
+
+        #ifdef PYTHON___DEBUG
+        std::cout << " / ";
+        #endif
+
         if (right->type() == ParseStruct::variableVariable){
-            return std::to_string(value / reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value);
+            value /= reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value;
         }
         else if (right->type() == ParseStruct::variableValue){
-            return std::to_string(value / std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run()));
+            value /= std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run());
         }
         else if (right->type() == ParseStruct::operatorPlus){
-            return std::to_string(value / std::stoll(reinterpret_cast <ParsePlus*> (left->getPointer())->run(type)));
+            value /= std::stoll(reinterpret_cast <ParsePlus*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorMinus){
-            return std::to_string(value / std::stoll(reinterpret_cast <ParseMinus*> (left->getPointer())->run(type)));
+            value /= std::stoll(reinterpret_cast <ParseMinus*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorMultiply){
-            return std::to_string(value / std::stoll(reinterpret_cast <ParseMultiply*> (left->getPointer())->run(type)));
+            value /= std::stoll(reinterpret_cast <ParseMultiply*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorDivide){
-            return std::to_string(value / std::stoll(reinterpret_cast <ParseDivide*> (left->getPointer())->run(type)));
+            value /= std::stoll(reinterpret_cast <ParseDivide*> (right->getPointer())->run(type));
         }
         else if (right->type() == ParseStruct::operatorPower){
-            return std::to_string(value / std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run(type)));
+             value /= std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run(type));
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
             return "";
         }
+
+        #ifdef PYTHON___DEBUG
+        std::cout << ")";
+        #endif
+        return std::to_string(value);
     }
     else {
         InterpreterException("Wrong variable type in divide!");
@@ -540,6 +581,10 @@ ParsePower::ParsePower(const std::pair <unsigned int, unsigned int> left, const 
 }
 std::string ParsePower::run(uint8_t type) const{
 
+    #ifdef PYTHON___DEBUG
+    std::cout << "(";
+    #endif
+
     if (type == ParseStruct::variableInt){
 
         long long value = 0;
@@ -568,31 +613,41 @@ std::string ParsePower::run(uint8_t type) const{
             InterpreterException("Wrong operator left side integer in operation!");
             return "";
         }
+
+        #ifdef PYTHON___DEBUG
+        std::cout << " ^ ";
+        #endif
+
         if (right->type() == ParseStruct::variableVariable){
-            return std::to_string((long long)(powf128(value, reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value)));
+            value = (long long)(powf128(value, reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value));
         }
         else if (right->type() == ParseStruct::variableValue){
-            return std::to_string((long long)(powf128(value, std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run()))));
+            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run())));
         }
         else if (right->type() == ParseStruct::operatorPlus){
-            return std::to_string((long long)(powf128(value, std::stoll(reinterpret_cast <ParsePlus*> (left->getPointer())->run(type)))));
+            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParsePlus*> (right->getPointer())->run(type))));
         }
         else if (right->type() == ParseStruct::operatorMinus){
-            return std::to_string((long long)(powf128(value, std::stoll(reinterpret_cast <ParseMinus*> (left->getPointer())->run(type)))));
+            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParseMinus*> (right->getPointer())->run(type))));
         }
         else if (right->type() == ParseStruct::operatorMultiply){
-            return std::to_string((long long)(powf128(value, std::stoll(reinterpret_cast <ParseMultiply*> (left->getPointer())->run(type)))));
+            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParseMultiply*> (right->getPointer())->run(type))));
         }
         else if (right->type() == ParseStruct::operatorDivide){
-            return std::to_string((long long)(powf128(value, std::stoll(reinterpret_cast <ParseDivide*> (left->getPointer())->run(type)))));
+            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParseDivide*> (right->getPointer())->run(type))));
         }
         else if (right->type() == ParseStruct::operatorPower){
-            return std::to_string((long long)(powf128(value, std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run(type)))));
+            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run(type))));
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
             return "";
         }
+
+        #ifdef PYTHON___DEBUG
+        std::cout << ")";
+        #endif
+        return std::to_string(value);
     }
     else {
         InterpreterException("Wrong variable type in power!");

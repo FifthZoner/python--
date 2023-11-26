@@ -10,8 +10,8 @@ add_executable(python__ main.cpp
         parsing.cpp
         parseStructs.hpp
         parseStructs.cpp
-        interpreter.hpp
-        interpreter.cpp
+        interpretation/interpreter.hpp
+        interpretation/interpreter.cpp
         checks.cpp
         variables.cpp
         variables.hpp
@@ -22,4 +22,6 @@ add_executable(python__ main.cpp
         exceptions.cpp
         exceptions.hpp
         parseStructDefinitions/parseMathematicalOperation.cpp
+        interpretation/InterpreterInterface.cpp
+        interpretation/InterpreterInterface.hpp
 )

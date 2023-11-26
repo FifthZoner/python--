@@ -11,11 +11,13 @@ extern std::vector <std::string> parsedLine;
 
 ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> range){
 
+    #ifdef PYTHON___DEBUG
     std::cout << "Math: ";
     for (unsigned int n = range.first; n < range.second; n++) {
         std::cout << parsedLine[n] << " ";
     }
     std::cout << "\n";
+    #endif
 
     // variable / value handling
     if (range.second - range.first == 1){
@@ -63,7 +65,13 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     // -> ((1 + 5 - 6) + (5 * 5 / 6)) + (3)
     // -> (((1) + (5 - 6)) + (5 * 5 / 6)) + (3)
     for (unsigned int n = current.second - 1; n >= current.first; n--){
-        if (parsedLine[n] == "+"){
+        if (parsedLine[n] == "("){
+            bracketLevel++;
+        }
+        else if (parsedLine[n] == ")") {
+            bracketLevel--;
+        }
+        else if (parsedLine[n] == "+" and bracketLevel == 0){
             return new ParsePlus(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
         }
     }
@@ -71,7 +79,13 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     // (((1) + (5 - 6)) + (5 * 5 / 6)) + (3)
     // -> (((1) + ((5) - (6))) + (5 * 5 / 6)) + (3)
     for (unsigned int n = current.second - 1; n >= current.first; n--){
-        if (parsedLine[n] == "-"){
+        if (parsedLine[n] == "("){
+            bracketLevel++;
+        }
+        else if (parsedLine[n] == ")") {
+            bracketLevel--;
+        }
+        else if (parsedLine[n] == "-" and bracketLevel == 0){
             return new ParseMinus(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
         }
     }
@@ -79,7 +93,13 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     // (((1) + ((5) - (6))) + (5 * 5 / 6)) + (3)
     // -> (((1) + ((5) - (6))) + ((5) * (5 / 6))) + (3)
     for (unsigned int n = current.second - 1; n >= current.first; n--){
-        if (parsedLine[n] == "*"){
+        if (parsedLine[n] == "("){
+            bracketLevel++;
+        }
+        else if (parsedLine[n] == ")") {
+            bracketLevel--;
+        }
+        else if (parsedLine[n] == "*" and bracketLevel == 0){
             return new ParseMultiply(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
         }
     }
@@ -87,13 +107,25 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     // (((1) + ((5) - (6))) + ((5) * (5 / 6))) + (3)
     // -> (((1) + ((5) - (6))) + ((5) * ((5) / (6)))) + (3)
     for (unsigned int n = current.second - 1; n >= current.first; n--){
-        if (parsedLine[n] == "/"){
+        if (parsedLine[n] == "("){
+            bracketLevel++;
+        }
+        else if (parsedLine[n] == ")") {
+            bracketLevel--;
+        }
+        else if (parsedLine[n] == "/" and bracketLevel == 0){
             return new ParseDivide(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
         }
     }
 
     for (unsigned int n = current.second - 1; n >= current.first; n--){
-        if (parsedLine[n] == "^"){
+        if (parsedLine[n] == "("){
+            bracketLevel++;
+        }
+        else if (parsedLine[n] == ")") {
+            bracketLevel--;
+        }
+        else if (parsedLine[n] == "^" and bracketLevel == 0){
             return new ParsePower(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
         }
     }
@@ -101,6 +133,6 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     // brackets are handled last, so they will be executed via the first and last check at the beginning
 
     // this should never get here
-    ParserException("Parsing of mathematical operation failed!");
+    ParserException("Parsing of mathematical operation failed, something is seriously wrong!");
     return new ParseStruct();
 }

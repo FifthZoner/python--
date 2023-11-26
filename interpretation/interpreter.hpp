@@ -1,7 +1,8 @@
 #ifndef PYTHON___INTERPRETER_HPP
 #define PYTHON___INTERPRETER_HPP
 
-// TODO: add file or stream input method
-void RunInterpreter();
+#include "InterpreterInterface.hpp"
+
+void RunInterpreter(InterpreterInterface* interface);
 
 #endif //PYTHON___INTERPRETER_HPP

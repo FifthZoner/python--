@@ -1,18 +1,19 @@
 #include "interpreter.hpp"
-#include "parsing.hpp"
-#include "defines.hpp"
-#include "variables.hpp"
-#include "exceptions.hpp"
+#include "../parsing.hpp"
+#include "../defines.hpp"
+#include "../variables.hpp"
+#include "../exceptions.hpp"
 
 #include <iostream>
 #include <unordered_map>
+#include <utility>
 
 std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 bool exceptionHappened = false;
 
 void RunLine(std::string line) {
-    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(line);
+    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(line));
     if (exceptionHappened){
         exceptionHappened = false;
         std::cout << "Parsing of current line has been cancelled!\n";
@@ -38,10 +39,12 @@ void RunLine(std::string line) {
     }
 }
 
-void RunInterpreter(){
-    RunLine("int var = 10");
-    RunLine("int var2 = 20");
-    std::cout << reinterpret_cast <VariableInt*>(globalVariables["var"]->getPointer())->value << "\n";
-    RunLine("var = var2 + 5 + 6");
-    std::cout << reinterpret_cast <VariableInt*>(globalVariables["var"]->getPointer())->value << "\n";
+void RunInterpreter(InterpreterInterface* interface){
+    std::unique_ptr <InterpreterInterface> stream = std::unique_ptr <InterpreterInterface> (interface);
+
+    // TODO: add some ending condition
+    while (true) {
+        RunLine(stream->getNextLine());
+    }
+
 }

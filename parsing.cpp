@@ -85,7 +85,7 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
         }
         std::cout << "\n";
     #endif
-    std::unique_ptr<ParseStruct> parseStruct;
+    std::unique_ptr<ParseStruct> parseStruct = nullptr;
     for (unsigned int n = range.first; n < range.second; n++){
         if (auto found = tokenMap.find(parsedLine[n]); found != tokenMap.end()) {
             switch (tokenMap[parsedLine[n]]){
@@ -104,6 +104,10 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
             // function / variable name or a value
         }
     }
+    if (parseStruct == nullptr){
+        ParserException("Could not parse anything that makes sense!");
+    }
+
     return parseStruct;
 }
 
