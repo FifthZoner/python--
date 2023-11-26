@@ -10,27 +10,28 @@ struct FunctionVariable {
     uint8_t type;
     bool isImplicit;
     std::string name;
-    FunctionVariable(const uint8_t type, const std::string& name);
+    FunctionVariable(uint8_t type, const std::string& name, bool isImplicit);
 };
 
 struct Function {
     std::vector <FunctionVariable> variables;
-    std::string name;
+    uint8_t returnTypeValue;
     enum {
         none, binding, defined
     };
 
-    virtual const uint8_t type();
-    virtual const uint8_t returnType();
+    [[nodiscard]] virtual uint8_t type() const;
+    [[nodiscard]] virtual uint8_t returnType() const;
     virtual std::string run();
 };
 
 struct FunctionBinding : Function {
-    void (*functionWrapper)(std::vector <Variable*> arguments);
+    void (*functionWrapper)(std::vector <Variable*>& arguments);
 
-    const uint8_t type();
-    const uint8_t returnType();
-    std::string run();
+    FunctionBinding(void (*functionWrapper)(std::vector <Variable*>&), uint8_t returnType, std::vector <FunctionVariable> variables);
+    [[nodiscard]] uint8_t type() const override;
+    [[nodiscard]] uint8_t returnType() const override;
+    std::string run(std::vector <Variable*>& arguments);
 };
 
 

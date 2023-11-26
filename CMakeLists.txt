@@ -25,4 +25,7 @@ add_executable(python__ main.cpp
         content/function.cpp
         content/function.hpp
         parseStructDefinitions/parseImplicit.cpp
+        content/pmmstdlib/printing.cpp
+        content/pmmstdlib/pmmstdlib.hpp
+        content/pmmstdlib/pmmstdlib.cpp
 )

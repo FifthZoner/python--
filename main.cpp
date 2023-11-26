@@ -1,8 +1,11 @@
 // This program is a python-ish language interpreter
 #include "parsing.hpp"
 #include "interpretation/interpreter.hpp"
+#include "content/pmmstdlib/pmmstdlib.hpp"
 
 int main(int argc, char** argv) {
+
+    PrepareStandardLibrary();
 
     auto arguments = ParseCommandArguments(argc, argv);
 
