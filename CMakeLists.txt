@@ -21,5 +21,5 @@ add_executable(python__ main.cpp
         parseStructDefinitions/parseOperators.cpp
         exceptions.cpp
         exceptions.hpp
-        parseStructDefinitions/parseEquation.cpp
+        parseStructDefinitions/parseMathematicalOperation.cpp
 )

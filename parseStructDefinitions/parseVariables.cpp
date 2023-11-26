@@ -29,7 +29,7 @@ const uint8_t ParseValue::type() const{
 }
 std::string ParseValue::run() const{
     #ifdef PYTHON___DEBUG
-    std::cout << "\"" << value;
+    std::cout << value;
     #endif
     return value;
 }
@@ -42,10 +42,10 @@ const uint8_t ParseInt::type() const{
 }
 Variable* ParseInt::run() const{
     #ifdef PYTHON___DEBUG
-    std::cout << "New variable \"int " << token;
+    std::cout << "New variable \"int " << token << "\"";
     #endif
 
-    // TODO: create a variable here and return it back
+    // TODO: add local vairable declaration if in such a condition, probably a function that creates one
     globalVariables[token] = std::unique_ptr<Variable>(new VariableInt(0));
     return globalVariables[token]->getPointer();
 }
@@ -66,20 +66,24 @@ const uint8_t ParseVariable::type() const{
 Variable* ParseVariable::run() const{
 
     // TODO: add global/local check here
-    if (!IsGlobalVariable(token)){
+    if (IsGlobalVariable(token)){
+        #ifdef PYTHON___DEBUG
+        if (globalVariables[token]->type() == Variable::typeInt){
+            std::cout << "\"int ";
+        }
+        else if (globalVariables[token]->type() == Variable::typeString){
+            std::cout << "\"string ";
+        }
+        std::cout << token << "\"";
+        #endif
+
+        return globalVariables[token]->getPointer();
+    }
+    else if (IsLocalVariable(token)){
+
+    }
+    else {
         InterpreterException("Variable \"" + token + "\" does not exist!");
+        return nullptr;
     }
-
-
-    #ifdef PYTHON___DEBUG
-    if (globalVariables[token]->type() == Variable::typeInt){
-        std::cout << "\"int ";
-    }
-    else if (globalVariables[token]->type() == Variable::typeString){
-        std::cout << "\"string ";
-    }
-    std::cout << token;
-    #endif
-
-    return globalVariables[token]->getPointer();
 }
