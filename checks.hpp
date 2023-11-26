@@ -1,7 +1,10 @@
 #ifndef PYTHON___CHECKS_HPP
 #define PYTHON___CHECKS_HPP
 
+#include <cstdint>
 #include <string>
+
+#include "parseStructDefinitions/parseStructs.hpp"
 
 bool IsConvertibleToInt(const std::string& token);
 

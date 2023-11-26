@@ -11,7 +11,6 @@
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 bool IsConvertibleToInt(const std::string& token) {
-    std::cout << "Token: " << token << "\n";
     for (auto current : token) {
         if ((current > '9' or current < '0') and current != '-'){
             return false;
@@ -48,12 +47,6 @@ bool IsVariable(const std::string& token){
 }
 
 bool IsFunction(const std::string& token) {
-    #ifdef PYTHON___DEBUG
-    std::cout << "Checking if: \"" << token << "\" is a function:\n";
-    #endif
 
-    #ifdef PYTHON___DEBUG
-    std::cout << "It is not!\n";
-    #endif
     return false;
 }

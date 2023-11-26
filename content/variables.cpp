@@ -39,12 +39,13 @@ std::string VariableString::convert(const uint8_t type) const {
 VariableInt::VariableInt(const long long value) {
     this->value = value;
 }
-    const uint8_t VariableInt::type() const {
+const uint8_t VariableInt::type() const {
     return Variable::typeInt;
 }
 std::string VariableInt::convert(const uint8_t type) const {
     switch (type){
         case Variable::typeInt:
+            return std::to_string(value);
         case Variable::typeString:
             return std::to_string(value);
         default:

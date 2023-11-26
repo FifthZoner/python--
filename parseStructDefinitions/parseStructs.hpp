@@ -35,37 +35,42 @@ struct ParseAssign : ParseStruct {
 
 struct ParsePlus : ParseStruct {
     std::unique_ptr<ParseStruct> left, right;
-    ParsePlus(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right);
+    uint8_t operationType;
+    ParsePlus(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right, uint8_t type);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] std::string run(uint8_t type) const;
+    [[nodiscard]] std::string run() const;
 };
 
 struct ParseMinus : ParseStruct {
     std::unique_ptr<ParseStruct> left, right;
-    ParseMinus(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right);
+    uint8_t operationType;
+    ParseMinus(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right, uint8_t type);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] std::string run(uint8_t type) const;
+    [[nodiscard]] std::string run() const;
 };
 
 struct ParseMultiply : ParseStruct {
     std::unique_ptr<ParseStruct> left, right;
-    ParseMultiply(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right);
+    uint8_t operationType;
+    ParseMultiply(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right, uint8_t type);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] std::string run(uint8_t type) const;
+    [[nodiscard]] std::string run() const;
 };
 
 struct ParseDivide : ParseStruct {
     std::unique_ptr<ParseStruct> left, right;
-    ParseDivide(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right);
+    uint8_t operationType;
+    ParseDivide(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right, uint8_t type);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] std::string run(uint8_t type) const;
+    [[nodiscard]] std::string run() const;
 };
 
 struct ParsePower : ParseStruct {
     std::unique_ptr<ParseStruct> left, right;
-    ParsePower(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right);
+    uint8_t operationType;
+    ParsePower(std::pair <unsigned int, unsigned int> left, std::pair <unsigned int, unsigned int> right, uint8_t type);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] std::string run(uint8_t type) const;
+    [[nodiscard]] std::string run() const;
 };
 
 struct ParseValue : ParseStruct {

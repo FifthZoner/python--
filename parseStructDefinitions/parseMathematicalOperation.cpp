@@ -55,6 +55,23 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
         return new ParseStruct();
     }
 
+    // checking operation types, if all aren't string or all aren't int, exception
+    uint8_t type;
+    if (IsConvertibleToString(parsedLine[range.first])){
+        type = ParseStruct::variableString;
+    }
+    else if (IsConvertibleToInt(parsedLine[range.first])){
+        type = ParseStruct::variableInt;
+    }
+    else {
+        ParserException("Cannot get variable type!");
+        return nullptr;
+    }
+
+    for (unsigned int n = range.first + 2; n < range.second; n += 2){
+
+    }
+
     // checking for operators from the last in order to first that is:
     // + -> - -> * -> / -> ^ -> (), - must be second to allow for this specific implementation
 
@@ -72,7 +89,7 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
             bracketLevel--;
         }
         else if (parsedLine[n] == "+" and bracketLevel == 0){
-            return new ParsePlus(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
+            return new ParsePlus(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second), type);
         }
     }
 
@@ -86,7 +103,7 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
             bracketLevel--;
         }
         else if (parsedLine[n] == "-" and bracketLevel == 0){
-            return new ParseMinus(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
+            return new ParseMinus(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second), type);
         }
     }
 
@@ -100,7 +117,7 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
             bracketLevel--;
         }
         else if (parsedLine[n] == "*" and bracketLevel == 0){
-            return new ParseMultiply(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
+            return new ParseMultiply(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second), type);
         }
     }
 
@@ -114,7 +131,7 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
             bracketLevel--;
         }
         else if (parsedLine[n] == "/" and bracketLevel == 0){
-            return new ParseDivide(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
+            return new ParseDivide(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second), type);
         }
     }
 
@@ -126,7 +143,7 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
             bracketLevel--;
         }
         else if (parsedLine[n] == "^" and bracketLevel == 0){
-            return new ParsePower(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second));
+            return new ParsePower(std::pair <unsigned int, unsigned int> (current.first, n), std::pair <unsigned int, unsigned int> (n + 1, current.second), type);
         }
     }
 
