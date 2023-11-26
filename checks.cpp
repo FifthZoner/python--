@@ -11,6 +11,7 @@
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 bool IsConvertibleToInt(const std::string& token) {
+    std::cout << "Token: " << token << "\n";
     for (auto current : token) {
         if ((current > '9' or current < '0') and current != '-'){
             return false;

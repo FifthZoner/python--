@@ -37,17 +37,18 @@ std::vector <std::vector <std::string>> ParseCommandArguments(const int argc, ch
 }
 std::vector <std::string> parsedLine;
 std::string specialCharacters = ",.(){}[]=+-*/%^!<>:";
-std::pair<char, char> doubleOperators[4] =
+std::pair<char, char> doubleOperators[6] =
         {
         std::make_pair<char, char>('=', '='),
+        std::make_pair<char, char>('-', '='),
+        std::make_pair<char, char>('+', '='),
         std::make_pair<char, char>('!', '='),
         std::make_pair<char, char>('>', '='),
-        std::make_pair<char, char>('<', '=')
-                };
+        std::make_pair<char, char>('<', '=')};
 
-//none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordImplicit, keywordConvert,
-//variableString, variableInt, variableVariable, variableValue,
-//operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorEquation
+// I don't have the motivation to figure out why I can't just throw in std::array instead of vector
+std::vector <std::string> doublesToMove = {"+=", "-=" , "*=", "/=", "^="};
+
 std::unordered_map<std::string, uint8_t> tokenMap =
         {
                 {"if", ParseStruct::keywordIf},
@@ -115,14 +116,14 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
 
     // splitting special characters
     for (unsigned int n = 0; n < line.length(); n++) {
-        for (char m : specialCharacters){
-            if (line[n] == '\"') {
-                n++;
-                while (line[n] != '\"' or (line[n] == '\"' and n > 0 and line[n - 1] == '\\')) {
-                    n++;
-                }
+        if (line[n] == '\"') {
+            n++;
+            while (line[n] != '\"' or (line[n] == '\"' and n > 0 and line[n - 1] == '\\')) {
                 n++;
             }
+            n++;
+        }
+        for (char m : specialCharacters){
             if (line[n] == m){
                 if (n > 0){
                     if (n > 1){
@@ -160,6 +161,22 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
         }
     }
 
+    // checking for negative numbers
+    for (unsigned int n = 0; n < line.length(); n++){
+        if (line[n] == '\"') {
+            n++;
+            while (line[n] != '\"' or (line[n] == '\"' and n > 0 and line[n - 1] == '\\')) {
+                n++;
+            }
+            n++;
+        }
+        for (auto m : specialCharacters){
+            if (line[n] == m and line.length() > n + 4 and line[n + 2] == '-'){
+                line.erase(n + 3, 1);
+            }
+        }
+    }
+
     // splitting into vector of strings
     parsedLine.clear();
     unsigned int start = 0;
@@ -192,6 +209,21 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
     if (!line.empty() and line[line.length() - 1] != ' ' and line[line.length() - 1] != '\"'){
         parsedLine.push_back(line.substr(start, line.length() - start));
     }
+
+    // adding changes from double operators to avoid additional ParseStructs
+    for (unsigned int n = 0; n < parsedLine.size(); n++){
+        for (auto& m : doublesToMove){
+            if (parsedLine[n] == m){
+                parsedLine.insert(parsedLine.begin() + n + 1, "(");
+                parsedLine.insert(parsedLine.end(), 1, ")");
+                parsedLine.insert(parsedLine.begin() + n + 1, std::string(1, m[0]));
+                parsedLine.insert(parsedLine.begin() + n + 1, parsedLine[n - 1]);
+                parsedLine[n] = std::string(1, m[1]);
+                break;
+            }
+        }
+    }
+
 
     return ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()));
 }

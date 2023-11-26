@@ -40,9 +40,6 @@ ParseInt::ParseInt(const std::string& token){
     if (IsGlobalVariable(token) or IsLocalVariable(token)){
         ParserException("Variable redefinition!");
     }
-    if (!IsConvertibleToInt(token)){
-        ParserException("Argument not convertible to int!");
-    }
 }
 const uint8_t ParseInt::type() const{
     return ParseStruct::variableInt;
@@ -83,8 +80,11 @@ const uint8_t ParseVariable::type() const{
 }
 Variable* ParseVariable::run() const{
 
-    // TODO: add global/local check here
-    if (IsGlobalVariable(token)){
+    // TODO: add local here
+    if (IsLocalVariable(token)){
+
+    }
+    else if (IsGlobalVariable(token)){
         #ifdef PYTHON___DEBUG
         if (globalVariables[token]->type() == Variable::typeInt){
             std::cout << "\"int ";
@@ -96,9 +96,6 @@ Variable* ParseVariable::run() const{
         #endif
 
         return globalVariables[token]->getPointer();
-    }
-    else if (IsLocalVariable(token)){
-
     }
 
     InterpreterException("Variable \"" + token + "\" does not exist!");
