@@ -33,6 +33,9 @@ uint8_t FunctionBinding::returnType() const{
     return returnTypeValue;
 }
 std::string FunctionBinding::run(std::vector <Variable*>& arguments){
+
+    // correctness of arguments is to be checked at the ParseFunction level to allow for easy implicit handling
+
     functionWrapper(arguments);
     if (returnTypeValue != Variable::none){
         if (returnTypeValue == Variable::typeInt or returnTypeValue == Variable::typeString){

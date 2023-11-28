@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <utility>
 
-std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
+extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 bool exceptionHappened = false;
 

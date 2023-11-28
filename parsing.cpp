@@ -37,11 +37,14 @@ std::vector <std::vector <std::string>> ParseCommandArguments(const int argc, ch
 }
 std::vector <std::string> parsedLine;
 std::string specialCharacters = ",.(){}[]=+-*/%^!<>:";
-std::pair<char, char> doubleOperators[6] =
+std::pair<char, char> doubleOperators[9] =
         {
         std::make_pair<char, char>('=', '='),
         std::make_pair<char, char>('-', '='),
         std::make_pair<char, char>('+', '='),
+        std::make_pair<char, char>('*', '='),
+        std::make_pair<char, char>('^', '='),
+        std::make_pair<char, char>('/', '='),
         std::make_pair<char, char>('!', '='),
         std::make_pair<char, char>('>', '='),
         std::make_pair<char, char>('<', '=')};
@@ -56,7 +59,6 @@ std::unordered_map<std::string, uint8_t> tokenMap =
                 {"while", ParseStruct::keywordWhile},
                 {"return", ParseStruct::keywordReturn},
                 {"implicit", ParseStruct::keywordImplicit},
-                {"convert", ParseStruct::keywordConvert},
                 {"string", ParseStruct::variableString},
                 {"int", ParseStruct::variableInt},
                 {"+", ParseStruct::operatorPlus},
@@ -219,6 +221,10 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
                 parsedLine.insert(parsedLine.begin() + n + 1, std::string(1, m[0]));
                 parsedLine.insert(parsedLine.begin() + n + 1, parsedLine[n - 1]);
                 parsedLine[n] = std::string(1, m[1]);
+                for (auto& h : parsedLine){
+                    std::cout << h << " ";
+                }
+                std::cout << "\n";
                 break;
             }
         }

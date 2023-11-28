@@ -63,13 +63,11 @@ implicit int foo(string a)
     
 implicit int b = 5 + " + " + 7 + " = " + (5 + 7) <- exception here
 ```
-There is a "convert" keyword:
+The "implicit" keyword henerally allows for type conversions:
 ```
-int var = 10
-var = "something" <- this does not work
-var = 5 <- this works
-convert var string
-var = "something" <- this works
-var = 5 <- this does not work
+int var = 5
+string str = "This equals "
+implicit str += var;
 ```
+
 <h3>The rest of this and the language in under construction, even the functions here don't work yet, hold on!</h3>

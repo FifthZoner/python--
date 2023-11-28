@@ -10,11 +10,12 @@
 
 #include "../exceptions.hpp"
 #include "../content/variables.hpp"
+#include "../content/function.hpp"
 
 // do not use the base in AST tree
 struct ParseStruct {
     enum {
-        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordImplicit, keywordConvert,
+        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordImplicit,
         variableString, variableInt, variableVariable, variableValue,
         operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorMultiply, operatorDivide, operatorPower
     };
@@ -110,9 +111,10 @@ struct ParseImplicit : ParseStruct {
 };
 
 struct ParseFunction : ParseStruct {
-    std::string token;
+    Function* function;
     std::vector<std::unique_ptr<ParseStruct>> children;
     explicit ParseFunction(std::pair<unsigned int, unsigned int> range);
+    [[nodiscard]] std::string run() const;
     [[nodiscard]] const uint8_t type() const override;
 };
 

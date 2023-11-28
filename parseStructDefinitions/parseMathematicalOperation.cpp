@@ -63,12 +63,56 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     else if (IsConvertibleToInt(parsedLine[range.first])){
         type = ParseStruct::variableInt;
     }
+    else if (IsVariable(parsedLine[range.first])){
+        auto* temp = GetVariable(parsedLine[range.first]);
+        if (temp == nullptr){
+            ParserException("Cannot get variable for math!");
+            return nullptr;
+        }
+        if (temp->type() == Variable::typeInt){
+            type = ParseStruct::variableInt;
+        }
+        else {
+            type = ParseStruct::variableString;
+        }
+    }
     else {
-        ParserException("Cannot get variable type!");
+        ParserException("Cannot get token type!");
         return nullptr;
     }
 
-    for (unsigned int n = range.first + 2; n < range.second; n += 2){
+    for (unsigned int n = range.first + 1; n < range.second; n++){
+        if (IsConvertibleToString(parsedLine[n])){
+            if (type != ParseStruct::variableString){
+                ParserException("Wrong type in math parsing!");
+                return nullptr;
+            }
+        }
+        else if (IsConvertibleToInt(parsedLine[n])){
+            if (type != ParseStruct::variableInt){
+                ParserException("Wrong type in math parsing!");
+                return nullptr;
+            }
+        }
+        else if (IsVariable(parsedLine[n])){
+            auto* temp = GetVariable(parsedLine[n]);
+            if (temp == nullptr){
+                ParserException("Cannot get variable for math!");
+                return nullptr;
+            }
+            if (temp->type() == Variable::typeInt and type != ParseStruct::variableInt){
+                ParserException("Types mismatch in math!");
+                return nullptr;
+            }
+            else if (type != ParseStruct::variableString){
+                ParserException("Types mismatch in math!");
+                return nullptr;
+            }
+        }
+        else if (parsedLine[n] != "(" and parsedLine[n] != ")" and parsedLine[n] != "+" and parsedLine[n] != "-" and parsedLine[n] != "*" and parsedLine[n] != "/" and parsedLine[n] != "^"){
+            ParserException("Cannot get token type!");
+            return nullptr;
+        }
 
     }
 

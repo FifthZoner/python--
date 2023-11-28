@@ -1,6 +1,10 @@
+#include <unordered_map>
+
 #include "variables.hpp"
 #include "../exceptions.hpp"
 #include "../checks.hpp"
+
+std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 const uint8_t Variable::type() const {
     return Variable::none;
@@ -51,5 +55,21 @@ std::string VariableInt::convert(const uint8_t type) const {
         default:
             InterpreterException("Invalid type to convert to!");
             return "";
+    }
+}
+
+Variable* GetVariable(const std::string& token){
+    if (IsLocalVariable(token)){
+        // nothing for now
+        ParserException("Local variables are not implemented, how did you even get this error?");
+        return nullptr;
+    }
+    else if (IsGlobalVariable(token)){
+        return globalVariables[token].get();
+    }
+    else {
+        // should generally never be reached
+        ParserException("Variable of given token does not exist!");
+        return nullptr;
     }
 }

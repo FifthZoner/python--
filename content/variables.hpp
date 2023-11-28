@@ -31,5 +31,8 @@ struct VariableInt : Variable {
     [[nodiscard]] std::string convert(uint8_t type) const override;
 };
 
+// returns a local or global variable with given name
+Variable* GetVariable(const std::string& token);
+
 
 #endif //PYTHON___VARIABLES_HPP
