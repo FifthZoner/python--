@@ -18,4 +18,6 @@ bool IsVariable(const std::string& token);
 
 bool IsFunction(const std::string& token);
 
+bool DoesReturnValue(const std::string& token);
+
 #endif //PYTHON___CHECKS_HPP

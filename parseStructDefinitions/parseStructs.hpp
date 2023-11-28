@@ -15,8 +15,8 @@
 // do not use the base in AST tree
 struct ParseStruct {
     enum {
-        none, keywordIf, keywordFor, keywordWhile, keywordReturn, keywordImplicit,
-        variableString, variableInt, variableVariable, variableValue,
+        none, variableInt, variableString, variableVariable, variableValue,
+        keywordIf, keywordFor, keywordWhile, keywordReturn, keywordImplicit,
         operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorMultiply, operatorDivide, operatorPower
     };
 
@@ -112,14 +112,11 @@ struct ParseImplicit : ParseStruct {
 
 struct ParseFunction : ParseStruct {
     Function* function;
-    std::vector<std::unique_ptr<ParseStruct>> children;
+    std::vector<std::unique_ptr<ParseStruct>> tokens;
+    // pass the whole function call, that is: "function(arg1, arg2, ..., argn)"
     explicit ParseFunction(std::pair<unsigned int, unsigned int> range);
-    [[nodiscard]] std::string run() const;
+    std::string run() const;
     [[nodiscard]] const uint8_t type() const override;
 };
-
-
-
-
 
 #endif //PYTHON___PARSESTRUCTS_HPP

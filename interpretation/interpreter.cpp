@@ -25,6 +25,10 @@ void RunLine(std::string line) {
         case ParseStruct::operatorAssign:
             reinterpret_cast<ParseAssign*>(parsed->getPointer())->run();
             break;
+        case ParseStruct::operatorFunction:
+            // no return in that case
+            reinterpret_cast <ParseFunction*> (parsed.get())->run();
+            break;
 
         default:
             InterpreterException("Wrong level 1 token!");

@@ -29,6 +29,10 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
             return new ParseValue(parsedLine[range.first]);
         }
     }
+    // function check
+    if (IsFunction(parsedLine[range.first]) and parsedLine[range.first + 1] == "(" and parsedLine[range.second - 1] == ")"){
+        return new ParseFunction(range);
+    }
 
     // checking for brackets
 

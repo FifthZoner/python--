@@ -15,7 +15,6 @@ Why not? I like using english in programming.
 <li>functions can implicitly convert all inputs to a given type if possible</li>
 <li>there is a standard library calling native c++ functions</li>
 <li>interpreter uses standard functions or has variants for at least Linux and Windows</li>
-<li>variables can be explicitly changed to other types, replacing the old variable</li>
 <li>can be called from bash/console or directly</li>
 <li>function arguments not written in a bracket can be treated as multiple variables in some cases</li>
 </ul>

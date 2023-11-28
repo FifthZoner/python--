@@ -7,15 +7,13 @@
 #include "../function.hpp"
 
 namespace pmmstd {
-    void Print(std::vector <Variable*>& arguments);
-    void Println(std::vector <Variable*>& arguments);
+    void Print(std::vector <std::string>& arguments);
+    void Println(std::vector <std::string>& arguments);
 
 
 }
 
 // Call this only ONCE in main before the interpreter
 void PrepareStandardLibrary();
-
-inline std::unordered_map <std::string, std::unique_ptr <Function>> functions;
 
 #endif //PYTHON___PMMSTDLIB_HPP

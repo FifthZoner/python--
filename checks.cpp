@@ -3,6 +3,7 @@
 #include "checks.hpp"
 #include "content/variables.hpp"
 #include "defines.hpp"
+#include "content/pmmstdlib/pmmstdlib.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
@@ -47,6 +48,20 @@ bool IsVariable(const std::string& token){
 }
 
 bool IsFunction(const std::string& token) {
+    if (auto found = functions.find(token); found != functions.end()) {
+        return true;
+    }
+    return false;
+}
 
+bool DoesReturnValue(const std::string& token){
+    if (IsConvertibleToInt(token) or IsConvertibleToString(token) or IsVariable(token)){
+        return true;
+    }
+    if (IsFunction(token)){
+        if (functions[token]->returnType() != Variable::none){
+            return true;
+        }
+    }
     return false;
 }

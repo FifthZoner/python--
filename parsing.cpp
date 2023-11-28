@@ -74,7 +74,7 @@ uint8_t CheckTokenType(const std::string& token){
     if (auto found = tokenMap.find(token); found != tokenMap.end()) {
         return tokenMap[token];
     }
-    if (IsGlobalVariable(token)){
+    if (IsVariable(token)){
         return ParseStruct::variableVariable;
     }
     return ParseStruct::variableValue;
@@ -89,6 +89,16 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
         std::cout << "\n";
     #endif
     std::unique_ptr<ParseStruct> parseStruct = nullptr;
+    if (range.second - range.first > 0){
+        if (IsFunction(parsedLine[range.first])){
+            if (functions[parsedLine[range.first]]->returnType() == Variable::none){
+                // that means a return-less function line
+                return std::make_unique <ParseFunction> (range);
+            }
+            ParserException("Function with return type as first token!");
+            return std::make_unique <ParseStruct> ();
+        }
+    }
     for (unsigned int n = range.first; n < range.second; n++){
         if (auto found = tokenMap.find(parsedLine[n]); found != tokenMap.end()) {
             switch (tokenMap[parsedLine[n]]){
@@ -221,10 +231,6 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
                 parsedLine.insert(parsedLine.begin() + n + 1, std::string(1, m[0]));
                 parsedLine.insert(parsedLine.begin() + n + 1, parsedLine[n - 1]);
                 parsedLine[n] = std::string(1, m[1]);
-                for (auto& h : parsedLine){
-                    std::cout << h << " ";
-                }
-                std::cout << "\n";
                 break;
             }
         }
