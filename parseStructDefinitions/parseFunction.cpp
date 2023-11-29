@@ -27,8 +27,11 @@ ParseFunction::ParseFunction(std::pair<unsigned int, unsigned int> range){
         if (parsedLine[n] == "," or parsedLine[n] == ")"){
             // push to vector
             if (n == start){
-                ParserException("Could not parse function arguments!");
-                return;
+                if (!function->variables.empty()){
+                    ParserException("Could not parse function arguments!");
+                    return;
+                }
+                break;
             }
             if (function->variables.size() > tokens.size()){
                 if (function->variables[tokens.size()].isImplicit){

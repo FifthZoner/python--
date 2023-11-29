@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "variables.hpp"
+#include "pmmstdlib/pmmstdlib.hpp"
 
 struct FunctionVariable {
     uint8_t type;

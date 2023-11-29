@@ -162,6 +162,16 @@ void ParseAssign::run() const{
                     return;
             }
             break;
+        case ParseStruct::operatorFunction:
+            switch (var->type()){
+                case Variable::typeInt:
+                    reinterpret_cast <VariableInt*>(var->getPointer())->value = std::stoll(reinterpret_cast <ParseFunction*> (from->getPointer())->run());
+                    break;
+                case Variable::typeString:
+                    reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <ParseFunction*> (from->getPointer())->run();
+                    return;
+            }
+            break;
         case ParseStruct::operatorMultiply:
             switch (var->type()){
                 case Variable::typeInt:

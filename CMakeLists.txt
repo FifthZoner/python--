@@ -31,4 +31,5 @@ add_executable(python__ main.cpp
         parseStructDefinitions/parseFunction.cpp
         interpretation/runtime.cpp
         interpretation/runtime.hpp
+        content/pmmstdlib/input.cpp
 )

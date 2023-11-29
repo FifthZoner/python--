@@ -1,7 +1,6 @@
 #include "function.hpp"
 #include "../exceptions.hpp"
 
-extern std::string returnValueString;
 
 FunctionVariable::FunctionVariable(const uint8_t type, const std::string &name, bool isImplicit) {
     this->type = type;
