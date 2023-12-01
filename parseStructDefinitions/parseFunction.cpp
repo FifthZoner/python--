@@ -22,9 +22,15 @@ ParseFunction::ParseFunction(std::pair<unsigned int, unsigned int> range){
 
     function = functions[parsedLine[range.first]].get();
 
+    // bracket check, I think it's not always called by ParseMathematicalSomethingSomething()
+    if (!AreBracketsValid(range)){
+        return;
+    }
+
     unsigned int start = range.first;
-    for (unsigned int n = range.first; n < range.second; n++){
-        if (parsedLine[n] == "," or parsedLine[n] == ")"){
+    unsigned int bracketLevel = 0;
+    for (unsigned int n = range.first + 1; n < range.second; n++){
+        if (parsedLine[n] == "," or (parsedLine[n] == ")" and bracketLevel == 1)){
             // push to vector
             if (n == start){
                 if (!function->variables.empty()){
@@ -35,7 +41,6 @@ ParseFunction::ParseFunction(std::pair<unsigned int, unsigned int> range){
             }
             if (function->variables.size() > tokens.size()){
                 if (function->variables[tokens.size()].isImplicit){
-
                     tokens.push_back(std::unique_ptr<ParseStruct>(new ParseImplicit(std::pair <unsigned int, unsigned int> (start, n))));
                 }
                 else {
@@ -49,7 +54,13 @@ ParseFunction::ParseFunction(std::pair<unsigned int, unsigned int> range){
             start = n + 1;
         }
         else if (parsedLine[n] == "("){
-            start = n + 1;
+            bracketLevel++;
+            if (bracketLevel == 1){
+                start = n + 1;
+            }
+        }
+        else if (parsedLine[n] == ")"){
+            bracketLevel--;
         }
         // math thing does all the heavy lifting in terms of checking the inside
     }

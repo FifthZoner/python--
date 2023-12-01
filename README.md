@@ -13,7 +13,7 @@ Why not? I like using english in programming.
 <li>there are global and local variables</li>
 <li>function recursion is supported</li>
 <li>functions can implicitly convert all inputs to a given type if possible</li>
-<li>there is a standard library calling native c++ functions</li>
+<li>there is a standard library calling native C++ functions</li>
 <li>interpreter uses standard functions or has variants for at least Linux and Windows</li>
 <li>can be called from bash/console or directly</li>
 <li>function arguments not written in a bracket can be treated as multiple variables in some cases</li>

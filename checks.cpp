@@ -65,3 +65,26 @@ bool DoesReturnValue(const std::string& token){
     }
     return false;
 }
+
+extern std::vector <std::string> parsedLine;
+
+bool AreBracketsValid(std::pair <unsigned int, unsigned int> range){
+    unsigned int bracketLevel = 0;
+    for (unsigned int n = range.first; n < range.second; n++) {
+        if (parsedLine[n] == "("){
+            bracketLevel++;
+        }
+        else if (parsedLine[n] == ")") {
+            if (bracketLevel == 0){
+                ParserException("Mathematical operation invalid due to brackets!");
+                return false;
+            }
+            bracketLevel--;
+        }
+    }
+    if (bracketLevel != 0) {
+        ParserException("Mathematical operation invalid due to brackets!");
+        return false;
+    }
+    return true;
+}

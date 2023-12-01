@@ -10,28 +10,14 @@
 
 extern std::vector <std::string> parsedLine;
 
-// parsestruct type
 ParseImplicit::ParseImplicit(std::pair<unsigned int, unsigned int> range){
 
     // brackets check
-    unsigned int bracketLevel = 0;
-    for (unsigned int n = range.first; n < range.second; n++) {
-        if (parsedLine[n] == "("){
-            bracketLevel++;
-        }
-        else if (parsedLine[n] == ")") {
-            if (bracketLevel == 0){
-                ParserException("Implicit operation invalid due to brackets!");
-                return;
-            }
-            bracketLevel--;
-        }
-    }
-    if (bracketLevel != 0) {
+    if (!AreBracketsValid(range)) {
         ParserException("Implicit operation invalid due to brackets!");
         return;
     }
-
+    unsigned int bracketLevel;
     unsigned int start = 0;
     for (unsigned int n = range.first; n < range.second; n++){
         if (parsedLine[n] == "("){
@@ -48,12 +34,30 @@ ParseImplicit::ParseImplicit(std::pair<unsigned int, unsigned int> range){
             }
             tokens.push_back(std::unique_ptr <ParseStruct> (ParseMathematicalOperation(std::pair <unsigned int, unsigned int>(start + 1, n))));
         }
-        else if (IsConvertibleToInt(parsedLine[n]) or IsConvertibleToString(parsedLine[n]) or IsVariable(parsedLine[n]) or IsFunction(parsedLine[n])){
+        else if (DoesReturnValue(parsedLine[n])){
             if (IsVariable(parsedLine[n])){
                 tokens.push_back(std::unique_ptr<ParseStruct>(new ParseVariable(parsedLine[n])));
             }
             else if (IsFunction(parsedLine[n])){
-                // TODO: implement functions
+                // looking for the brackets
+                int bracketLevel2 = 0;
+                for (unsigned int m = n + 1; m < range.second; m++){
+                    if (parsedLine[m] == "("){
+                        bracketLevel2++;
+                    }
+                    else if (parsedLine[m] == ")"){
+                        bracketLevel2--;
+                        if (bracketLevel2 < 0){
+                            ParserException("Bracket error in function parsing in implicit!");
+                            return;
+                        }
+                        if (bracketLevel2 == 0){
+                            tokens.push_back(std::unique_ptr<ParseStruct>(new ParseFunction(std::pair <unsigned int, unsigned int> (n, m + 1))));
+                            n = m + 1;
+                            break;
+                        }
+                    }
+                }
             }
             else {
                 tokens.push_back(std::unique_ptr<ParseStruct>(new ParseValue(parsedLine[n])));

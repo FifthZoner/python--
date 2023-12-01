@@ -20,4 +20,6 @@ bool IsFunction(const std::string& token);
 
 bool DoesReturnValue(const std::string& token);
 
+bool AreBracketsValid(std::pair <unsigned int, unsigned int> range);
+
 #endif //PYTHON___CHECKS_HPP

@@ -30,10 +30,11 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
         }
     }
     // function check
+    std::cout << "Function check\n";
     if (IsFunction(parsedLine[range.first]) and parsedLine[range.first + 1] == "(" and parsedLine[range.second - 1] == ")"){
         return new ParseFunction(range);
     }
-
+    std::cout << "not a function!\n";
     // checking for brackets
 
     // this is the case when brackets take the whole equation;
