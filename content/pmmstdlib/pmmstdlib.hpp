@@ -1,5 +1,5 @@
-#ifndef PYTHON___PMMSTDLIB_HPP
-#define PYTHON___PMMSTDLIB_HPP
+#ifndef PYTHON___PMM_STDLIB_HPP
+#define PYTHON___PMM_STDLIB_HPP
 
 #include <vector>
 #include <unordered_map>
@@ -17,4 +17,4 @@ void PrepareStandardLibrary();
 
 inline std::string returnValueString;
 
-#endif //PYTHON___PMMSTDLIB_HPP
+#endif //PYTHON___PMM_STDLIB_HPP

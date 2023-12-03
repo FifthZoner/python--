@@ -47,18 +47,18 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
         }
         else if (parsedLine[n] == ")") {
             if (bracketLevel == 0){
-                ParserException("Mathematical operation invalid due to brackets!");
+                ParserException("Mathematical condition invalid due to brackets!");
                 return new ParseStruct();
             }
             bracketLevel--;
         }
     }
     if (bracketLevel != 0) {
-        ParserException("Mathematical operation invalid due to brackets!");
+        ParserException("Mathematical condition invalid due to brackets!");
         return new ParseStruct();
     }
 
-    // checking operation types, if all aren't string or all aren't int, exception
+    // checking condition types, if all aren't string or all aren't int, exception
     uint8_t type;
     if (IsConvertibleToString(parsedLine[range.first])){
         type = ParseStruct::variableString;
@@ -197,6 +197,6 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     // brackets are handled last, so they will be executed via the first and last check at the beginning
 
     // this should never get here
-    ParserException("Parsing of mathematical operation failed, something is seriously wrong!");
+    ParserException("Parsing of mathematical condition failed, something is seriously wrong!");
     return new ParseStruct();
 }

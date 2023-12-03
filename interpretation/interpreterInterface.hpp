@@ -1,5 +1,5 @@
-#ifndef PYTHON___INTERPRETERINTERFACE_HPP
-#define PYTHON___INTERPRETERINTERFACE_HPP
+#ifndef PYTHON___INTERPRETER_INTERFACE_HPP
+#define PYTHON___INTERPRETER_INTERFACE_HPP
 
 #include <string>
 #include <vector>
@@ -27,4 +27,4 @@ struct InterpreterFromFile : InterpreterInterface {
 };
 
 
-#endif //PYTHON___INTERPRETERINTERFACE_HPP
+#endif //PYTHON___INTERPRETER_INTERFACE_HPP

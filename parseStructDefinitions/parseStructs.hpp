@@ -1,5 +1,5 @@
-#ifndef PYTHON___PARSESTRUCTS_HPP
-#define PYTHON___PARSESTRUCTS_HPP
+#ifndef PYTHON___PARSE_STRUCTS_HPP
+#define PYTHON___PARSE_STRUCTS_HPP
 
 
 #include <cstdint>
@@ -118,7 +118,23 @@ struct ParseCompare : ParseStruct {
     std::unique_ptr<ParseStruct> left, right;
     explicit ParseCompare(std::pair <unsigned int, unsigned int> range);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] bool run(uint8_t type) const;
+    [[nodiscard]] bool run() const;
+};
+
+struct ParseIf : ParseStruct {
+    std::unique_ptr <ParseStruct> condition;
+    // pass the range without if
+    explicit ParseIf(std::pair <unsigned int, unsigned int> range);
+    [[nodiscard]] const uint8_t type() const override;
+    [[nodiscard]] bool run() const;
+};
+
+struct ParseWhile : ParseStruct {
+    std::unique_ptr <ParseStruct> condition;
+    // pass the range without while
+    explicit ParseWhile(std::pair <unsigned int, unsigned int> range);
+    [[nodiscard]] const uint8_t type() const override;
+    [[nodiscard]] bool run() const;
 };
 
 struct ParseFunction : ParseStruct {
@@ -130,4 +146,4 @@ struct ParseFunction : ParseStruct {
     [[nodiscard]] const uint8_t type() const override;
 };
 
-#endif //PYTHON___PARSESTRUCTS_HPP
+#endif //PYTHON___PARSE_STRUCTS_HPP

@@ -13,7 +13,7 @@ ParseImplicit::ParseImplicit(std::pair<unsigned int, unsigned int> range){
 
     // brackets check
     if (!AreBracketsValid(range)) {
-        ParserException("Implicit operation invalid due to brackets!");
+        ParserException("Implicit condition invalid due to brackets!");
         return;
     }
     unsigned int bracketLevel;

@@ -74,14 +74,14 @@ bool AreBracketsValid(std::pair <unsigned int, unsigned int> range){
         }
         else if (parsedLine[n] == ")") {
             if (bracketLevel == 0){
-                ParserException("Mathematical operation invalid due to brackets!");
+                ParserException("Mathematical condition invalid due to brackets!");
                 return false;
             }
             bracketLevel--;
         }
     }
     if (bracketLevel != 0) {
-        ParserException("Mathematical operation invalid due to brackets!");
+        ParserException("Mathematical condition invalid due to brackets!");
         return false;
     }
     return true;

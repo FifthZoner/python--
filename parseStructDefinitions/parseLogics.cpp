@@ -42,7 +42,7 @@ ParseCompare::ParseCompare(std::pair <unsigned int, unsigned int> range) {
     return ParseStruct::operatorCompare;
 }
 
-[[nodiscard]] bool ParseCompare::run(uint8_t type) const {
+[[nodiscard]] bool ParseCompare::run() const {
     std::string valueLeft, valueRight;
     valueLeft = RunValueReturning(left.get(), Variable::none);
     valueRight = RunValueReturning(right.get(), Variable::none);
@@ -78,4 +78,28 @@ ParseCompare::ParseCompare(std::pair <unsigned int, unsigned int> range) {
         case CompareType::lesserEqual:
             return valueLeft.length() <= valueRight.length();
     }
+}
+
+ParseIf::ParseIf(std::pair <unsigned int, unsigned int> range){
+    condition = std::unique_ptr <ParseStruct> (new ParseCompare(range));
+}
+
+const uint8_t ParseIf::type() const {
+    return ParseStruct::keywordIf;
+}
+
+bool ParseIf::run() const {
+    return reinterpret_cast <ParseCompare*> (condition.get())->run();
+}
+
+
+ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range) {
+    condition = std::unique_ptr <ParseStruct> (new ParseCompare(range));
+}
+
+const uint8_t ParseWhile::type() const {
+    return ParseStruct::keywordWhile;
+}
+bool ParseWhile::run() const {
+    return reinterpret_cast <ParseCompare*> (condition.get())->run();
 }

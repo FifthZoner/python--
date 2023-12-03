@@ -259,7 +259,7 @@ std::string ParsePlus::run() const{
             value = std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator left side integer in operation!");
+            InterpreterException("Wrong operator left side integer in condition!");
             return "0";
         }
 
@@ -289,7 +289,7 @@ std::string ParsePlus::run() const{
             value += std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator in right side integer operation!");
+            InterpreterException("Wrong operator in right side integer condition!");
             return "0";
         }
 
@@ -311,7 +311,7 @@ std::string ParsePlus::run() const{
             value = reinterpret_cast <ParsePlus*> (left->getPointer())->run();
         }
         else {
-            InterpreterException("Wrong operator in left side string operation!");
+            InterpreterException("Wrong operator in left side string condition!");
             return "0";
         }
 
@@ -329,7 +329,7 @@ std::string ParsePlus::run() const{
             value += reinterpret_cast <ParsePlus*> (right->getPointer())->run();
         }
         else {
-            InterpreterException("Wrong operator in right side string operation!");
+            InterpreterException("Wrong operator in right side string condition!");
             return "0";
         }
 
@@ -384,7 +384,7 @@ std::string ParseMinus::run() const{
             value = std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator left side integer in operation!");
+            InterpreterException("Wrong operator left side integer in condition!");
             return "0";
         }
 
@@ -414,7 +414,7 @@ std::string ParseMinus::run() const{
             value -= std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator in right side integer operation!");
+            InterpreterException("Wrong operator in right side integer condition!");
             return "0";
         }
 
@@ -468,7 +468,7 @@ std::string ParseMultiply::run() const{
             value = std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator left side integer in operation!");
+            InterpreterException("Wrong operator left side integer in condition!");
             return "0";
         }
 
@@ -498,7 +498,7 @@ std::string ParseMultiply::run() const{
             value *= std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator in right side integer operation!");
+            InterpreterException("Wrong operator in right side integer condition!");
             return "0";
         }
 
@@ -552,7 +552,7 @@ std::string ParseDivide::run() const{
             value = std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator left side integer in operation!");
+            InterpreterException("Wrong operator left side integer in condition!");
             return "0";
         }
 
@@ -582,7 +582,7 @@ std::string ParseDivide::run() const{
              value /= std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator in right side integer operation!");
+            InterpreterException("Wrong operator in right side integer condition!");
             return "0";
         }
 
@@ -636,7 +636,7 @@ std::string ParsePower::run() const{
             value = std::stoll(reinterpret_cast <ParsePower*> (left->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator left side integer in operation!");
+            InterpreterException("Wrong operator left side integer in condition!");
             return "0";
         }
 
@@ -666,7 +666,7 @@ std::string ParsePower::run() const{
             value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run())));
         }
         else {
-            InterpreterException("Wrong operator in right side integer operation!");
+            InterpreterException("Wrong operator in right side integer condition!");
             return "0";
         }
 
