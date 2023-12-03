@@ -31,7 +31,7 @@ std::string RunValueReturning(ParseStruct* runnable, uint8_t type){
         auto* var = reinterpret_cast<ParseVariable*> (runnable)->run();
         if (var == nullptr){
             InterpreterException("Variable corrupted!");
-            return "";
+            return "0";
         }
         if (var->type() == Variable::typeInt) {
             return std::to_string(reinterpret_cast<VariableInt*>(reinterpret_cast<ParseVariable*> (runnable)->run())->value);
@@ -41,10 +41,10 @@ std::string RunValueReturning(ParseStruct* runnable, uint8_t type){
         }
         else {
             InterpreterException("Wrong variable type!");
-            return "";
+            return "0";
         }
     }
 
     InterpreterException("Unknown value returning candidate!");
-    return "";
+    return "0";
 }

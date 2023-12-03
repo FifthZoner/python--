@@ -8,7 +8,6 @@
 #include <iostream>
 #endif
 
-extern std::vector <std::string> parsedLine;
 
 ParseImplicit::ParseImplicit(std::pair<unsigned int, unsigned int> range){
 
@@ -87,9 +86,8 @@ std::string ParseImplicit::run(uint8_t type) const {
                     value += std::stoll(reinterpret_cast<ParseValue*>(n.get())->run());
                     break;
                 case ParseStruct::operatorFunction:
-                    // TODO: implement
-                    InterpreterException("Functions not implemented!");
-                    return "";
+                    value += std::stoll(reinterpret_cast<ParseFunction*>(n.get())->run());
+                    break;
                 case ParseStruct::operatorPlus:
                     value += std::stoll(reinterpret_cast<ParsePlus*>(n.get())->run());
                     break;
@@ -107,7 +105,7 @@ std::string ParseImplicit::run(uint8_t type) const {
                     break;
                 default:
                     InterpreterException("Wrong implicit called type!");
-                    return "";
+                    return "0";
             }
         }
         return std::to_string(value);
@@ -123,21 +121,20 @@ std::string ParseImplicit::run(uint8_t type) const {
                     value += reinterpret_cast<ParseValue*>(n.get())->run();
                     break;
                 case ParseStruct::operatorFunction:
-                    // TODO: implement
-                    InterpreterException("Functions not implemented!");
-                    return "";
+                    value += reinterpret_cast<ParseFunction*>(n.get())->run();
+                    break;
                 case ParseStruct::operatorPlus:
                     value += reinterpret_cast<ParsePlus*>(n.get())->run();
                     break;
                 default:
                     InterpreterException("Wrong implicit called type!");
-                    return "";
+                    return "0";
             }
         }
         return value;
     }
     else {
         InterpreterException("Wrong implicit argument type!");
-        return "";
+        return "0";
     }
 }

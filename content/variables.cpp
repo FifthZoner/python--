@@ -11,7 +11,7 @@ const uint8_t Variable::type() const {
 }
 std::string Variable::convert(const uint8_t type) const {
     InterpreterException("Conversion of base class, should never happen!");
-    return "";
+    return "0";
 }
 Variable* Variable::getPointer(){
     return this;
@@ -30,12 +30,12 @@ std::string VariableString::convert(const uint8_t type) const {
                 return value;
             }
             InterpreterException("This string is inconvertible to integer!");
-            return "";
+            return "0";
         case Variable::typeString:
             return value;
         default:
             InterpreterException("Invalid type to convert to!");
-            return "";
+            return "0";
     }
 }
 
@@ -54,7 +54,7 @@ std::string VariableInt::convert(const uint8_t type) const {
             return std::to_string(value);
         default:
             InterpreterException("Invalid type to convert to!");
-            return "";
+            return "0";
     }
 }
 

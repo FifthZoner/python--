@@ -7,8 +7,6 @@
 #include <iostream>
 #endif
 
-extern std::vector <std::string> parsedLine;
-
 ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> range){
 
     #ifdef PYTHON___DEBUG

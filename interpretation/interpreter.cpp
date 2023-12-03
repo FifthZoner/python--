@@ -12,12 +12,12 @@ extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariab
 
 bool exceptionHappened = false;
 
-void RunLine(std::string line) {
+uint8_t RunLine(std::string& line) {
     std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(line));
     if (exceptionHappened){
         exceptionHappened = false;
         std::cout << "Parsing of current line has been cancelled!\n";
-        return;
+        return RunLineOutput::error;
     }
 
     // actual running of the code, finally, only first level things here, the rest recursively or something
@@ -39,20 +39,24 @@ void RunLine(std::string line) {
     if (exceptionHappened){
         exceptionHappened = false;
         std::cout << "Interpreting of current line has been cancelled!\n";
-        return;
+        return RunLineOutput::error;
     }
+
+    return RunLineOutput::success;
 }
 
 void RunInterpreter(InterpreterInterface* interface){
-    std::unique_ptr <InterpreterInterface> stream = std::unique_ptr <InterpreterInterface> (interface);
+    interpreterStream = std::unique_ptr <InterpreterInterface> (interface);
 
     while (true) {
-        std::string temp = stream->getNextLine();
+        std::string temp = interpreterStream->getNextLine();
         if (temp == "exit"){
             break;
         }
-        RunLine(std::move(temp));
+        if (RunLine(temp)){
+            interpreterStream->lines.push_back(temp);
+        }
     }
 
-    stream->endMessage();
+    interpreterStream->endMessage();
 }

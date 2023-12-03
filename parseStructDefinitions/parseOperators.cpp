@@ -10,7 +10,6 @@
 #include <iostream>
 #endif
 
-extern std::vector <std::string> parsedLine;
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 
@@ -261,7 +260,7 @@ std::string ParsePlus::run() const{
         }
         else {
             InterpreterException("Wrong operator left side integer in operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -291,7 +290,7 @@ std::string ParsePlus::run() const{
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -313,7 +312,7 @@ std::string ParsePlus::run() const{
         }
         else {
             InterpreterException("Wrong operator in left side string operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -331,7 +330,7 @@ std::string ParsePlus::run() const{
         }
         else {
             InterpreterException("Wrong operator in right side string operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -343,7 +342,7 @@ std::string ParsePlus::run() const{
     else {
         InterpreterException("Wrong variable type in plus!");
     }
-    return "";
+    return "0";
 }
 
 ParseMinus::ParseMinus(const std::pair <unsigned int, unsigned int> left, const std::pair <unsigned int, unsigned int> right, uint8_t type) {
@@ -386,7 +385,7 @@ std::string ParseMinus::run() const{
         }
         else {
             InterpreterException("Wrong operator left side integer in operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -416,7 +415,7 @@ std::string ParseMinus::run() const{
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -427,7 +426,7 @@ std::string ParseMinus::run() const{
     else {
         InterpreterException("Wrong variable type in minus!");
     }
-    return "";
+    return "0";
 }
 
 ParseMultiply::ParseMultiply(const std::pair <unsigned int, unsigned int> left, const std::pair <unsigned int, unsigned int> right, uint8_t type) {
@@ -470,7 +469,7 @@ std::string ParseMultiply::run() const{
         }
         else {
             InterpreterException("Wrong operator left side integer in operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -500,7 +499,7 @@ std::string ParseMultiply::run() const{
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -511,7 +510,7 @@ std::string ParseMultiply::run() const{
     else {
         InterpreterException("Wrong variable type in multiply!");
     }
-    return "";
+    return "0";
 }
 
 ParseDivide::ParseDivide(const std::pair <unsigned int, unsigned int> left, const std::pair <unsigned int, unsigned int> right, uint8_t type) {
@@ -554,7 +553,7 @@ std::string ParseDivide::run() const{
         }
         else {
             InterpreterException("Wrong operator left side integer in operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -584,7 +583,7 @@ std::string ParseDivide::run() const{
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -595,7 +594,7 @@ std::string ParseDivide::run() const{
     else {
         InterpreterException("Wrong variable type in divide!");
     }
-    return "";
+    return "0";
 }
 
 ParsePower::ParsePower(const std::pair <unsigned int, unsigned int> left, const std::pair <unsigned int, unsigned int> right, uint8_t type) {
@@ -638,7 +637,7 @@ std::string ParsePower::run() const{
         }
         else {
             InterpreterException("Wrong operator left side integer in operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -646,29 +645,29 @@ std::string ParsePower::run() const{
         #endif
 
         if (right->type() == ParseStruct::variableVariable){
-            value = (long long)(powf128(value, reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value));
+            value = (long long)(powl(value, reinterpret_cast <VariableInt*> (reinterpret_cast <ParseVariable*> (right->getPointer())->run())->value));
         }
         else if (right->type() == ParseStruct::variableValue){
-            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run())));
+            value = (long long)(powl(value, std::stoll(reinterpret_cast <ParseValue*> (right->getPointer())->run())));
         }
         else if (right->type() == ParseStruct::operatorPlus){
-            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParsePlus*> (right->getPointer())->run())));
+            value = (long long)(powl(value, std::stoll(reinterpret_cast <ParsePlus*> (right->getPointer())->run())));
         }
         else if (right->type() == ParseStruct::operatorMinus){
-            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParseMinus*> (right->getPointer())->run())));
+            value = (long long)(powl(value, std::stoll(reinterpret_cast <ParseMinus*> (right->getPointer())->run())));
         }
         else if (right->type() == ParseStruct::operatorMultiply){
-            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParseMultiply*> (right->getPointer())->run())));
+            value = (long long)(powl(value, std::stoll(reinterpret_cast <ParseMultiply*> (right->getPointer())->run())));
         }
         else if (right->type() == ParseStruct::operatorDivide){
-            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParseDivide*> (right->getPointer())->run())));
+            value = (long long)(powl(value, std::stoll(reinterpret_cast <ParseDivide*> (right->getPointer())->run())));
         }
         else if (right->type() == ParseStruct::operatorPower){
             value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run())));
         }
         else {
             InterpreterException("Wrong operator in right side integer operation!");
-            return "";
+            return "0";
         }
 
         #ifdef PYTHON___DEBUG
@@ -679,5 +678,5 @@ std::string ParsePower::run() const{
     else {
         InterpreterException("Wrong variable type in power!");
     }
-    return "";
+    return "0";
 }

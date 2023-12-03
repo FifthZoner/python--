@@ -3,7 +3,7 @@
 #include "interpreterInterface.hpp"
 
 std::string InterpreterInterface::getNextLine() {
-    return "";
+    return "0";
 }
 void InterpreterInterface::endMessage() {}
 

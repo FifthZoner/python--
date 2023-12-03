@@ -12,12 +12,15 @@
 #include "../content/variables.hpp"
 #include "../content/function.hpp"
 
+inline std::vector <std::string> parsedLine;
+
 // do not use the base in AST tree
 struct ParseStruct {
     enum {
         none, variableInt, variableString, variableVariable, variableValue,
-        keywordIf, keywordFor, keywordWhile, keywordReturn, keywordImplicit,
-        operatorPlus, operatorMinus, operatorEqual, operatorAssign, operatorFunction, operatorMultiply, operatorDivide, operatorPower
+        keywordIf, keywordWhile, keywordReturn, keywordImplicit, keywordEnd, keywordElse,
+        operatorPlus, operatorMinus, operatorAssign, operatorFunction, operatorMultiply, operatorDivide, operatorPower,
+        operatorCompare
     };
 
     [[nodiscard]] virtual const uint8_t type() const;
@@ -108,6 +111,14 @@ struct ParseImplicit : ParseStruct {
     explicit ParseImplicit(std::pair<unsigned int, unsigned int> range);
     [[nodiscard]] const uint8_t type() const override;
     [[nodiscard]] std::string run(uint8_t type) const;
+};
+
+struct ParseCompare : ParseStruct {
+    uint8_t compareType;
+    std::unique_ptr<ParseStruct> left, right;
+    explicit ParseCompare(std::pair <unsigned int, unsigned int> range);
+    [[nodiscard]] const uint8_t type() const override;
+    [[nodiscard]] bool run(uint8_t type) const;
 };
 
 struct ParseFunction : ParseStruct {

@@ -5,10 +5,6 @@
 #include "../checks.hpp"
 #include "../interpretation/runtime.hpp"
 
-extern std::vector <std::string> parsedLine;
-
-#include <iostream>
-
 ParseFunction::ParseFunction(std::pair<unsigned int, unsigned int> range){
     if (range.second - range.first < 3){
         ParserException("Wrong amount of tokens passed to form a function!");
@@ -71,14 +67,14 @@ std::string ParseFunction::run() const {
     // size
     if (tokens.size() != function->variables.size()){
         InterpreterException("Wrong argument list for function!");
-        return "";
+        return "0";
     }
     // implicit, should never ever happen, but it's better to be safe
     for (unsigned int n = 0; n < tokens.size(); n++){
         if ((tokens[n]->type() == ParseStruct::keywordImplicit and !function->variables[n].isImplicit) or
             (tokens[n]->type() != ParseStruct::keywordImplicit and  function->variables[n].isImplicit)){
             InterpreterException("Implicit mismatch, somehow");
-            return "";
+            return "0";
         }
     }
     // getting types of all variables into a vector
@@ -86,7 +82,7 @@ std::string ParseFunction::run() const {
     for (auto& n : tokens){
         if (stringValues.size() == function->variables.size()){
             InterpreterException("Argument amount mismatch in function!");
-            return "";
+            return "0";
         }
         if (function->variables[stringValues.size()].isImplicit){
             stringValues.push_back(RunValueReturning(n.get(), function->variables[stringValues.size()].type));
@@ -99,7 +95,7 @@ std::string ParseFunction::run() const {
         if (function->variables[n].type == Variable::typeInt){
             if (!IsConvertibleToInt(stringValues[n])){
                 InterpreterException("Argument mismatch in function!");
-                return "";
+                return "0";
             }
         }
     }

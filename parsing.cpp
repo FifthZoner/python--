@@ -35,7 +35,6 @@ std::vector <std::vector <std::string>> ParseCommandArguments(const int argc, ch
     }
     return vec;
 }
-std::vector <std::string> parsedLine;
 std::string specialCharacters = ",.(){}[]=+-*/%^!<>:";
 std::pair<char, char> doubleOperators[9] =
         {
@@ -55,18 +54,24 @@ std::vector <std::string> doublesToMove = {"+=", "-=" , "*=", "/=", "^="};
 std::unordered_map<std::string, uint8_t> tokenMap =
         {
                 {"if", ParseStruct::keywordIf},
-                {"for", ParseStruct::keywordFor},
                 {"while", ParseStruct::keywordWhile},
                 {"return", ParseStruct::keywordReturn},
                 {"implicit", ParseStruct::keywordImplicit},
                 {"string", ParseStruct::variableString},
                 {"int", ParseStruct::variableInt},
+                {"end", ParseStruct::keywordEnd},
+                {"else", ParseStruct::keywordElse},
                 {"+", ParseStruct::operatorPlus},
                 {"-", ParseStruct::operatorMinus},
                 {"*", ParseStruct::operatorMultiply},
                 {"/", ParseStruct::operatorDivide},
                 {"^", ParseStruct::operatorPower},
-                {"==", ParseStruct::operatorEqual},
+                {"==", ParseStruct::operatorCompare},
+                {">", ParseStruct::operatorCompare},
+                {"<", ParseStruct::operatorCompare},
+                {"!=", ParseStruct::operatorCompare},
+                {">=", ParseStruct::operatorCompare},
+                {"<=", ParseStruct::operatorCompare},
                 {"=", ParseStruct::operatorAssign}
         };
 
@@ -98,6 +103,9 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
             ParserException("Function with return type as first token!");
             return std::make_unique <ParseStruct> ();
         }
+        if (parsedLine[0] == "if"){
+            // an if statement
+        }
     }
     for (unsigned int n = range.first; n < range.second; n++){
         if (auto found = tokenMap.find(parsedLine[n]); found != tokenMap.end()) {
@@ -125,6 +133,14 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
 }
 
 std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
+
+    // deleting tabs
+    for (long n = 0; n < line.length(); n++){
+        if (line[n] == '\t'){
+            line.erase(n, 1);
+            n--;
+        }
+    }
 
     // splitting special characters
     for (unsigned int n = 0; n < line.length(); n++) {
@@ -235,7 +251,6 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
             }
         }
     }
-
 
     return ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()));
 }
