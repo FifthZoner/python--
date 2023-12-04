@@ -3,6 +3,7 @@
 #include "parseStructs.hpp"
 #include "../checks.hpp"
 #include "../defines.hpp"
+#include "../functionStack.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
@@ -44,14 +45,12 @@ ParseInt::ParseInt(const std::string& token){
 const uint8_t ParseInt::type() const{
     return ParseStruct::variableInt;
 }
-Variable* ParseInt::run() const{
+Variable* ParseInt::run() {
     #ifdef PYTHON___DEBUG
     std::cout << "New variable \"int " << token << "\"";
     #endif
 
-    // TODO: add local variable declaration if in such a condition, probably a function that creates one
-    globalVariables[token] = std::unique_ptr<Variable>(new VariableInt(0));
-    return globalVariables[token]->getPointer();
+    return NewVariable(token, 0);
 }
 
 ParseString::ParseString(const std::string& token){
@@ -63,13 +62,12 @@ ParseString::ParseString(const std::string& token){
 const uint8_t ParseString::type() const{
     return ParseStruct::variableString;
 }
-Variable* ParseString::run() const{
+Variable* ParseString::run() {
     #ifdef PYTHON___DEBUG
     std::cout << "New variable \"string " << token << "\"";
     #endif
-
-    globalVariables[token] = std::unique_ptr<Variable>(new VariableString(""));
-    return globalVariables[token]->getPointer();
+    std::string temp = "0";
+    return NewVariable(token, temp);
 }
 
 ParseVariable::ParseVariable(const std::string& token){
@@ -81,21 +79,18 @@ const uint8_t ParseVariable::type() const{
 Variable* ParseVariable::run() const{
 
     // TODO: add local here
-    if (IsLocalVariable(token)){
-
-    }
-    else if (IsGlobalVariable(token)){
+    if (IsVariable(token)){
         #ifdef PYTHON___DEBUG
-        if (globalVariables[token]->type() == Variable::typeInt){
+        if (GetVariable(token)->type() == Variable::typeInt){
             std::cout << "\"int ";
         }
-        else if (globalVariables[token]->type() == Variable::typeString){
+        else if (GetVariable(token)->type() == Variable::typeString){
             std::cout << "\"string ";
         }
         std::cout << token << "\"";
         #endif
 
-        return globalVariables[token]->getPointer();
+        return GetVariable(token);
     }
 
     InterpreterException("Variable \"" + token + "\" does not exist!");

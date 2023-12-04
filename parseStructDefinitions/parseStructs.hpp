@@ -89,14 +89,14 @@ struct ParseString : ParseStruct {
     std::string token;
     explicit ParseString(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] Variable* run() const;
+    [[nodiscard]] Variable* run();
 };
 
 struct ParseInt : ParseStruct {
     std::string token;
     explicit ParseInt(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] Variable* run() const;
+    [[nodiscard]] Variable* run();
 };
 
 struct ParseVariable : ParseStruct {

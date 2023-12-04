@@ -3,6 +3,7 @@
 #include "variables.hpp"
 #include "../exceptions.hpp"
 #include "../checks.hpp"
+#include "../functionStack.hpp"
 
 std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
@@ -59,17 +60,28 @@ std::string VariableInt::convert(const uint8_t type) const {
 }
 
 Variable* GetVariable(const std::string& token){
-    if (IsLocalVariable(token)){
-        // nothing for now
-        ParserException("Local variables are not implemented, how did you even get this error?");
-        return nullptr;
-    }
-    else if (IsGlobalVariable(token)){
-        return globalVariables[token].get();
-    }
-    else {
-        // should generally never be reached
+
+    if (!IsVariable(token)){
         ParserException("Variable of given token does not exist!");
         return nullptr;
+    }
+
+    if (!functionStack.empty()){
+        if (!functionStack.top().levels.empty()){
+            if (auto found = functionStack.top().levels.back().variables.find(token); found !=  functionStack.top().levels.back().variables.end()) {
+                return functionStack.top().levels.back().variables[token].get();
+            }
+        }
+        if (auto found = functionStack.top().variables.find(token); found !=  functionStack.top().variables.end()) {
+            return functionStack.top().variables[token].get();
+        }
+    }
+    if (!globalLevels.empty()){
+        if (auto found = globalLevels.back().variables.find(token); found !=  globalLevels.back().variables.end()) {
+            return globalLevels.back().variables[token].get();
+        }
+    }
+    if (auto found = globalVariables.find(token); found !=  globalVariables.end()) {
+        return globalVariables[token].get();
     }
 }
