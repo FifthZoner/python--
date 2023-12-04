@@ -5,13 +5,19 @@
 
 #include "interpreterInterface.hpp"
 
-inline std::unique_ptr <InterpreterInterface> interpreterStream;
+enum InterpreterState {
+    stateNormal, stateFunction
+};
 
 enum RunLineOutput {
     error, success, returned
 };
 
-uint8_t RunLine(std::string& line);
+inline std::unique_ptr <InterpreterInterface> interpreterStream;
+inline unsigned long long functionLine = 0;
+inline uint8_t interpreterState = InterpreterState::stateNormal;
+
+uint8_t RunLine(std::string line);
 
 void RunInterpreter(InterpreterInterface* interface);
 

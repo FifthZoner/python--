@@ -22,4 +22,6 @@ bool DoesReturnValue(const std::string& token);
 
 bool AreBracketsValid(std::pair <unsigned int, unsigned int> range);
 
+std::string CleanString(std::string input);
+
 #endif //PYTHON___CHECKS_HPP

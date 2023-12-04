@@ -2,6 +2,8 @@
 #include "../parsing.hpp"
 #include "../interpretation/runtime.hpp"
 #include "../checks.hpp"
+#include "../interpretation/interpreter.hpp"
+#include "../functionStack.hpp"
 
 enum CompareType {
     equal, greater, lesser, notEqual, greaterEqual, lesserEqual, none
@@ -80,6 +82,7 @@ ParseCompare::ParseCompare(std::pair <unsigned int, unsigned int> range) {
     }
 }
 
+
 ParseIf::ParseIf(std::pair <unsigned int, unsigned int> range){
     condition = std::unique_ptr <ParseStruct> (new ParseCompare(range));
 }
@@ -88,10 +91,15 @@ const uint8_t ParseIf::type() const {
     return ParseStruct::keywordIf;
 }
 
-bool ParseIf::run() const {
-    return reinterpret_cast <ParseCompare*> (condition.get())->run();
+void ParseIf::run() const {
+    bool result = reinterpret_cast <ParseCompare*> (condition.get())->run();
+    if (functionStack.empty()){
+        globalLevels.emplace_back(interpreterStream->lines.size(), result);
+    }
+    else {
+        functionStack.top().levels.emplace_back(interpreterStream->lines.size(), result);
+    }
 }
-
 
 ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range) {
     condition = std::unique_ptr <ParseStruct> (new ParseCompare(range));
@@ -100,6 +108,12 @@ ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range) {
 const uint8_t ParseWhile::type() const {
     return ParseStruct::keywordWhile;
 }
-bool ParseWhile::run() const {
-    return reinterpret_cast <ParseCompare*> (condition.get())->run();
+void ParseWhile::run() const {
+    bool result = reinterpret_cast <ParseCompare*> (condition.get())->run();
+    if (functionStack.empty()){
+        globalLevels.emplace_back(interpreterStream->lines.size() - 1, result);
+    }
+    else {
+        functionStack.top().levels.emplace_back(interpreterStream->lines.size() - 1, result);
+    }
 }

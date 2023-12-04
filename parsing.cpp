@@ -105,6 +105,12 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
         }
         if (parsedLine[0] == "if"){
             // an if statement
+            return std::make_unique <ParseIf> (std::pair <unsigned int, unsigned int> (range.first + 1, range.second));
+        }
+
+        if (parsedLine[0] == "while"){
+            // a while statement
+            return std::make_unique <ParseWhile> (std::pair <unsigned int, unsigned int> (range.first + 1, range.second));
         }
     }
     for (unsigned int n = range.first; n < range.second; n++){

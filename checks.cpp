@@ -86,3 +86,14 @@ bool AreBracketsValid(std::pair <unsigned int, unsigned int> range){
     }
     return true;
 }
+
+std::string CleanString(std::string input){
+    // tab and space deletion from ends
+    while (input.length() > 0 and (input.starts_with(' ') or input.starts_with('\t'))) {
+        input.erase(0, 1);
+    }
+    while (input.length() > 0 and input.ends_with(' ') or input.ends_with('\t')){
+        input.erase(input.length() - 1, 1);
+    }
+    return input;
+}

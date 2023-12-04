@@ -2,8 +2,9 @@
 
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
-InstanceLevel::InstanceLevel(uint64_t recallLine) {
+InstanceLevel::InstanceLevel(uint64_t recallLine, bool isRunning) {
     this->recallLine = recallLine;
+    this->isRunning = isRunning;
 }
 
 FunctionInstance::FunctionInstance(std::vector<std::string> &arguments, uint64_t startingLine, Function* function) {

@@ -126,7 +126,7 @@ struct ParseIf : ParseStruct {
     // pass the range without if
     explicit ParseIf(std::pair <unsigned int, unsigned int> range);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] bool run() const;
+    void run() const;
 };
 
 struct ParseWhile : ParseStruct {
@@ -134,7 +134,7 @@ struct ParseWhile : ParseStruct {
     // pass the range without while
     explicit ParseWhile(std::pair <unsigned int, unsigned int> range);
     [[nodiscard]] const uint8_t type() const override;
-    [[nodiscard]] bool run() const;
+    void run() const;
 };
 
 struct ParseFunction : ParseStruct {

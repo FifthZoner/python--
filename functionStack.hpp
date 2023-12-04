@@ -14,7 +14,8 @@ Variable* NewVariable(std::string& token, std::string& value);
 struct InstanceLevel {
     std::unordered_map <std::string, std::unique_ptr <Variable>> variables;
     uint64_t recallLine;
-    explicit InstanceLevel(uint64_t recallLine);
+    bool isRunning;
+    InstanceLevel(uint64_t recallLine, bool isRunning);
 };
 
 struct FunctionInstance {
