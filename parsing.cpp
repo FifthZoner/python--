@@ -85,7 +85,7 @@ uint8_t CheckTokenType(const std::string& token){
     return ParseStruct::variableValue;
 }
 
-std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> range){
+std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> range, unsigned long long lineNumber){
     #ifdef PYTHON___DEBUG
         std::cout << "Parsing line from function with input:\n";
         for (unsigned int n = range.first; n < range.second; n++){
@@ -105,12 +105,12 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
         }
         if (parsedLine[0] == "if"){
             // an if statement
-            return std::make_unique <ParseIf> (std::pair <unsigned int, unsigned int> (range.first + 1, range.second));
+            return std::make_unique <ParseIf> (std::pair <unsigned int, unsigned int> (range.first + 1, range.second), lineNumber);
         }
 
         if (parsedLine[0] == "while"){
             // a while statement
-            return std::make_unique <ParseWhile> (std::pair <unsigned int, unsigned int> (range.first + 1, range.second));
+            return std::make_unique <ParseWhile> (std::pair <unsigned int, unsigned int> (range.first + 1, range.second), lineNumber);
         }
     }
     if (range.second - range.first > 3){
@@ -144,7 +144,7 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
     return parseStruct;
 }
 
-std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
+std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line, unsigned long long lineNumber){
 
     // deleting tabs
     for (long n = 0; n < line.length(); n++){
@@ -264,6 +264,6 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line){
         }
     }
 
-    return ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()));
+    return ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
 }
 

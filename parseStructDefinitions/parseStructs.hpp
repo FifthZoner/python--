@@ -123,16 +123,18 @@ struct ParseCompare : ParseStruct {
 
 struct ParseIf : ParseStruct {
     std::unique_ptr <ParseStruct> condition;
+    unsigned long long recall;
     // pass the range without if
-    explicit ParseIf(std::pair <unsigned int, unsigned int> range);
+    ParseIf(std::pair <unsigned int, unsigned int> range, unsigned long long recall);
     [[nodiscard]] const uint8_t type() const override;
     void run() const;
 };
 
 struct ParseWhile : ParseStruct {
     std::unique_ptr <ParseStruct> condition;
+    unsigned long long recall;
     // pass the range without while
-    explicit ParseWhile(std::pair <unsigned int, unsigned int> range);
+    ParseWhile(std::pair <unsigned int, unsigned int> range, unsigned long long recall);
     [[nodiscard]] const uint8_t type() const override;
     bool run() const;
 };

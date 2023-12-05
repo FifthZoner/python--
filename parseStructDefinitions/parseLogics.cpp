@@ -1,3 +1,4 @@
+#include <iostream>
 #include "parseStructs.hpp"
 #include "../parsing.hpp"
 #include "../interpretation/runtime.hpp"
@@ -83,8 +84,9 @@ ParseCompare::ParseCompare(std::pair <unsigned int, unsigned int> range) {
 }
 
 
-ParseIf::ParseIf(std::pair <unsigned int, unsigned int> range){
+ParseIf::ParseIf(std::pair <unsigned int, unsigned int> range, unsigned long long recall){
     condition = std::unique_ptr <ParseStruct> (new ParseCompare(range));
+    this->recall = recall;
 }
 
 const uint8_t ParseIf::type() const {
@@ -94,15 +96,16 @@ const uint8_t ParseIf::type() const {
 void ParseIf::run() const {
     bool result = reinterpret_cast <ParseCompare*> (condition.get())->run();
     if (functionStack.empty()){
-        globalLevels.emplace_back(interpreterStream->lines.size(), result);
+        globalLevels.emplace_back(recall, result);
     }
     else {
-        functionStack.top().levels.emplace_back(interpreterStream->lines.size(), result);
+        functionStack.top().levels.emplace_back(recall, result);
     }
 }
 
-ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range) {
+ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range, unsigned long long recall) {
     condition = std::unique_ptr <ParseStruct> (new ParseCompare(range));
+    this->recall = recall;
 }
 
 const uint8_t ParseWhile::type() const {
@@ -112,10 +115,11 @@ const uint8_t ParseWhile::type() const {
 bool ParseWhile::run() const {
     bool result = reinterpret_cast <ParseCompare*> (condition.get())->run();
     if (functionStack.empty()){
-        globalLevels.emplace_back(interpreterStream->lines.size(), result);
+        std::cout << "global alloc " << globalLevels.size() << "\n";
+        globalLevels.emplace_back(recall, result);
     }
     else {
-        functionStack.top().levels.emplace_back(interpreterStream->lines.size() - 1, result);
+        functionStack.top().levels.emplace_back(recall, result);
     }
     return result;
 }

@@ -41,10 +41,8 @@ bool IsVariable(const std::string& token){
             return true;
         }
     }
-    std::cout << globalLevels.size() << "\n";
     if (!globalLevels.empty()) {
         for (long long n = globalLevels.size() - 1; n > -1; n--) {
-            std::cout << n << "\n";
             if (auto found = globalLevels[n].variables.find(token); found != globalLevels[n].variables.end()) {
                 return true;
             }

@@ -1,9 +1,12 @@
 #include "functionStack.hpp"
 
+#include <iostream>
+
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 InstanceLevel::InstanceLevel(uint64_t recallLine, bool isRunning) {
     this->recallLine = recallLine;
+    std::cout << "Added recall: " << recallLine << "\n";
     this->isRunning = isRunning;
 }
 

@@ -54,15 +54,25 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
         if (!globalLevels.empty()){
             // running inside a logic statement, only needs to check if it's skipped or ended
             if (line == "end"){
+                std::cout << "Recall: " << globalLevels.back().recallLine  << " : " << interpreterStream->lines[globalLevels.back().recallLine] << " : " << globalLevels.size() << "\n";
+                std::cout << "Lines:\n";
+                for (auto& k : interpreterStream->lines){
+                    std::cout << k << "\n";
+                }
+                std::cout << "recalls:\n";
+                for (auto& k : globalLevels){
+                    std::cout << k.recallLine << "\n";
+                }
                 // going level down
                 if (interpreterStream->lines[globalLevels[globalLevels.size() - 1].recallLine].starts_with("if")){
                     globalLevels.erase(globalLevels.end());
                     return RunLineOutput::success;
                 }
-                else if (interpreterStream->lines[globalLevels[globalLevels.size() - 1].recallLine].starts_with("while")) {
+                else if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("while")) {
                     auto where = globalLevels.back().recallLine;
 
-                    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(interpreterStream->lines[where]));
+                    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                    std::cout << "Parsed : " << interpreterStream->lines[where] << " with recall at " << where << "\n";
                     if (exceptionHappened){
                         exceptionHappened = false;
                         std::cout << "Parsing of current line has been cancelled!\n";
@@ -77,12 +87,22 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                     globalLevels.erase(globalLevels.end());
 
                     while (reinterpret_cast <ParseWhile*> (parsed.get())->run()){
+                        std::cout << "Running loop from " << where << " to " << lineNumber << "\n";
+                        for (auto& k : interpreterStream->lines){
+                            std::cout << k << "\n";
+                        }
+                        std::cout << "recalls:\n";
+                        for (auto& k : globalLevels){
+                            std::cout << k.recallLine << "\n";
+                        }
                         for (unsigned long long n = where + 1; n < lineNumber; n++){
                             // this should run all the commands inside the loop until condition is not true
+                            std::cout << "Running: " << interpreterStream->lines[n] << " " << n << " " << globalLevels.size(); "\n";
                             RunLine(interpreterStream->lines[n], n);
+
                         }
+                        globalLevels.pop_back();
                     }
-                    globalLevels.erase(globalLevels.end());
                     return RunLineOutput::success;
                 }
             }
@@ -112,7 +132,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
         }
         // running globally
 
-        std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(line));
+        std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(line), lineNumber);
         if (exceptionHappened){
             exceptionHappened = false;
             std::cout << "Parsing of current line has been cancelled!\n";
