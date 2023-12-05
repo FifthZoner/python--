@@ -105,3 +105,16 @@ std::string ParseFunction::run() const {
 const uint8_t ParseFunction::type() const {
     return ParseStruct::operatorFunction;
 }
+
+// custom functions
+ParseCustomFunction::ParseCustomFunction(std::pair<unsigned int, unsigned int> range){
+
+}
+
+std::string ParseCustomFunction::run() const {
+
+}
+
+const uint8_t ParseCustomFunction::type() const {
+    return customFunction;
+}

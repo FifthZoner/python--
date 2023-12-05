@@ -56,7 +56,7 @@ ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<u
     }
     else if (left.second - left.first == 1){
         // existing variable check
-        if (IsGlobalVariable(parsedLine[left.first])){
+        if (IsVariable(parsedLine[left.first])){
             target = std::unique_ptr<ParseStruct>(new ParseVariable(parsedLine[left.first]));
         }
         else {

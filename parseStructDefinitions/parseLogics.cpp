@@ -108,12 +108,14 @@ ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range) {
 const uint8_t ParseWhile::type() const {
     return ParseStruct::keywordWhile;
 }
-void ParseWhile::run() const {
+
+bool ParseWhile::run() const {
     bool result = reinterpret_cast <ParseCompare*> (condition.get())->run();
     if (functionStack.empty()){
-        globalLevels.emplace_back(interpreterStream->lines.size() - 1, result);
+        globalLevels.emplace_back(interpreterStream->lines.size(), result);
     }
     else {
         functionStack.top().levels.emplace_back(interpreterStream->lines.size() - 1, result);
     }
+    return result;
 }

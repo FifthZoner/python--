@@ -4,6 +4,7 @@
 #include "content/variables.hpp"
 #include "defines.hpp"
 #include "content/pmmstdlib/pmmstdlib.hpp"
+#include "functionStack.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
@@ -27,21 +28,29 @@ bool IsConvertibleToString(const std::string &token) {
     return false;
 }
 
-
-bool IsGlobalVariable(const std::string& token) {
-    if (auto found = globalVariables.find(token); found != globalVariables.end()) {
-        return true;
-    }
-    return false;
-}
-
-bool IsLocalVariable(const std::string& token) {
-
-    return false;
-}
-
 bool IsVariable(const std::string& token){
-    if (IsGlobalVariable(token) or IsLocalVariable((token))){
+    if (!functionStack.empty()){
+        if (!functionStack.top().levels.empty()){
+            for (long long n = functionStack.top().levels.size() - 1; n > -1; n--){
+                if (auto found = functionStack.top().levels[n].variables.find(token); found != functionStack.top().levels[n].variables.end()) {
+                    return true;
+                }
+            }
+        }
+        if (auto found = functionStack.top().variables.find(token); found != functionStack.top().variables.end()) {
+            return true;
+        }
+    }
+    std::cout << globalLevels.size() << "\n";
+    if (!globalLevels.empty()) {
+        for (long long n = globalLevels.size() - 1; n > -1; n--) {
+            std::cout << n << "\n";
+            if (auto found = globalLevels[n].variables.find(token); found != globalLevels[n].variables.end()) {
+                return true;
+            }
+        }
+    }
+    if (auto found = globalVariables.find(token); found != globalVariables.end()) {
         return true;
     }
     return false;
@@ -55,14 +64,17 @@ bool IsFunction(const std::string& token) {
 }
 
 bool DoesReturnValue(const std::string& token){
-    if (IsConvertibleToInt(token) or IsConvertibleToString(token) or IsVariable(token)){
+    if (IsVariable(token) or IsConvertibleToInt(token) or IsConvertibleToString(token)){
+        std::cout << "Yes: " << token << "\n";
         return true;
     }
     if (IsFunction(token)){
         if (functions[token]->returnType() != Variable::none){
+            std::cout << "Yes: " << token << "\n";
             return true;
         }
     }
+    std::cout << "No: " << token << "\n";
     return false;
 }
 

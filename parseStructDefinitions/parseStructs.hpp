@@ -18,7 +18,7 @@ inline std::vector <std::string> parsedLine;
 struct ParseStruct {
     enum {
         none, variableInt, variableString, variableVariable, variableValue,
-        keywordIf, keywordWhile, keywordReturn, keywordImplicit, keywordEnd, keywordElse,
+        keywordIf, keywordWhile, keywordReturn, keywordImplicit, keywordEnd, keywordElse, customFunction,
         operatorPlus, operatorMinus, operatorAssign, operatorFunction, operatorMultiply, operatorDivide, operatorPower,
         operatorCompare
     };
@@ -134,7 +134,7 @@ struct ParseWhile : ParseStruct {
     // pass the range without while
     explicit ParseWhile(std::pair <unsigned int, unsigned int> range);
     [[nodiscard]] const uint8_t type() const override;
-    void run() const;
+    bool run() const;
 };
 
 struct ParseFunction : ParseStruct {
@@ -142,6 +142,13 @@ struct ParseFunction : ParseStruct {
     std::vector<std::unique_ptr<ParseStruct>> tokens;
     // pass the whole function call, that is: "function(arg1, arg2, ..., argn)"
     explicit ParseFunction(std::pair<unsigned int, unsigned int> range);
+    std::string run() const;
+    [[nodiscard]] const uint8_t type() const override;
+};
+
+struct ParseCustomFunction : ParseStruct {
+    // pass the whole line with the function definition
+    explicit ParseCustomFunction(std::pair<unsigned int, unsigned int> range);
     std::string run() const;
     [[nodiscard]] const uint8_t type() const override;
 };

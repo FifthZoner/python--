@@ -62,7 +62,7 @@ FunctionCustom::FunctionCustom(std::pair <uint64_t, uint64_t> range, uint8_t ret
 std::string FunctionCustom::run(std::vector <std::string>& arguments) {
     // correctness of arguments is to be checked at the ParseFunction level to allow for easy implicit handling
     for (uint64_t n = range.first; n < range.second; n++){
-        if (RunLine(interpreterStream->lines[n]) == RunLineOutput::returned){
+        if (RunLine(interpreterStream->lines[n], n) == RunLineOutput::returned){
             break;
         }
     }

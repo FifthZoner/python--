@@ -113,6 +113,12 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
             return std::make_unique <ParseWhile> (std::pair <unsigned int, unsigned int> (range.first + 1, range.second));
         }
     }
+    if (range.second - range.first > 3){
+        if ((parsedLine[range.first] == "int" or parsedLine[range.first] == "string" or parsedLine[range.first] == "void")
+        and parsedLine[range.first + 2] == "(" and parsedLine[range.second - 1] == ")") {
+            return std::make_unique <ParseCustomFunction> (std::pair <unsigned int, unsigned int> (range.first, range.second));
+        }
+    }
     for (unsigned int n = range.first; n < range.second; n++){
         if (auto found = tokenMap.find(parsedLine[n]); found != tokenMap.end()) {
             switch (tokenMap[parsedLine[n]]){

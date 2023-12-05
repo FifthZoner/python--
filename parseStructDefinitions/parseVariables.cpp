@@ -23,6 +23,7 @@ ParseValue::ParseValue(const std::string& value){
         valueType = ParseStruct::variableInt;
     }
     else {
+        std::cout << value << " <--- this value\n";
         ParserException("Value somehow could not be created!");
     }
 }
@@ -38,7 +39,7 @@ std::string ParseValue::run() const{
 
 ParseInt::ParseInt(const std::string& token){
     this->token = token;
-    if (IsGlobalVariable(token) or IsLocalVariable(token)){
+    if (IsVariable(token)){
         ParserException("Variable redefinition!");
     }
 }
@@ -55,7 +56,7 @@ Variable* ParseInt::run() {
 
 ParseString::ParseString(const std::string& token){
     this->token = token;
-    if (IsGlobalVariable(token) or IsLocalVariable(token)){
+    if (IsVariable(token)){
         ParserException("Variable redefinition!");
     }
 }

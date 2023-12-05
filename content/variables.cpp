@@ -68,8 +68,10 @@ Variable* GetVariable(const std::string& token){
 
     if (!functionStack.empty()){
         if (!functionStack.top().levels.empty()){
-            if (auto found = functionStack.top().levels.back().variables.find(token); found !=  functionStack.top().levels.back().variables.end()) {
-                return functionStack.top().levels.back().variables[token].get();
+            for (long long n = functionStack.top().levels.size() - 1; n > -1; n--){
+                if (auto found = functionStack.top().levels[n].variables.find(token); found != functionStack.top().levels[n].variables.end()) {
+                    return functionStack.top().levels[n].variables[token].get();
+                }
             }
         }
         if (auto found = functionStack.top().variables.find(token); found !=  functionStack.top().variables.end()) {
@@ -77,9 +79,12 @@ Variable* GetVariable(const std::string& token){
         }
     }
     if (!globalLevels.empty()){
-        if (auto found = globalLevels.back().variables.find(token); found !=  globalLevels.back().variables.end()) {
-            return globalLevels.back().variables[token].get();
+        for (long long n = globalLevels.size() - 1; n > -1; n--) {
+            if (auto found = globalLevels[n].variables.find(token); found !=  globalLevels[n].variables.end()) {
+                return globalLevels[n].variables[token].get();
+            }
         }
+
     }
     if (auto found = globalVariables.find(token); found !=  globalVariables.end()) {
         return globalVariables[token].get();

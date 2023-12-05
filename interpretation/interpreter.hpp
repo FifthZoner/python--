@@ -17,7 +17,7 @@ inline std::unique_ptr <InterpreterInterface> interpreterStream;
 inline unsigned long long functionLine = 0;
 inline uint8_t interpreterState = InterpreterState::stateNormal;
 
-uint8_t RunLine(std::string line);
+uint8_t RunLine(std::string line, unsigned long long lineNumber);
 
 void RunInterpreter(InterpreterInterface* interface);
 
