@@ -49,4 +49,6 @@ inline std::unordered_map <std::string, std::unique_ptr <Function>> functions;
 
 void ParseNewFunction(std::pair<unsigned int, unsigned int> range);
 
+void PushNewFunction(unsigned long long endIndex);
+
 #endif //PYTHON___FUNCTION_HPP

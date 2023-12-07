@@ -28,7 +28,7 @@ InterpreterFromFile::InterpreterFromFile(std::vector <std::string> files) {
     for (auto& n : this->files){
         std::cout << n << "\n";
     }
-    std::cout << ":\n";
+    std::cout << ":\n\n";
 }
 std::string InterpreterFromFile::getNextLine() {
     if (files.empty()){

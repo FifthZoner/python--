@@ -18,6 +18,14 @@ int innerLevel = 0;
 
 uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
+    if (isDefiningFunction and line == "end" and innerLevel == 0 ){
+            // function has been defined, huzzah!
+            isDefiningFunction = false;
+            PushNewFunction(lineNumber);
+            return RunLineOutput::success;
+
+    }
+
     if (!functionStack.empty()){
         // running functions
         if (!functionStack.top().levels.empty()){
@@ -149,6 +157,10 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
     }
 
     if (innerLevel != 0){
+        return RunLineOutput::success;
+    }
+
+    if (isDefiningFunction){
         return RunLineOutput::success;
     }
 

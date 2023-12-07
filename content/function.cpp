@@ -3,6 +3,7 @@
 #include "../interpretation/interpreter.hpp"
 #include "../parseStructDefinitions/parseStructs.hpp"
 #include "../checks.hpp"
+#include "../functionStack.hpp"
 
 
 FunctionVariable::FunctionVariable(const uint8_t type, const std::string &name, bool isImplicit) {
@@ -77,43 +78,101 @@ std::string FunctionCustom::run(std::vector <std::string>& arguments) {
     return "0";
 }
 
+extern int innerLevel;
+std::vector <FunctionVariable> newFunctionVariables;
+uint8_t newFunctionReturnType = 0;
+std::pair <unsigned long long, unsigned long long> newFunctionRange;
+std::string newFunctionName;
+
 void ParseNewFunction(std::pair<unsigned int, unsigned int> range){
-    isDefiningFunction = true;
     if (range.second - range.first < 4){
         // should never happen
-        isDefiningFunction = false;
         ParserException("Wrong amount of tokens passed to form a function!");
+        return;
+    }
+
+    if (!globalLevels.empty() or !functionStack.empty() or innerLevel != 0){
+        ParserException("Cannot define function inside something else!");
         return;
     }
 
     if (IsFunction(parsedLine[range.first + 1])){
         isDefiningFunction = false;
-        ParserException("Wrong beginning of a function!");
+        ParserException("Function redefinition!");
         return;
     }
+
+    newFunctionName = parsedLine[range.first + 1];
 
     // bracket check, I think it's not always called by ParseMathematicalSomethingSomething()
     if (!AreBracketsValid(range)){
-        isDefiningFunction = false;
         return;
     }
-    uint8_t returnType = 0;
     // return type
     if (parsedLine[range.first] == "void"){
-        returnType = Variable::none;
+        newFunctionReturnType = Variable::none;
     }
     else if (parsedLine[range.first] == "int"){
-        returnType = Variable::typeInt;
+        newFunctionReturnType = Variable::typeInt;
     }
     else if (parsedLine[range.first] == "string"){
-        returnType = Variable::typeString;
+        newFunctionReturnType = Variable::typeString;
     }
     else {
-        isDefiningFunction = false;
         // should never happen
-        ParserException("CAnnot get function return type!");
+        ParserException("Cannot get function return type!");
     }
+    newFunctionVariables.clear();
 
-    std::vector <FunctionVariable> variables;
+    std::pair <unsigned int, unsigned int> variableRange (range.first + 3, range.first + 3);
+    for (unsigned int n = range.first + 3; n < range.second; n++) {
+        if (parsedLine[n] == ")" or parsedLine[n] == ",") {
+            // end of argument
+            variableRange.second = n;
 
+            if (variableRange.second - variableRange. first > 3) {
+                ParserException("Wrong function argument syntax!");
+                return;
+            }
+            if (variableRange.second - variableRange. first == 2){
+                // <type> <token>
+                if (parsedLine[variableRange.first] == "int"){
+                    newFunctionVariables.emplace_back(Variable::typeInt, parsedLine[variableRange.first + 1], false);
+                }
+                else if (parsedLine[variableRange.first] == "string"){
+                    newFunctionVariables.emplace_back(Variable::typeString, parsedLine[variableRange.first + 1], false);
+                }
+                else {
+                    ParserException("Wrong function argument type!");
+                    return;
+                }
+            }
+            else if (variableRange.second - variableRange. first == 2){
+                // implicit <type> <token>
+                if (parsedLine[variableRange.first] != "implicit"){
+                    ParserException("Wrong function argument type!");
+                    return;
+                }
+                if (parsedLine[variableRange.first + 1] == "int"){
+                    newFunctionVariables.emplace_back(Variable::typeInt, parsedLine[variableRange.first + 2], true);
+                }
+                else if (parsedLine[variableRange.first + 1] == "string"){
+                    newFunctionVariables.emplace_back(Variable::typeString, parsedLine[variableRange.first + 2], true);
+                }
+                else {
+                    ParserException("Wrong function argument type!");
+                    return;
+                }
+            }
+
+            variableRange.first = n + 1;
+        }
+    }
+    isDefiningFunction = true;
+    newFunctionRange.first = interpreterStream->lines.size();
+}
+
+void PushNewFunction(unsigned long long endIndex){
+    newFunctionRange.second = endIndex;
+    functions[newFunctionName] = std::unique_ptr <Function> (new FunctionCustom(newFunctionRange, newFunctionReturnType, newFunctionVariables));
 }
