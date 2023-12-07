@@ -116,6 +116,7 @@ bool ParseWhile::run() const {
     bool result = reinterpret_cast <ParseCompare*> (condition.get())->run();
     if (functionStack.empty()){
         std::cout << "global alloc " << globalLevels.size() << "\n";
+        std::cout << "Running while with recall at " << recall << " and result " << result << "\n";
         globalLevels.emplace_back(recall, result);
     }
     else {

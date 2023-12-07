@@ -14,6 +14,8 @@ extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariab
 
 bool exceptionHappened = false;
 
+int innerLevel = 0;
+
 uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
     if (interpreterState == InterpreterState::stateNormal){
@@ -54,17 +56,25 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
         if (!globalLevels.empty()){
             // running inside a logic statement, only needs to check if it's skipped or ended
             if (line == "end"){
-                std::cout << "Recall: " << globalLevels.back().recallLine  << " : " << interpreterStream->lines[globalLevels.back().recallLine] << " : " << globalLevels.size() << "\n";
+                std::cout << "\nRecall: " << globalLevels.back().recallLine  << " : " << interpreterStream->lines[globalLevels.back().recallLine] << " : " << globalLevels.size() << "\n";
                 std::cout << "Lines:\n";
                 for (auto& k : interpreterStream->lines){
                     std::cout << k << "\n";
                 }
-                std::cout << "recalls:\n";
+                //std::cout << "recalls:\n";
                 for (auto& k : globalLevels){
-                    std::cout << k.recallLine << "\n";
+                    //std::cout << k.recallLine << "\n";
                 }
                 // going level down
-                if (interpreterStream->lines[globalLevels[globalLevels.size() - 1].recallLine].starts_with("if")){
+
+                if (innerLevel > 0){
+                    innerLevel--;
+                }
+                std::cout << "\nLevel1: " << innerLevel << "\n";
+                if (innerLevel != 0){
+                    return RunLineOutput::success;
+                }
+                if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("if")){
                     globalLevels.erase(globalLevels.end());
                     return RunLineOutput::success;
                 }
@@ -84,10 +94,11 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                         return RunLineOutput::error;
                     }
 
-                    globalLevels.erase(globalLevels.end());
+                    globalLevels.pop_back();
+                    interpreterStream->lines.push_back(line);
 
                     while (reinterpret_cast <ParseWhile*> (parsed.get())->run()){
-                        std::cout << "Running loop from " << where << " to " << lineNumber << "\n";
+                        std::cout << "Running loop from " << where << " to " << lineNumber << " at level: " << globalLevels.size() << "\n";
                         for (auto& k : interpreterStream->lines){
                             std::cout << k << "\n";
                         }
@@ -97,16 +108,38 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                         }
                         for (unsigned long long n = where + 1; n < lineNumber; n++){
                             // this should run all the commands inside the loop until condition is not true
-                            std::cout << "Running: " << interpreterStream->lines[n] << " " << n << " " << globalLevels.size(); "\n";
+                            std::cout << "Running: " << interpreterStream->lines[n] << " " << n << " " << globalLevels.size() << "\n";
                             RunLine(interpreterStream->lines[n], n);
 
                         }
+                        std::cout << "Popped from " << globalLevels.size() << "with recall " << where;
+                        std::cout << "recalls before:\n";
+                        for (auto& k : globalLevels){
+                            std::cout << k.recallLine << "\n";
+                        }
                         globalLevels.pop_back();
+                        std::cout << "recalls after:\n";
+                        for (auto& k : globalLevels){
+                            std::cout << k.recallLine << "\n";
+                        }
+                        std::cout << " to " << globalLevels.size() << "\n";
                     }
+                    std::cout << "Popped outside loop from " << globalLevels.size() << "with recall " << where;
+                    std::cout << "recalls before:\n";
+                    for (auto& k : globalLevels){
+                        std::cout << k.recallLine << "\n";
+                    }
+                    globalLevels.pop_back();
+                    std::cout << "recalls after:\n";
+                    for (auto& k : globalLevels){
+                        std::cout << k.recallLine << "\n";
+                    }
+                    std::cout << " to " << globalLevels.size() << "\n";
+                    interpreterStream->lines.resize(interpreterStream->lines.size() - 1);
                     return RunLineOutput::success;
                 }
             }
-            if (line == "else"){
+            else if (line == "else"){
                 if (!interpreterStream->lines[globalLevels[globalLevels.size() - 1].recallLine].starts_with("if")) {
                     std::cout << interpreterStream->lines[globalLevels[globalLevels.size() - 1].recallLine] << "\n";
                     InterpreterException("Else statement ending while!");
@@ -125,12 +158,30 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 }
                 return RunLineOutput::success;
             }
-            if (!globalLevels.back().isRunning){
+            //if (!globalLevels.back().isRunning){
                 // skipped
-                return RunLineOutput::success;
-            }
+            //    return RunLineOutput::success;
+            //}
         }
         // running globally
+        if (line.starts_with("if")){
+            if (innerLevel == 0){
+                globalLevels.emplace_back(lineNumber, false);
+            }
+            innerLevel++;
+            std::cout << "\nLevel2: " << innerLevel << "\n";
+        }
+        else if (line.starts_with("while")){
+            if (innerLevel == 0){
+                globalLevels.emplace_back(lineNumber, false);
+            }
+            innerLevel++;
+            std::cout << "\nLevel2: " << innerLevel << "\n";
+        }
+
+        if (innerLevel != 0){
+            return RunLineOutput::success;
+        }
 
         std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(line), lineNumber);
         if (exceptionHappened){
@@ -150,11 +201,11 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 break;
             case ParseStruct::keywordIf:
                 // no return in that case
-                reinterpret_cast <ParseIf*> (parsed.get())->run();
+                //reinterpret_cast <ParseIf*> (parsed.get())->run();
                 break;
             case ParseStruct::keywordWhile:
                 // no return in that case
-                reinterpret_cast <ParseWhile*> (parsed.get())->run();
+                //reinterpret_cast <ParseWhile*> (parsed.get())->run();
                 break;
 
             default:
@@ -184,10 +235,11 @@ void RunInterpreter(InterpreterInterface* interface){
         if (temp == "exit"){
             break;
         }
+        std::cout << "Current stack size: " << globalLevels.size() << "\n";
         if (RunLine(temp, interpreterStream->lines.size())){
             interpreterStream->lines.push_back(temp);
             #ifdef PYTHON___DEBUG
-            std::cout << "Pushed: " << interpreterStream->lines.back() << "\n";
+            std::cout << "Pushed: " << interpreterStream->lines.back() << " with level: " << innerLevel<< "\n";
             #endif
         }
     }

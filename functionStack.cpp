@@ -44,6 +44,7 @@ Variable* NewVariable(std::string& token, long long value){
         // leveled global variable
         std::cout << "Leveled global\n";
         globalLevels.back().variables[token] = std::unique_ptr <Variable> (new VariableInt(value));
+        std::cout << "At level: " << globalLevels.size() << "\n";
         return globalLevels.back().variables[token].get();
     }
     else {
