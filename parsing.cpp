@@ -60,7 +60,6 @@ std::unordered_map<std::string, uint8_t> tokenMap =
                 {"string", ParseStruct::variableString},
                 {"int", ParseStruct::variableInt},
                 {"end", ParseStruct::keywordEnd},
-                {"else", ParseStruct::keywordElse},
                 {"+", ParseStruct::operatorPlus},
                 {"-", ParseStruct::operatorMinus},
                 {"*", ParseStruct::operatorMultiply},

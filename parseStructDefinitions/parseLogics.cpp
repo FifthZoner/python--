@@ -81,6 +81,7 @@ ParseCompare::ParseCompare(std::pair <unsigned int, unsigned int> range) {
         case CompareType::lesserEqual:
             return valueLeft.length() <= valueRight.length();
     }
+    return false;
 }
 
 
@@ -93,7 +94,7 @@ const uint8_t ParseIf::type() const {
     return ParseStruct::keywordIf;
 }
 
-void ParseIf::run() const {
+bool ParseIf::run() const {
     bool result = reinterpret_cast <ParseCompare*> (condition.get())->run();
     if (functionStack.empty()){
         globalLevels.emplace_back(recall, result);
@@ -101,6 +102,7 @@ void ParseIf::run() const {
     else {
         functionStack.top().levels.emplace_back(recall, result);
     }
+    return result;
 }
 
 ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range, unsigned long long recall) {
@@ -115,8 +117,6 @@ const uint8_t ParseWhile::type() const {
 bool ParseWhile::run() const {
     bool result = reinterpret_cast <ParseCompare*> (condition.get())->run();
     if (functionStack.empty()){
-        std::cout << "global alloc " << globalLevels.size() << "\n";
-        std::cout << "Running while with recall at " << recall << " and result " << result << "\n";
         globalLevels.emplace_back(recall, result);
     }
     else {

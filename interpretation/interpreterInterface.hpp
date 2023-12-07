@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <fstream>
 
 // base class, do not use outside the pointer
 struct InterpreterInterface {
@@ -23,7 +24,12 @@ struct InterpreterFromUser : InterpreterInterface {
 
 // gets lines from given files in given order via file stream
 struct InterpreterFromFile : InterpreterInterface {
-    // NOT IMPLEMENTED
+    std::vector <std::string> files;
+    unsigned int currentFile = 0;
+    std::ifstream file;
+    InterpreterFromFile(std::vector <std::string> files);
+    std::string getNextLine() override;
+    void endMessage() override;
 };
 
 

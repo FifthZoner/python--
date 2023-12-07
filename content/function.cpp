@@ -1,6 +1,8 @@
 #include "function.hpp"
 #include "../exceptions.hpp"
 #include "../interpretation/interpreter.hpp"
+#include "../parseStructDefinitions/parseStructs.hpp"
+#include "../checks.hpp"
 
 
 FunctionVariable::FunctionVariable(const uint8_t type, const std::string &name, bool isImplicit) {
@@ -73,4 +75,45 @@ std::string FunctionCustom::run(std::vector <std::string>& arguments) {
         InterpreterException("Wrong return type of function!");
     }
     return "0";
+}
+
+void ParseNewFunction(std::pair<unsigned int, unsigned int> range){
+    isDefiningFunction = true;
+    if (range.second - range.first < 4){
+        // should never happen
+        isDefiningFunction = false;
+        ParserException("Wrong amount of tokens passed to form a function!");
+        return;
+    }
+
+    if (IsFunction(parsedLine[range.first + 1])){
+        isDefiningFunction = false;
+        ParserException("Wrong beginning of a function!");
+        return;
+    }
+
+    // bracket check, I think it's not always called by ParseMathematicalSomethingSomething()
+    if (!AreBracketsValid(range)){
+        isDefiningFunction = false;
+        return;
+    }
+    uint8_t returnType = 0;
+    // return type
+    if (parsedLine[range.first] == "void"){
+        returnType = Variable::none;
+    }
+    else if (parsedLine[range.first] == "int"){
+        returnType = Variable::typeInt;
+    }
+    else if (parsedLine[range.first] == "string"){
+        returnType = Variable::typeString;
+    }
+    else {
+        isDefiningFunction = false;
+        // should never happen
+        ParserException("CAnnot get function return type!");
+    }
+
+    std::vector <FunctionVariable> variables;
+
 }

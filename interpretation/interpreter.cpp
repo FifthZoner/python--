@@ -18,210 +18,170 @@ int innerLevel = 0;
 
 uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
-    if (interpreterState == InterpreterState::stateNormal){
-        if (!functionStack.empty()){
-            // running functions
-            if (!functionStack.top().levels.empty()){
-                // running local function levels, only needs to check if it's skipped or ended
-                if (line == "end"){
-                    // going level down
-                    functionStack.top().levels.erase(functionStack.top().levels.end());
-                    return RunLineOutput::success;
-                }
-                if (line == "else"){
-                    if (!interpreterStream->lines[functionStack.top().levels.back().recallLine].starts_with("if")) {
-                        InterpreterException("Else statement ending while!");
-                        return RunLineOutput::error;
-                    }
-
-                    bool pervious = functionStack.top().levels.back().isRunning;
-                    functionStack.top().levels.erase(functionStack.top().levels.end());
-                    if (pervious) {
-                        functionStack.top().levels.emplace_back(interpreterStream->lines.size() - 1, false);
-                        std::cout << "False else\n";
-                    }
-                    else {
-                        functionStack.top().levels.emplace_back(interpreterStream->lines.size() - 1, true);
-                        std::cout << "True else\n";
-                    }
-                    return RunLineOutput::success;
-                }
-                if (!functionStack.top().levels.back().isRunning){
-                    // skipped
-                    return RunLineOutput::success;
-                }
+    if (!functionStack.empty()){
+        // running functions
+        if (!functionStack.top().levels.empty()){
+            // running local function levels, only needs to check if it's skipped or ended
+            if (line == "end"){
+                // going level down
+                functionStack.top().levels.erase(functionStack.top().levels.end());
+                return RunLineOutput::success;
+            }
+            if (!functionStack.top().levels.back().isRunning){
+                // skipped
+                return RunLineOutput::success;
             }
         }
+    }
 
-        if (!globalLevels.empty()){
-            // running inside a logic statement, only needs to check if it's skipped or ended
-            if (line == "end"){
-                std::cout << "\nRecall: " << globalLevels.back().recallLine  << " : " << interpreterStream->lines[globalLevels.back().recallLine] << " : " << globalLevels.size() << "\n";
-                std::cout << "Lines:\n";
-                for (auto& k : interpreterStream->lines){
-                    std::cout << k << "\n";
-                }
-                //std::cout << "recalls:\n";
-                for (auto& k : globalLevels){
-                    //std::cout << k.recallLine << "\n";
-                }
-                // going level down
+    if (!globalLevels.empty()){
+        // running inside a logic statement, only needs to check if it's skipped or ended
+        if (line == "end"){
 
-                if (innerLevel > 0){
-                    innerLevel--;
-                }
-                std::cout << "\nLevel1: " << innerLevel << "\n";
-                if (innerLevel != 0){
-                    return RunLineOutput::success;
-                }
-                if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("if")){
-                    globalLevels.erase(globalLevels.end());
-                    return RunLineOutput::success;
-                }
-                else if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("while")) {
-                    auto where = globalLevels.back().recallLine;
-
-                    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
-                    std::cout << "Parsed : " << interpreterStream->lines[where] << " with recall at " << where << "\n";
-                    if (exceptionHappened){
-                        exceptionHappened = false;
-                        std::cout << "Parsing of current line has been cancelled!\n";
-                        return RunLineOutput::error;
-                    }
-
-                    if (parsed->type() != ParseStruct::keywordWhile){
-                        std::cout << "Parsing of current line has been cancelled due to invalid while loop!\n";
-                        return RunLineOutput::error;
-                    }
-
-                    globalLevels.pop_back();
-                    interpreterStream->lines.push_back(line);
-
-                    while (reinterpret_cast <ParseWhile*> (parsed.get())->run()){
-                        std::cout << "Running loop from " << where << " to " << lineNumber << " at level: " << globalLevels.size() << "\n";
-                        for (auto& k : interpreterStream->lines){
-                            std::cout << k << "\n";
-                        }
-                        std::cout << "recalls:\n";
-                        for (auto& k : globalLevels){
-                            std::cout << k.recallLine << "\n";
-                        }
-                        for (unsigned long long n = where + 1; n < lineNumber; n++){
-                            // this should run all the commands inside the loop until condition is not true
-                            std::cout << "Running: " << interpreterStream->lines[n] << " " << n << " " << globalLevels.size() << "\n";
-                            RunLine(interpreterStream->lines[n], n);
-
-                        }
-                        std::cout << "Popped from " << globalLevels.size() << "with recall " << where;
-                        std::cout << "recalls before:\n";
-                        for (auto& k : globalLevels){
-                            std::cout << k.recallLine << "\n";
-                        }
-                        globalLevels.pop_back();
-                        std::cout << "recalls after:\n";
-                        for (auto& k : globalLevels){
-                            std::cout << k.recallLine << "\n";
-                        }
-                        std::cout << " to " << globalLevels.size() << "\n";
-                    }
-                    std::cout << "Popped outside loop from " << globalLevels.size() << "with recall " << where;
-                    std::cout << "recalls before:\n";
-                    for (auto& k : globalLevels){
-                        std::cout << k.recallLine << "\n";
-                    }
-                    globalLevels.pop_back();
-                    std::cout << "recalls after:\n";
-                    for (auto& k : globalLevels){
-                        std::cout << k.recallLine << "\n";
-                    }
-                    std::cout << " to " << globalLevels.size() << "\n";
-                    interpreterStream->lines.resize(interpreterStream->lines.size() - 1);
-                    return RunLineOutput::success;
-                }
+            // going level down
+            if (innerLevel > 0){
+                innerLevel--;
             }
-            else if (line == "else"){
-                if (!interpreterStream->lines[globalLevels[globalLevels.size() - 1].recallLine].starts_with("if")) {
-                    std::cout << interpreterStream->lines[globalLevels[globalLevels.size() - 1].recallLine] << "\n";
-                    InterpreterException("Else statement ending while!");
+            if (innerLevel != 0){
+                return RunLineOutput::success;
+            }
+            if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("if")){
+                auto where = globalLevels.back().recallLine;
+
+                std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                if (exceptionHappened){
+                    exceptionHappened = false;
+                    std::cout << "Parsing of current line has been cancelled!\n";
                     return RunLineOutput::error;
                 }
 
-                bool before = globalLevels.back().isRunning;
-                globalLevels.erase(globalLevels.end());
-                if (before) {
-                    globalLevels.emplace_back(interpreterStream->lines.size() - 1, false);
-                    std::cout << "False else\n";
+                if (parsed->type() != ParseStruct::keywordIf){
+                    std::cout << "Parsing of current line has been cancelled due to invalid if statement!\n";
+                    return RunLineOutput::error;
+                }
+
+                globalLevels.pop_back();
+                interpreterStream->lines.push_back(line);
+
+                // looking for else
+                unsigned int elsePos = 0;
+                for (unsigned long long n = where + 1; n < lineNumber; n++){
+                    if (interpreterStream->lines[n] == "else"){
+                        if (elsePos != 0){
+                            std::cout << "CRITICAL: Parsing of current line has been cancelled due to invalid else placement!\n";
+                            return RunLineOutput::error;
+                        }
+                        elsePos = n;
+                    }
+                }
+                if (reinterpret_cast <ParseIf*> (parsed.get())->run()){
+                    if (elsePos){
+                        for (unsigned long long n = where + 1; n < elsePos; n++){
+                            RunLine(interpreterStream->lines[n], n);
+                        }
+                    }
+                    else {
+                        for (unsigned long long n = where + 1; n < lineNumber; n++){
+                            RunLine(interpreterStream->lines[n], n);
+                        }
+                    }
                 }
                 else {
-                    globalLevels.emplace_back(interpreterStream->lines.size() - 1, true);
-                    std::cout << "True else\n";
+                    if (elsePos) {
+                        for (unsigned long long n = elsePos + 1; n < lineNumber; n++){
+                            RunLine(interpreterStream->lines[n], n);
+                        }
+                    }
+                    else {
+                        for (unsigned long long n = where + 1; n < lineNumber; n++){
+                            RunLine(interpreterStream->lines[n], n);
+                        }
+                    }
                 }
+                globalLevels.pop_back();
+                interpreterStream->lines.pop_back();
                 return RunLineOutput::success;
             }
-            //if (!globalLevels.back().isRunning){
-                // skipped
-            //    return RunLineOutput::success;
-            //}
-        }
-        // running globally
-        if (line.starts_with("if")){
-            if (innerLevel == 0){
-                globalLevels.emplace_back(lineNumber, false);
+            else if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("while")) {
+                auto where = globalLevels.back().recallLine;
+
+                std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                if (exceptionHappened){
+                    exceptionHappened = false;
+                    std::cout << "Parsing of current line has been cancelled!\n";
+                    return RunLineOutput::error;
+                }
+
+                if (parsed->type() != ParseStruct::keywordWhile){
+                    std::cout << "Parsing of current line has been cancelled due to invalid while loop!\n";
+                    return RunLineOutput::error;
+                }
+
+                globalLevels.pop_back();
+                interpreterStream->lines.push_back(line);
+
+                while (reinterpret_cast <ParseWhile*> (parsed.get())->run()){
+                    for (unsigned long long n = where + 1; n < lineNumber; n++){
+                        // this should run all the commands inside the loop until condition is not true
+                        RunLine(interpreterStream->lines[n], n);
+
+                    }
+                    globalLevels.pop_back();
+                }
+                globalLevels.pop_back();
+                interpreterStream->lines.resize(interpreterStream->lines.size() - 1);
+                return RunLineOutput::success;
             }
-            innerLevel++;
-            std::cout << "\nLevel2: " << innerLevel << "\n";
-        }
-        else if (line.starts_with("while")){
-            if (innerLevel == 0){
-                globalLevels.emplace_back(lineNumber, false);
-            }
-            innerLevel++;
-            std::cout << "\nLevel2: " << innerLevel << "\n";
-        }
-
-        if (innerLevel != 0){
-            return RunLineOutput::success;
-        }
-
-        std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(line), lineNumber);
-        if (exceptionHappened){
-            exceptionHappened = false;
-            std::cout << "Parsing of current line has been cancelled!\n";
-            return RunLineOutput::error;
-        }
-
-        // actual running of the code, finally, only first level things here, the rest recursively or something
-        switch (parsed->type()){
-            case ParseStruct::operatorAssign:
-                reinterpret_cast<ParseAssign*>(parsed->getPointer())->run();
-                break;
-            case ParseStruct::operatorFunction:
-                // no return in that case
-                reinterpret_cast <ParseFunction*> (parsed.get())->run();
-                break;
-            case ParseStruct::keywordIf:
-                // no return in that case
-                //reinterpret_cast <ParseIf*> (parsed.get())->run();
-                break;
-            case ParseStruct::keywordWhile:
-                // no return in that case
-                //reinterpret_cast <ParseWhile*> (parsed.get())->run();
-                break;
-
-            default:
-                InterpreterException("Wrong level 1 token!");
-                break;
-
-        }
-
-        if (exceptionHappened){
-            exceptionHappened = false;
-            std::cout << "Interpreting of current line has been cancelled!\n";
-            return RunLineOutput::error;
         }
     }
-    else {
-        // saving a function
+    // running globally
+    if (line.starts_with("if")){
+        if (innerLevel == 0){
+            globalLevels.emplace_back(lineNumber, false);
+        }
+        innerLevel++;
+    }
+    else if (line.starts_with("while")){
+        if (innerLevel == 0){
+            globalLevels.emplace_back(lineNumber, false);
+        }
+        innerLevel++;
+    }
+
+    if (innerLevel != 0){
+        return RunLineOutput::success;
+    }
+
+    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(line), lineNumber);
+    if (exceptionHappened){
+        exceptionHappened = false;
+        std::cout << "Parsing of current line has been cancelled!\n";
+        return RunLineOutput::error;
+    }
+
+    // actual running of the code, finally, only first level things here, the rest recursively or something
+    switch (parsed->type()){
+        case ParseStruct::operatorAssign:
+            reinterpret_cast<ParseAssign*>(parsed->getPointer())->run();
+            break;
+        case ParseStruct::operatorFunction:
+            // no return in that case
+            reinterpret_cast <ParseFunction*> (parsed.get())->run();
+            break;
+        case ParseStruct::customFunction:
+            // to avoid exception
+            break;
+
+        default:
+            InterpreterException("Wrong level 1 token!");
+            break;
+
+    }
+
+    if (exceptionHappened){
+        exceptionHappened = false;
+        std::cout << "Interpreting of current line has been cancelled!\n";
+        return RunLineOutput::error;
     }
 
     return RunLineOutput::success;
@@ -235,7 +195,6 @@ void RunInterpreter(InterpreterInterface* interface){
         if (temp == "exit"){
             break;
         }
-        std::cout << "Current stack size: " << globalLevels.size() << "\n";
         if (RunLine(temp, interpreterStream->lines.size())){
             interpreterStream->lines.push_back(temp);
             #ifdef PYTHON___DEBUG

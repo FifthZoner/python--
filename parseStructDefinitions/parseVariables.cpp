@@ -23,7 +23,6 @@ ParseValue::ParseValue(const std::string& value){
         valueType = ParseStruct::variableInt;
     }
     else {
-        std::cout << value << " <--- this value\n";
         ParserException("Value somehow could not be created!");
     }
 }

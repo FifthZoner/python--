@@ -6,7 +6,6 @@ extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariab
 
 InstanceLevel::InstanceLevel(uint64_t recallLine, bool isRunning) {
     this->recallLine = recallLine;
-    std::cout << "Added recall: " << recallLine << "\n";
     this->isRunning = isRunning;
 }
 
@@ -29,27 +28,22 @@ Variable* NewVariable(std::string& token, long long value){
     if (!functionStack.empty()){
         if (!functionStack.top().variables.empty()){
             // leveled local variable
-            std::cout << "Leveled local\n";
             functionStack.top().levels.back().variables[token] = std::unique_ptr <Variable> (new VariableInt(value));
             return functionStack.top().levels.back().variables[token].get();
         }
         else {
             // local function-wide variable
-            std::cout << "Local\n";
             functionStack.top().variables[token] = std::unique_ptr <Variable> (new VariableInt(value));
             return functionStack.top().variables[token].get();
         }
     }
     else if (!globalLevels.empty()){
         // leveled global variable
-        std::cout << "Leveled global\n";
         globalLevels.back().variables[token] = std::unique_ptr <Variable> (new VariableInt(value));
-        std::cout << "At level: " << globalLevels.size() << "\n";
         return globalLevels.back().variables[token].get();
     }
     else {
         // global variable
-        std::cout << "Global\n";
         globalVariables[token] = std::unique_ptr <Variable> (new VariableInt(value));
         return globalVariables[token].get();
     }

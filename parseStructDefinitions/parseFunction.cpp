@@ -4,6 +4,8 @@
 #include "parseStructs.hpp"
 #include "../checks.hpp"
 #include "../interpretation/runtime.hpp"
+#include "../interpretation/interpreter.hpp"
+#include "../content/function.hpp"
 
 ParseFunction::ParseFunction(std::pair<unsigned int, unsigned int> range){
     if (range.second - range.first < 3){
@@ -108,11 +110,7 @@ const uint8_t ParseFunction::type() const {
 
 // custom functions
 ParseCustomFunction::ParseCustomFunction(std::pair<unsigned int, unsigned int> range){
-
-}
-
-std::string ParseCustomFunction::run() const {
-
+    ParseNewFunction(range);
 }
 
 const uint8_t ParseCustomFunction::type() const {

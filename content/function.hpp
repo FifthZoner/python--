@@ -47,4 +47,6 @@ struct FunctionCustom : Function {
 
 inline std::unordered_map <std::string, std::unique_ptr <Function>> functions;
 
+void ParseNewFunction(std::pair<unsigned int, unsigned int> range);
+
 #endif //PYTHON___FUNCTION_HPP

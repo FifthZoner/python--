@@ -89,4 +89,7 @@ Variable* GetVariable(const std::string& token){
     if (auto found = globalVariables.find(token); found !=  globalVariables.end()) {
         return globalVariables[token].get();
     }
+
+    ParserException("Variable of given token does not exist!");
+    return nullptr;
 }

@@ -63,16 +63,16 @@ bool IsFunction(const std::string& token) {
 
 bool DoesReturnValue(const std::string& token){
     if (IsVariable(token) or IsConvertibleToInt(token) or IsConvertibleToString(token)){
-        std::cout << "Yes: " << token << "\n";
+        //std::cout << "Yes: " << token << "\n";
         return true;
     }
     if (IsFunction(token)){
         if (functions[token]->returnType() != Variable::none){
-            std::cout << "Yes: " << token << "\n";
+            //std::cout << "Yes: " << token << "\n";
             return true;
         }
     }
-    std::cout << "No: " << token << "\n";
+    //std::cout << "No: " << token << "\n";
     return false;
 }
 
