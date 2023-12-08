@@ -21,8 +21,6 @@ struct InstanceLevel {
 struct FunctionInstance {
     std::vector <InstanceLevel> levels;
     std::unordered_map <std::string, std::unique_ptr <Variable>> variables;
-    uint64_t currentLine;
-    FunctionInstance(std::vector <std::string>& arguments, uint64_t startingLine, Function* function);
 };
 
 inline std::stack <FunctionInstance> functionStack;

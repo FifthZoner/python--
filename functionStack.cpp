@@ -9,19 +9,6 @@ InstanceLevel::InstanceLevel(uint64_t recallLine, bool isRunning) {
     this->isRunning = isRunning;
 }
 
-FunctionInstance::FunctionInstance(std::vector<std::string> &arguments, uint64_t startingLine, Function* function) {
-    this->currentLine = startingLine;
-    // creating arguments
-    for (unsigned int n = 0; n < arguments.size(); n++){
-        if (function->variables[n].type == Variable::typeInt){
-            variables[function->variables[n].name] = std::unique_ptr <Variable> (new VariableInt(std::stoll(arguments[n])));
-        }
-        else {
-            variables[function->variables[n].name] = std::unique_ptr <Variable> (new VariableString(arguments[n]));
-        }
-    }
-}
-
 #include <iostream>
 
 Variable* NewVariable(std::string& token, long long value){

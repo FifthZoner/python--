@@ -4,7 +4,11 @@
 #include "../parseStructDefinitions/parseStructs.hpp"
 #include "../checks.hpp"
 #include "../functionStack.hpp"
+#include "../defines.hpp"
 
+#ifdef PYTHON___DEBUG
+#include <iostream>
+#endif
 
 FunctionVariable::FunctionVariable(const uint8_t type, const std::string &name, bool isImplicit) {
     this->type = type;
@@ -64,11 +68,36 @@ FunctionCustom::FunctionCustom(std::pair <uint64_t, uint64_t> range, uint8_t ret
 
 std::string FunctionCustom::run(std::vector <std::string>& arguments) {
     // correctness of arguments is to be checked at the ParseFunction level to allow for easy implicit handling
+    functionStack.emplace();
+    // creating variables
+    for (unsigned int n = 0; n < variables.size(); n++) {
+        if (variables[n].type == Variable::typeInt) {
+            if (!IsConvertibleToInt(arguments[n])){
+                InterpreterException("Invalid function arguments!");
+                functionStack.pop();
+                return "0";
+            }
+            functionStack.top().variables[variables[n].name] = std::unique_ptr <Variable> (new VariableInt(std::stoll(arguments[n])));
+        }
+        else if (variables[n].type == Variable::typeString) {
+            functionStack.top().variables[variables[n].name] = std::unique_ptr <Variable> (new VariableString(arguments[n]));
+        }
+        else {
+            InterpreterException("Invalid function arguments!");
+            functionStack.pop();
+            return "0";
+        }
+        #ifdef PYTHON___DEBUG
+        std::cout << "Added local variable: " << variables[n].name << " with value of: " << arguments[n] << "\n";
+        #endif
+    }
+
     for (uint64_t n = range.first; n < range.second; n++){
         if (RunLine(interpreterStream->lines[n], n) == RunLineOutput::returned){
             break;
         }
     }
+    functionStack.pop();
     if (returnTypeValue != Variable::none){
         if (returnTypeValue == Variable::typeInt or returnTypeValue == Variable::typeString){
             return returnValueString;
@@ -103,6 +132,9 @@ void ParseNewFunction(std::pair<unsigned int, unsigned int> range){
     }
 
     newFunctionName = parsedLine[range.first + 1];
+    #ifdef PYTHON___DEBUG
+    std::cout << "Started defining new function : " << newFunctionName << "\n";
+    #endif
 
     // bracket check, I think it's not always called by ParseMathematicalSomethingSomething()
     if (!AreBracketsValid(range)){
@@ -169,10 +201,13 @@ void ParseNewFunction(std::pair<unsigned int, unsigned int> range){
         }
     }
     isDefiningFunction = true;
-    newFunctionRange.first = interpreterStream->lines.size();
+    newFunctionRange.first = interpreterStream->lines.size() + 1;
 }
 
 void PushNewFunction(unsigned long long endIndex){
     newFunctionRange.second = endIndex;
     functions[newFunctionName] = std::unique_ptr <Function> (new FunctionCustom(newFunctionRange, newFunctionReturnType, newFunctionVariables));
+    #ifdef PYTHON___DEBUG
+    std::cout << "Pushed new function : " << newFunctionName << "\n";
+    #endif
 }

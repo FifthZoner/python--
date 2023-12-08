@@ -31,18 +31,101 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
         if (!functionStack.top().levels.empty()){
             // running local function levels, only needs to check if it's skipped or ended
             if (line == "end"){
+
                 // going level down
-                functionStack.top().levels.erase(functionStack.top().levels.end());
-                return RunLineOutput::success;
-            }
-            if (!functionStack.top().levels.back().isRunning){
-                // skipped
-                return RunLineOutput::success;
+                if (innerLevel > 0){
+                    innerLevel--;
+                }
+                if (innerLevel != 0){
+                    return RunLineOutput::success;
+                }
+                if (interpreterStream->lines[functionStack.top().levels.back().recallLine].starts_with("if")){
+                    auto where = functionStack.top().levels.back().recallLine;
+
+                    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], functionStack.top().levels.back().recallLine);
+                    if (exceptionHappened){
+                        exceptionHappened = false;
+                        std::cout << "Parsing of current line has been cancelled!\n";
+                        return RunLineOutput::error;
+                    }
+
+                    if (parsed->type() != ParseStruct::keywordIf){
+                        std::cout << "Parsing of current line has been cancelled due to invalid if statement!\n";
+                        return RunLineOutput::error;
+                    }
+
+                    functionStack.top().levels.pop_back();
+                    interpreterStream->lines.push_back(line);
+
+                    // looking for else
+                    unsigned int elsePos = 0;
+                    for (unsigned long long n = where + 1; n < lineNumber; n++){
+                        if (interpreterStream->lines[n] == "else"){
+                            if (elsePos != 0){
+                                std::cout << "CRITICAL: Parsing of current line has been cancelled due to invalid else placement!\n";
+                                interpreterStream->lines.pop_back();
+                                return RunLineOutput::error;
+                            }
+                            elsePos = n;
+                        }
+                    }
+                    if (reinterpret_cast <ParseIf*> (parsed.get())->run()){
+                        if (elsePos){
+                            for (unsigned long long n = where + 1; n < elsePos; n++){
+                                RunLine(interpreterStream->lines[n], n);
+                            }
+                        }
+                        else {
+                            for (unsigned long long n = where + 1; n < lineNumber; n++){
+                                RunLine(interpreterStream->lines[n], n);
+                            }
+                        }
+                    }
+                    else {
+                        if (elsePos) {
+                            for (unsigned long long n = elsePos + 1; n < lineNumber; n++){
+                                RunLine(interpreterStream->lines[n], n);
+                            }
+                        }
+                    }
+                    functionStack.top().levels.pop_back();
+                    interpreterStream->lines.pop_back();
+                    return RunLineOutput::success;
+                }
+                else if (interpreterStream->lines[functionStack.top().levels.back().recallLine].starts_with("while")) {
+                    auto where = functionStack.top().levels.back().recallLine;
+
+                    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], functionStack.top().levels.back().recallLine);
+                    if (exceptionHappened){
+                        exceptionHappened = false;
+                        std::cout << "Parsing of current line has been cancelled!\n";
+                        return RunLineOutput::error;
+                    }
+
+                    if (parsed->type() != ParseStruct::keywordWhile){
+                        std::cout << "Parsing of current line has been cancelled due to invalid while loop!\n";
+                        return RunLineOutput::error;
+                    }
+
+                    functionStack.top().levels.pop_back();
+                    interpreterStream->lines.push_back(line);
+
+                    while (reinterpret_cast <ParseWhile*> (parsed.get())->run()){
+                        for (unsigned long long n = where + 1; n < lineNumber; n++){
+                            // this should run all the commands inside the loop until condition is not true
+                            RunLine(interpreterStream->lines[n], n);
+
+                        }
+                        functionStack.top().levels.pop_back();
+                    }
+                    functionStack.top().levels.pop_back();
+                    interpreterStream->lines.resize(interpreterStream->lines.size() - 1);
+                    return RunLineOutput::success;
+                }
             }
         }
     }
-
-    if (!globalLevels.empty()){
+    else if (!globalLevels.empty()){
         // running inside a logic statement, only needs to check if it's skipped or ended
         if (line == "end"){
 
@@ -50,7 +133,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
             if (innerLevel > 0){
                 innerLevel--;
             }
-            if (innerLevel != 0){
+            if (innerLevel != 0 or isDefiningFunction){
                 return RunLineOutput::success;
             }
             if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("if")){
@@ -77,6 +160,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                     if (interpreterStream->lines[n] == "else"){
                         if (elsePos != 0){
                             std::cout << "CRITICAL: Parsing of current line has been cancelled due to invalid else placement!\n";
+                            interpreterStream->lines.pop_back();
                             return RunLineOutput::error;
                         }
                         elsePos = n;
@@ -145,13 +229,23 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
     // running globally
     if (line.starts_with("if")){
         if (innerLevel == 0){
-            globalLevels.emplace_back(lineNumber, false);
+            if (functionStack.empty()){
+                globalLevels.emplace_back(lineNumber, false);
+            }
+            else {
+                functionStack.top().levels.emplace_back(lineNumber, false);
+            }
         }
         innerLevel++;
     }
     else if (line.starts_with("while")){
         if (innerLevel == 0){
-            globalLevels.emplace_back(lineNumber, false);
+            if (functionStack.empty()){
+                globalLevels.emplace_back(lineNumber, false);
+            }
+            else {
+                functionStack.top().levels.emplace_back(lineNumber, false);
+            }
         }
         innerLevel++;
     }
