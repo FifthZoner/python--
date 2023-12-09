@@ -111,6 +111,11 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
             // a while statement
             return std::make_unique <ParseWhile> (std::pair <unsigned int, unsigned int> (range.first + 1, range.second), lineNumber);
         }
+
+        if (parsedLine[0] == "return"){
+            // a return statement
+            return std::make_unique <ParseReturn> (std::pair <unsigned int, unsigned int> (range.first, range.second));
+        }
     }
     if (range.second - range.first > 3){
         if ((parsedLine[range.first] == "int" or parsedLine[range.first] == "string" or parsedLine[range.first] == "void")

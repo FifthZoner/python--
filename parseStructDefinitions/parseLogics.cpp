@@ -5,6 +5,7 @@
 #include "../checks.hpp"
 #include "../interpretation/interpreter.hpp"
 #include "../functionStack.hpp"
+#include "../content/pmmstdlib/pmmstdlib.hpp"
 
 enum CompareType {
     equal, greater, lesser, notEqual, greaterEqual, lesserEqual, none
@@ -103,6 +104,38 @@ bool ParseIf::run() const {
         functionStack.top().levels.emplace_back(recall, result);
     }
     return result;
+}
+
+ParseReturn::ParseReturn(std::pair <unsigned int, unsigned int> range) {
+    if (parsedLine[range.first] != "return"){
+        ParserException("Wrong keyword in return!");
+        return;
+    }
+    if (functionStack.empty()){
+        InterpreterException("Parsing return statement outside function!");
+    }
+    if (range.second - range.first > 1) {
+        value = std::unique_ptr <ParseStruct> (ParseMathematicalOperation({range.first + 1, range.second}));
+    }
+    else {
+        // valueless return
+        value = nullptr;
+    }
+}
+
+const uint8_t ParseReturn::type() const {
+    return ParseStruct::keywordReturn;
+}
+
+void ParseReturn::run() {
+    if (value == nullptr) {
+        // just to be safe
+        returnValueString = "0";
+    }
+    if (functionStack.empty()){
+        InterpreterException("Running return statement outside function!");
+    }
+    returnValueString = RunValueReturning(value.get(), Variable::none);
 }
 
 ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range, unsigned long long recall) {

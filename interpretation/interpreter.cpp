@@ -17,6 +17,9 @@ bool exceptionHappened = false;
 int innerLevel = 0;
 
 uint8_t RunLine(std::string line, unsigned long long lineNumber) {
+    #ifdef PYTHON___DEBUG
+    std::cout << "Running: " << line << "\n";
+    #endif
 
     if (isDefiningFunction and line == "end" and innerLevel == 0 ){
             // function has been defined, huzzah!
@@ -27,6 +30,29 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
     }
 
     if (!functionStack.empty()){
+        if (innerLevel == 0 and line.starts_with("return")){
+            std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(line, lineNumber);
+            if (exceptionHappened){
+                exceptionHappened = false;
+                std::cout << "Parsing of current line has been cancelled!\n";
+                return RunLineOutput::error;
+            }
+
+            if (parsed->type() != ParseStruct::keywordReturn){
+                std::cout << "Parsing of current line has been cancelled due to invalid return statement!\n";
+                return RunLineOutput::error;
+            }
+
+            reinterpret_cast <ParseReturn*> (parsed.get())->run();
+
+            if (exceptionHappened){
+                exceptionHappened = false;
+                std::cout << "Interpreting of current line has been cancelled!\n";
+                return RunLineOutput::error;
+            }
+
+            return RunLineOutput::returned;
+        }
         // running functions
         if (!functionStack.top().levels.empty()){
             // running local function levels, only needs to check if it's skipped or ended
@@ -81,11 +107,9 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                             }
                         }
                     }
-                    else {
-                        if (elsePos) {
-                            for (unsigned long long n = elsePos + 1; n < lineNumber; n++){
-                                RunLine(interpreterStream->lines[n], n);
-                            }
+                    else if (elsePos) {
+                        for (unsigned long long n = elsePos + 1; n < lineNumber; n++){
+                            RunLine(interpreterStream->lines[n], n);
                         }
                     }
                     functionStack.top().levels.pop_back();
@@ -178,16 +202,9 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                         }
                     }
                 }
-                else {
-                    if (elsePos) {
-                        for (unsigned long long n = elsePos + 1; n < lineNumber; n++){
-                            RunLine(interpreterStream->lines[n], n);
-                        }
-                    }
-                    else {
-                        for (unsigned long long n = where + 1; n < lineNumber; n++){
-                            RunLine(interpreterStream->lines[n], n);
-                        }
+                else if (elsePos) {
+                    for (unsigned long long n = elsePos + 1; n < lineNumber; n++){
+                        RunLine(interpreterStream->lines[n], n);
                     }
                 }
                 globalLevels.pop_back();

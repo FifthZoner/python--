@@ -130,6 +130,15 @@ struct ParseIf : ParseStruct {
     bool run() const;
 };
 
+struct ParseReturn : ParseStruct {
+    std::unique_ptr <ParseStruct> value;
+    unsigned long long recall;
+    // pass the range without if
+    explicit ParseReturn(std::pair <unsigned int, unsigned int> range);
+    [[nodiscard]] const uint8_t type() const override;
+    void run();
+};
+
 struct ParseWhile : ParseStruct {
     std::unique_ptr <ParseStruct> condition;
     unsigned long long recall;

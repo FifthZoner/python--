@@ -76,7 +76,7 @@ bool DoesReturnValue(const std::string& token){
     return false;
 }
 
-bool AreBracketsValid(std::pair <unsigned int, unsigned int> range){
+bool AreBracketsValid(std::pair <unsigned int, unsigned int> range){\
     unsigned int bracketLevel = 0;
     for (unsigned int n = range.first; n < range.second; n++) {
         if (parsedLine[n] == "("){

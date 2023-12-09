@@ -663,7 +663,7 @@ std::string ParsePower::run() const{
             value = (long long)(powl(value, std::stoll(reinterpret_cast <ParseDivide*> (right->getPointer())->run())));
         }
         else if (right->type() == ParseStruct::operatorPower){
-            value = (long long)(powf128(value, std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run())));
+            value = (long long)(powl(value, std::stoll(reinterpret_cast <ParsePower*> (right->getPointer())->run())));
         }
         else {
             InterpreterException("Wrong operator in right side integer condition!");

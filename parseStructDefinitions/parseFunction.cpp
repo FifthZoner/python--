@@ -28,7 +28,7 @@ ParseFunction::ParseFunction(std::pair<unsigned int, unsigned int> range){
     unsigned int start = range.first;
     unsigned int bracketLevel = 0;
     for (unsigned int n = range.first + 1; n < range.second; n++){
-        if (parsedLine[n] == "," or (parsedLine[n] == ")" and bracketLevel == 1)){
+        if ((parsedLine[n] == "," or parsedLine[n] == ")") and bracketLevel == 1){
             // push to vector
             if (n == start){
                 if (!function->variables.empty()){

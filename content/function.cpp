@@ -91,7 +91,6 @@ std::string FunctionCustom::run(std::vector <std::string>& arguments) {
         std::cout << "Added local variable: " << variables[n].name << " with value of: " << arguments[n] << "\n";
         #endif
     }
-
     for (uint64_t n = range.first; n < range.second; n++){
         if (RunLine(interpreterStream->lines[n], n) == RunLineOutput::returned){
             break;
@@ -208,6 +207,6 @@ void PushNewFunction(unsigned long long endIndex){
     newFunctionRange.second = endIndex;
     functions[newFunctionName] = std::unique_ptr <Function> (new FunctionCustom(newFunctionRange, newFunctionReturnType, newFunctionVariables));
     #ifdef PYTHON___DEBUG
-    std::cout << "Pushed new function : " << newFunctionName << "\n";
+    std::cout << "Pushed new function : " << newFunctionName << " with range of lines from " << newFunctionRange.first << " to " << newFunctionRange.second <<"\n";
     #endif
 }
