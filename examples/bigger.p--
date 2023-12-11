@@ -1,0 +1,10 @@
+Print("Please input the first number: ")
+int a = Input()
+Print("Please input second number: ")
+int b = Input()
+if a > b
+	Println("The bigger number is: " + a)
+else
+	Println("The bigger number is: " + b)
+end
+

@@ -15,12 +15,13 @@ ParseValue::ParseValue(const std::string& value){
     this->value = value;
 
     // checking if it's a string or not
-    if (value.length() > 1 and value.starts_with('\"') and value.ends_with('\"')){
+
+    if (IsConvertibleToInt(value)){
+        valueType = ParseStruct::variableInt;
+    }
+    else if (value.length() > 0){
         this->value = value.substr(1, value.size() - 2);
         valueType = ParseStruct::variableString;
-    }
-    else if (IsConvertibleToInt(value)){
-        valueType = ParseStruct::variableInt;
     }
     else {
         ParserException("Value somehow could not be created!");

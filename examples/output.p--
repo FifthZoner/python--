@@ -1,0 +1,13 @@
+void Out(int n, string text)
+	Println(text)
+	n -= 1
+	if n > 0
+		Out(n, text)
+	end
+end
+
+Print("Input the text to be repeated: ")
+string tex = Input()
+Print("Input the number of times to repeat: ")
+int number = Input()
+Out(number, tex)

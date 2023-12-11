@@ -1,0 +1,3 @@
+Println("Wiatj w czacie gpp, podaj prompt:")
+string nie = Input()
+Println("Ten jezyk nie jest az tak interaktywny")

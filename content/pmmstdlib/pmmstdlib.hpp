@@ -7,9 +7,13 @@
 #include "../function.hpp"
 
 namespace pmmstd {
-    void Print(std::vector <std::string>& arguments);
+    void Print  (std::vector <std::string>& arguments);
     void Println(std::vector <std::string>& arguments);
-    void Input(std::vector <std::string>& arguments);
+    void Input  (std::vector <std::string>& arguments);
+    void IsInt  (std::vector <std::string>& arguments);
+    void ToInt  (std::vector <std::string>& arguments);
+    void Modulo (std::vector <std::string>& arguments);
+    void Power  (std::vector <std::string>& arguments);
 }
 
 // Call this only ONCE in main before the interpreter

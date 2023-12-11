@@ -35,4 +35,5 @@ add_executable(python__ main.cpp
         parseStructDefinitions/parseLogics.cpp
         functionStack.hpp
         functionStack.cpp
+        content/pmmstdlib/math.cpp
 )
