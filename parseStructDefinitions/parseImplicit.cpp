@@ -2,7 +2,7 @@
 #include <string>
 
 #include "parseStructs.hpp"
-#include "../checks.hpp"
+#include "../interpretation/checks.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>

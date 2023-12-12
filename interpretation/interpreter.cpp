@@ -1,10 +1,10 @@
 #include "interpreter.hpp"
 #include "../parsing.hpp"
-#include "../defines.hpp"
+#include "../content/defines.hpp"
 #include "../content/variables.hpp"
-#include "../exceptions.hpp"
-#include "../functionStack.hpp"
-#include "../checks.hpp"
+#include "exceptions.hpp"
+#include "functionStack.hpp"
+#include "checks.hpp"
 
 #include <iostream>
 #include <unordered_map>

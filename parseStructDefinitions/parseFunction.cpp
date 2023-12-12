@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "parseStructs.hpp"
-#include "../checks.hpp"
+#include "../interpretation/checks.hpp"
 #include "../interpretation/runtime.hpp"
 #include "../interpretation/interpreter.hpp"
 #include "../content/function.hpp"

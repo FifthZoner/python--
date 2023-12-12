@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "parseStructDefinitions/parseStructs.hpp"
+#include "../parseStructDefinitions/parseStructs.hpp"
 
 bool IsConvertibleToInt(const std::string& token);
 

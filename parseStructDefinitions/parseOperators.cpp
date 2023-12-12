@@ -2,8 +2,8 @@
 #include <cmath>
 
 #include "parseStructs.hpp"
-#include "../checks.hpp"
-#include "../defines.hpp"
+#include "../interpretation/checks.hpp"
+#include "../content/defines.hpp"
 #include "../parsing.hpp"
 
 #ifdef PYTHON___DEBUG

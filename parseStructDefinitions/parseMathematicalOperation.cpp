@@ -1,7 +1,7 @@
 #include "parseStructs.hpp"
 #include "../parsing.hpp"
-#include "../checks.hpp"
-#include "../defines.hpp"
+#include "../interpretation/checks.hpp"
+#include "../content/defines.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>

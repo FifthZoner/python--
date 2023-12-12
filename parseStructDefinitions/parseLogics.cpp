@@ -2,9 +2,9 @@
 #include "parseStructs.hpp"
 #include "../parsing.hpp"
 #include "../interpretation/runtime.hpp"
-#include "../checks.hpp"
+#include "../interpretation/checks.hpp"
 #include "../interpretation/interpreter.hpp"
-#include "../functionStack.hpp"
+#include "../interpretation/functionStack.hpp"
 #include "../content/pmmstdlib/pmmstdlib.hpp"
 
 enum CompareType {

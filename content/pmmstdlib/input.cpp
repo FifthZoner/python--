@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "pmmstdlib.hpp"
-#include "../../defines.hpp"
+#include "../defines.hpp"
 
 namespace pmmstd {
     void Input(std::vector <std::string>& arguments){

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "exceptions.hpp"
-#include "defines.hpp"
+#include "../content/defines.hpp"
 
 extern bool exceptionHappened;
 

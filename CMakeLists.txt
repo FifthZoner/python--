@@ -10,15 +10,15 @@ add_executable(python__ main.cpp
         parseStructDefinitions/parseStructs.cpp
         interpretation/interpreter.hpp
         interpretation/interpreter.cpp
-        checks.cpp
+        interpretation/checks.cpp
         content/variables.cpp
         content/variables.hpp
-        defines.hpp
-        checks.hpp
+        content/defines.hpp
+        interpretation/checks.hpp
         parseStructDefinitions/parseVariables.cpp
         parseStructDefinitions/parseOperators.cpp
-        exceptions.cpp
-        exceptions.hpp
+        interpretation/exceptions.cpp
+        interpretation/exceptions.hpp
         parseStructDefinitions/parseMathematicalOperation.cpp
         interpretation/interpreterInterface.cpp
         interpretation/interpreterInterface.hpp
@@ -33,7 +33,7 @@ add_executable(python__ main.cpp
         interpretation/runtime.hpp
         content/pmmstdlib/input.cpp
         parseStructDefinitions/parseLogics.cpp
-        functionStack.hpp
-        functionStack.cpp
+        interpretation/functionStack.hpp
+        interpretation/functionStack.cpp
         content/pmmstdlib/math.cpp
 )

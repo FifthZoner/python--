@@ -8,7 +8,7 @@
 #include <utility>
 #include <memory>
 
-#include "../exceptions.hpp"
+#include "../interpretation/exceptions.hpp"
 #include "../content/variables.hpp"
 #include "../content/function.hpp"
 

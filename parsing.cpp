@@ -2,8 +2,8 @@
 #include <unordered_map>
 
 #include "parsing.hpp"
-#include "defines.hpp"
-#include "checks.hpp"
+#include "content/defines.hpp"
+#include "interpretation/checks.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>

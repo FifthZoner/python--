@@ -1,9 +1,9 @@
 #include <cmath>
 
 #include "pmmstdlib.hpp"
-#include "../../exceptions.hpp"
-#include "../../defines.hpp"
-#include "../../checks.hpp"
+#include "../../interpretation/exceptions.hpp"
+#include "../defines.hpp"
+#include "../../interpretation/checks.hpp"
 
 // c++ standard library bindings for printing functions
 namespace pmmstd {

@@ -1,9 +1,9 @@
 #include <unordered_map>
 
 #include "parseStructs.hpp"
-#include "../checks.hpp"
-#include "../defines.hpp"
-#include "../functionStack.hpp"
+#include "../interpretation/checks.hpp"
+#include "../content/defines.hpp"
+#include "../interpretation/functionStack.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>

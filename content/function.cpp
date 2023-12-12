@@ -1,10 +1,10 @@
 #include "function.hpp"
-#include "../exceptions.hpp"
+#include "../interpretation/exceptions.hpp"
 #include "../interpretation/interpreter.hpp"
 #include "../parseStructDefinitions/parseStructs.hpp"
-#include "../checks.hpp"
-#include "../functionStack.hpp"
-#include "../defines.hpp"
+#include "../interpretation/checks.hpp"
+#include "../interpretation/functionStack.hpp"
+#include "defines.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>

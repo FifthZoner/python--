@@ -1,9 +1,9 @@
 #include <unordered_map>
 
 #include "checks.hpp"
-#include "content/variables.hpp"
-#include "defines.hpp"
-#include "content/pmmstdlib/pmmstdlib.hpp"
+#include "../content/variables.hpp"
+#include "../content/defines.hpp"
+#include "../content/pmmstdlib/pmmstdlib.hpp"
 #include "functionStack.hpp"
 
 #ifdef PYTHON___DEBUG

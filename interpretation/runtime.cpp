@@ -1,5 +1,5 @@
 #include "runtime.hpp"
-#include "../exceptions.hpp"
+#include "exceptions.hpp"
 
 std::string RunValueReturning(ParseStruct* runnable, uint8_t type){
     switch (runnable->type()){

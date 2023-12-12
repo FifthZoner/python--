@@ -1,6 +1,6 @@
 #include "parseStructs.hpp"
-#include "../defines.hpp"
-#include "../checks.hpp"
+#include "../content/defines.hpp"
+#include "../interpretation/checks.hpp"
 
 const uint8_t ParseStruct::type() const {
     return ParseStruct::none;

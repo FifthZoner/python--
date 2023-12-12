@@ -1,9 +1,9 @@
 #include <unordered_map>
 
 #include "variables.hpp"
-#include "../exceptions.hpp"
-#include "../checks.hpp"
-#include "../functionStack.hpp"
+#include "../interpretation/exceptions.hpp"
+#include "../interpretation/checks.hpp"
+#include "../interpretation/functionStack.hpp"
 
 std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
