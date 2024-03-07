@@ -11,27 +11,27 @@ InstanceLevel::InstanceLevel(uint64_t recallLine, bool isRunning) {
 
 #include <iostream>
 
-Variable* NewVariable(std::string& token, long long value){
+Variable* NewVariable(std::string& token, long double value){
     if (!functionStack.empty()){
         if (!functionStack.top().variables.empty()){
             // leveled local variable
-            functionStack.top().levels.back().variables[token] = std::unique_ptr <Variable> (new VariableInt(value));
+            functionStack.top().levels.back().variables[token] = std::unique_ptr <Variable> (new VariableNum(value));
             return functionStack.top().levels.back().variables[token].get();
         }
         else {
             // local function-wide variable
-            functionStack.top().variables[token] = std::unique_ptr <Variable> (new VariableInt(value));
+            functionStack.top().variables[token] = std::unique_ptr <Variable> (new VariableNum(value));
             return functionStack.top().variables[token].get();
         }
     }
     else if (!globalLevels.empty()){
         // leveled global variable
-        globalLevels.back().variables[token] = std::unique_ptr <Variable> (new VariableInt(value));
+        globalLevels.back().variables[token] = std::unique_ptr <Variable> (new VariableNum(value));
         return globalLevels.back().variables[token].get();
     }
     else {
         // global variable
-        globalVariables[token] = std::unique_ptr <Variable> (new VariableInt(value));
+        globalVariables[token] = std::unique_ptr <Variable> (new VariableNum(value));
         return globalVariables[token].get();
     }
 }

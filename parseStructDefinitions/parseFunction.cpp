@@ -94,8 +94,8 @@ std::string ParseFunction::run() const {
     }
     // value type check
     for (unsigned int n = 0; n < tokens.size(); n++){
-        if (function->variables[n].type == Variable::typeInt){
-            if (!IsConvertibleToInt(stringValues[n])){
+        if (function->variables[n].type == Variable::typeNum){
+            if (!IsConvertibleToNum(stringValues[n])){
                 InterpreterException("Argument mismatch in function!");
                 return "0";
             }

@@ -12,9 +12,9 @@
 
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
-bool IsConvertibleToInt(const std::string& token) {
+bool IsConvertibleToNum(const std::string& token) {
     for (auto current : token) {
-        if ((current > '9' or current < '0') and current != '-'){
+        if ((current > '9' or current < '0') and current != '-' and current != '.'){
             return false;
         }
     }
@@ -31,7 +31,7 @@ bool IsConvertibleToString(const std::string &token) {
 bool IsVariable(const std::string& token){
     if (!functionStack.empty()){
         if (!functionStack.top().levels.empty()){
-            for (long long n = functionStack.top().levels.size() - 1; n > -1; n--){
+            for (long double n = functionStack.top().levels.size() - 1; n > -1; n--){
                 if (auto found = functionStack.top().levels[n].variables.find(token); found != functionStack.top().levels[n].variables.end()) {
                     return true;
                 }
@@ -42,7 +42,7 @@ bool IsVariable(const std::string& token){
         }
     }
     if (!globalLevels.empty()) {
-        for (long long n = globalLevels.size() - 1; n > -1; n--) {
+        for (long double n = globalLevels.size() - 1; n > -1; n--) {
             if (auto found = globalLevels[n].variables.find(token); found != globalLevels[n].variables.end()) {
                 return true;
             }
@@ -62,7 +62,7 @@ bool IsFunction(const std::string& token) {
 }
 
 bool DoesReturnValue(const std::string& token){
-    if (IsVariable(token) or IsConvertibleToInt(token) or IsConvertibleToString(token)){
+    if (IsVariable(token) or IsConvertibleToNum(token) or IsConvertibleToString(token)){
         //std::cout << "Yes: " << token << "\n";
         return true;
     }

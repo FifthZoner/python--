@@ -35,7 +35,7 @@ std::vector <std::vector <std::string>> ParseCommandArguments(const int argc, ch
     }
     return vec;
 }
-std::string specialCharacters = ",.(){}[]=+-*/%^!<>:";
+std::string specialCharacters = ",(){}[]=+-*/%^!<>:";
 std::pair<char, char> doubleOperators[9] =
         {
         std::make_pair<char, char>('=', '='),
@@ -58,7 +58,7 @@ std::unordered_map<std::string, uint8_t> tokenMap =
                 {"return", ParseStruct::keywordReturn},
                 {"implicit", ParseStruct::keywordImplicit},
                 {"string", ParseStruct::variableString},
-                {"int", ParseStruct::variableInt},
+                {"num", ParseStruct::variableNum},
                 {"end", ParseStruct::keywordEnd},
                 {"+", ParseStruct::operatorPlus},
                 {"-", ParseStruct::operatorMinus},
@@ -99,7 +99,7 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
                 // that means a return-less function line
                 return std::make_unique <ParseFunction> (range);
             }
-            ParserException("Function with return type as first token!");
+            ParserException(returnValueString = "Function with return type as first token!");
             return std::make_unique <ParseStruct> ();
         }
         if (parsedLine[0] == "if"){
@@ -118,7 +118,7 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
         }
     }
     if (range.second - range.first > 3){
-        if ((parsedLine[range.first] == "int" or parsedLine[range.first] == "string" or parsedLine[range.first] == "void")
+        if ((parsedLine[range.first] == "num" or parsedLine[range.first] == "string" or parsedLine[range.first] == "void")
         and parsedLine[range.first + 2] == "(" and parsedLine[range.second - 1] == ")") {
             return std::make_unique <ParseCustomFunction> (std::pair <unsigned int, unsigned int> (range.first, range.second));
         }

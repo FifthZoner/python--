@@ -42,12 +42,12 @@ You can also see the next difference: functions are typed and don't need ':' aft
 Some functions have c++ native binds, these are realised via a special type of function, not possible to create from the language itself and are fully separate from user functions.</br></br>
 This function doesn't return any value, but when one does, it does so explicitly:
 ```
-int StringLength(implicit string str)
+num StringLength(implicit string str)
 ```
 Yeah, there are no objects.</br></br>
 Indentations are important:
 ```
-implicit int foo(int a, string b)
+implicit num foo(num a, string b)
     return a + b
 Println(foo(3, "4"))
 Print("This is so silly!")
@@ -56,15 +56,15 @@ Print("This is so silly!")
 ```
 The keyword "implicit" can be used anywhere with variables, but in some cases it can generate exceptions:
 ```
-implicit int foo(string a)
+implicit num foo(string a)
     a = a + "not a number"
     return a <- exception here
     
-implicit int b = 5 + " + " + 7 + " = " + (5 + 7) <- exception here
+implicit num b = 5 + " + " + 7 + " = " + (5 + 7) <- exception here
 ```
 The "implicit" keyword henerally allows for type conversions:
 ```
-int var = 5
+num var = 5
 string str = "This equals "
 implicit str += var;
 ```

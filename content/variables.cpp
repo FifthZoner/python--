@@ -26,8 +26,8 @@ const uint8_t VariableString::type() const {
 }
 std::string VariableString::convert(const uint8_t type) const {
     switch (type){
-        case Variable::typeInt:
-            if (IsConvertibleToInt(value)){
+        case Variable::typeNum:
+            if (IsConvertibleToNum(value)){
                 return value;
             }
             InterpreterException("This string is inconvertible to integer!");
@@ -41,15 +41,15 @@ std::string VariableString::convert(const uint8_t type) const {
 }
 
 
-VariableInt::VariableInt(const long long value) {
+VariableNum::VariableNum(const long double value) {
     this->value = value;
 }
-const uint8_t VariableInt::type() const {
-    return Variable::typeInt;
+const uint8_t VariableNum::type() const {
+    return Variable::typeNum;
 }
-std::string VariableInt::convert(const uint8_t type) const {
+std::string VariableNum::convert(const uint8_t type) const {
     switch (type){
-        case Variable::typeInt:
+        case Variable::typeNum:
             return std::to_string(value);
         case Variable::typeString:
             return std::to_string(value);
@@ -68,7 +68,7 @@ Variable* GetVariable(const std::string& token){
 
     if (!functionStack.empty()){
         if (!functionStack.top().levels.empty()){
-            for (long long n = functionStack.top().levels.size() - 1; n > -1; n--){
+            for (long double n = functionStack.top().levels.size() - 1; n > -1; n--){
                 if (auto found = functionStack.top().levels[n].variables.find(token); found != functionStack.top().levels[n].variables.end()) {
                     return functionStack.top().levels[n].variables[token].get();
                 }
@@ -79,7 +79,7 @@ Variable* GetVariable(const std::string& token){
         }
     }
     if (!globalLevels.empty()){
-        for (long long n = globalLevels.size() - 1; n > -1; n--) {
+        for (long double n = globalLevels.size() - 1; n > -1; n--) {
             if (auto found = globalLevels[n].variables.find(token); found !=  globalLevels[n].variables.end()) {
                 return globalLevels[n].variables[token].get();
             }

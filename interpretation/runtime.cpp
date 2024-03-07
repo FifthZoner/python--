@@ -17,10 +17,10 @@ std::string RunValueReturning(ParseStruct* runnable, uint8_t type){
             return reinterpret_cast<ParseFunction*> (runnable)->run();
         case ParseStruct::keywordImplicit:
             return reinterpret_cast<ParseImplicit*> (runnable)->run(type);
-        case ParseStruct::variableInt:
-            return std::to_string(reinterpret_cast<VariableInt*>(reinterpret_cast<ParseInt*> (runnable)->run())->value);
+        case ParseStruct::variableNum:
+            return std::to_string(reinterpret_cast<VariableNum*>(reinterpret_cast<ParseNum*> (runnable)->run())->value);
         case ParseStruct::variableString:
-            return reinterpret_cast<VariableString*>(reinterpret_cast<ParseInt*> (runnable)->run())->value;
+            return reinterpret_cast<VariableString*>(reinterpret_cast<ParseNum*> (runnable)->run())->value;
         case ParseStruct::variableValue:
             return reinterpret_cast<ParseValue*> (runnable)->run();
         default:
@@ -33,8 +33,8 @@ std::string RunValueReturning(ParseStruct* runnable, uint8_t type){
             InterpreterException("Variable corrupted!");
             return "0";
         }
-        if (var->type() == Variable::typeInt) {
-            return std::to_string(reinterpret_cast<VariableInt*>(reinterpret_cast<ParseVariable*> (runnable)->run())->value);
+        if (var->type() == Variable::typeNum) {
+            return std::to_string(reinterpret_cast<VariableNum*>(reinterpret_cast<ParseVariable*> (runnable)->run())->value);
         }
         else if (var->type() == Variable::typeString) {
             return reinterpret_cast<VariableString*>(reinterpret_cast<ParseVariable*> (runnable)->run())->value;

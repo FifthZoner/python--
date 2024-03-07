@@ -8,7 +8,7 @@
 #include "../content/function.hpp"
 #include "../content/variables.hpp"
 
-Variable* NewVariable(std::string& token, long long value);
+Variable* NewVariable(std::string& token, long double value);
 Variable* NewVariable(std::string& token, std::string& value);
 
 struct InstanceLevel {

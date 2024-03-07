@@ -61,8 +61,8 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     if (IsConvertibleToString(parsedLine[range.first])){
         type = ParseStruct::variableString;
     }
-    else if (IsConvertibleToInt(parsedLine[range.first])){
-        type = ParseStruct::variableInt;
+    else if (IsConvertibleToNum(parsedLine[range.first])){
+        type = ParseStruct::variableNum;
     }
     else if (IsVariable(parsedLine[range.first])){
         auto* temp = GetVariable(parsedLine[range.first]);
@@ -70,8 +70,8 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
             ParserException("Cannot get variable for math!");
             return nullptr;
         }
-        if (temp->type() == Variable::typeInt){
-            type = ParseStruct::variableInt;
+        if (temp->type() == Variable::typeNum){
+            type = ParseStruct::variableNum;
         }
         else {
             type = ParseStruct::variableString;
@@ -89,8 +89,8 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
                 return nullptr;
             }
         }
-        else if (IsConvertibleToInt(parsedLine[n])){
-            if (type != ParseStruct::variableInt){
+        else if (IsConvertibleToNum(parsedLine[n])){
+            if (type != ParseStruct::variableNum){
                 ParserException("Wrong type in math parsing!");
                 return nullptr;
             }
@@ -101,7 +101,7 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
                 ParserException("Cannot get variable for math!");
                 return nullptr;
             }
-            if (temp->type() == Variable::typeInt and type != ParseStruct::variableInt){
+            if (temp->type() == Variable::typeNum and type != ParseStruct::variableNum){
                 ParserException("Types mismatch in math!");
                 return nullptr;
             }

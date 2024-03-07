@@ -6,7 +6,7 @@
 
 #include "../parseStructDefinitions/parseStructs.hpp"
 
-bool IsConvertibleToInt(const std::string& token);
+bool IsConvertibleToNum(const std::string& token);
 
 bool IsConvertibleToString(const std::string& token);
 

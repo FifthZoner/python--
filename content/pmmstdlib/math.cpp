@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 
 #include "pmmstdlib.hpp"
 #include "../../interpretation/exceptions.hpp"
@@ -7,11 +8,11 @@
 
 // c++ standard library bindings for printing functions
 namespace pmmstd {
-    void IsInt(std::vector <std::string>& arguments) {
+    void IsNum(std::vector <std::string>& arguments) {
         #ifdef PYTHON___DEBUG
         std::cout << "\nPMMSTDLIB function \"IsInt\" called:\n";
         #endif
-        if (IsConvertibleToInt(arguments[0])){
+        if (IsConvertibleToNum(arguments[0])){
             returnValueString = "1";
         }
         else {
@@ -19,9 +20,9 @@ namespace pmmstd {
         }
     }
 
-    void ToInt(std::vector <std::string>& arguments) {
+    void ToNum(std::vector <std::string>& arguments) {
         #ifdef PYTHON___DEBUG
-        std::cout << "\nPMMSTDLIB function \"ToInt\" called:\n";
+        std::cout << "\nPMMSTDLIB function \"ToNum\" called:\n";
         #endif
         returnValueString = arguments[0];
     }
@@ -30,7 +31,7 @@ namespace pmmstd {
         #ifdef PYTHON___DEBUG
         std::cout << "\nPMMSTDLIB function \"Modulo\" called:\n";
         #endif
-        returnValueString = std::to_string(std::stoll(arguments[0]) % std::stoll(arguments[1]));
+        returnValueString = std::to_string(std::fmod(std::stold(arguments[0]) ,std::stold(arguments[1])));
     }
 
     void Power(std::vector <std::string>& arguments) {

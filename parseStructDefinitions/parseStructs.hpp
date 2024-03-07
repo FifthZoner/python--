@@ -17,7 +17,7 @@ inline std::vector <std::string> parsedLine;
 // do not use the base in AST tree
 struct ParseStruct {
     enum {
-        none, variableInt, variableString, variableVariable, variableValue,
+        none, variableNum, variableString, variableVariable, variableValue,
         keywordIf, keywordWhile, keywordReturn, keywordImplicit, keywordEnd, keywordElse, customFunction,
         operatorPlus, operatorMinus, operatorAssign, operatorFunction, operatorMultiply, operatorDivide, operatorPower,
         operatorCompare
@@ -92,9 +92,9 @@ struct ParseString : ParseStruct {
     [[nodiscard]] Variable* run();
 };
 
-struct ParseInt : ParseStruct {
+struct ParseNum : ParseStruct {
     std::string token;
-    explicit ParseInt(const std::string& token);
+    explicit ParseNum(const std::string& token);
     [[nodiscard]] const uint8_t type() const override;
     [[nodiscard]] Variable* run();
 };

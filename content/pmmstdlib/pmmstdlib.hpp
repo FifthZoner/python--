@@ -10,8 +10,8 @@ namespace pmmstd {
     void Print  (std::vector <std::string>& arguments);
     void Println(std::vector <std::string>& arguments);
     void Input  (std::vector <std::string>& arguments);
-    void IsInt  (std::vector <std::string>& arguments);
-    void ToInt  (std::vector <std::string>& arguments);
+    void IsNum  (std::vector <std::string>& arguments);
+    void ToNum  (std::vector <std::string>& arguments);
     void Modulo (std::vector <std::string>& arguments);
     void Power  (std::vector <std::string>& arguments);
 }

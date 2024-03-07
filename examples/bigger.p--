@@ -1,7 +1,7 @@
 Print("Please input the first number: ")
-int a = Input()
+num a = Input()
 Print("Please input second number: ")
-int b = Input()
+num b = Input()
 if a > b
 	Println("The bigger number is: " + a)
 else

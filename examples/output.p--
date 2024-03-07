@@ -1,4 +1,4 @@
-void Out(int n, string text)
+void Out(num n, string text)
 	Println(text)
 	n -= 1
 	if n > 0
@@ -9,5 +9,5 @@ end
 Print("Input the text to be repeated: ")
 string tex = Input()
 Print("Input the number of times to repeat: ")
-int number = Input()
+num number = Input()
 Out(number, tex)

@@ -75,33 +75,33 @@ const uint8_t ParseImplicit::type() const{
 #include <iostream>
 
 std::string ParseImplicit::run(uint8_t type) const {
-    if (type == ParseStruct::variableInt){
-        long long value = 0;
+    if (type == ParseStruct::variableNum){
+        long double value = 0;
         for (auto& n : tokens){
             switch (n->type()){
                 case ParseStruct::variableVariable:
-                    value += reinterpret_cast<VariableInt*>(reinterpret_cast<ParseVariable*>(n.get())->run())->value;
+                    value += reinterpret_cast<VariableNum*>(reinterpret_cast<ParseVariable*>(n.get())->run())->value;
                     break;
                 case ParseStruct::variableValue:
-                    value += std::stoll(reinterpret_cast<ParseValue*>(n.get())->run());
+                    value += std::stold(reinterpret_cast<ParseValue*>(n.get())->run());
                     break;
                 case ParseStruct::operatorFunction:
-                    value += std::stoll(reinterpret_cast<ParseFunction*>(n.get())->run());
+                    value += std::stold(reinterpret_cast<ParseFunction*>(n.get())->run());
                     break;
                 case ParseStruct::operatorPlus:
-                    value += std::stoll(reinterpret_cast<ParsePlus*>(n.get())->run());
+                    value += std::stold(reinterpret_cast<ParsePlus*>(n.get())->run());
                     break;
                 case ParseStruct::operatorMinus:
-                    value += std::stoll(reinterpret_cast<ParseMinus*>(n.get())->run());
+                    value += std::stold(reinterpret_cast<ParseMinus*>(n.get())->run());
                     break;
                 case ParseStruct::operatorMultiply:
-                    value += std::stoll(reinterpret_cast<ParseMultiply*>(n.get())->run());
+                    value += std::stold(reinterpret_cast<ParseMultiply*>(n.get())->run());
                     break;
                 case ParseStruct::operatorDivide:
-                    value += std::stoll(reinterpret_cast<ParseDivide*>(n.get())->run());
+                    value += std::stold(reinterpret_cast<ParseDivide*>(n.get())->run());
                     break;
                 case ParseStruct::operatorPower:
-                    value += std::stoll(reinterpret_cast<ParsePower*>(n.get())->run());
+                    value += std::stold(reinterpret_cast<ParsePower*>(n.get())->run());
                     break;
                 default:
                     InterpreterException("Wrong implicit called type!");

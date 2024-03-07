@@ -12,7 +12,7 @@ struct Variable {
     Variable* getPointer();
 
     enum {
-        none, typeInt, typeString
+        none, typeNum, typeString
     };
 
 };
@@ -24,9 +24,9 @@ struct VariableString : Variable {
     [[nodiscard]] std::string convert(uint8_t type) const override;
 };
 
-struct VariableInt : Variable {
-    long long value;
-    explicit VariableInt(long long value);
+struct VariableNum : Variable {
+    long double value;
+    explicit VariableNum(long double value);
     [[nodiscard]] const uint8_t type() const override;
     [[nodiscard]] std::string convert(uint8_t type) const override;
 };

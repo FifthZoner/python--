@@ -16,8 +16,8 @@ ParseValue::ParseValue(const std::string& value){
 
     // checking if it's a string or not
 
-    if (IsConvertibleToInt(value)){
-        valueType = ParseStruct::variableInt;
+    if (IsConvertibleToNum(value)){
+        valueType = ParseStruct::variableNum;
     }
     else if (value.length() > 0){
         this->value = value.substr(1, value.size() - 2);
@@ -37,18 +37,18 @@ std::string ParseValue::run() const{
     return value;
 }
 
-ParseInt::ParseInt(const std::string& token){
+ParseNum::ParseNum(const std::string& token){
     this->token = token;
     if (IsVariable(token)){
         ParserException("Variable redefinition!");
     }
 }
-const uint8_t ParseInt::type() const{
-    return ParseStruct::variableInt;
+const uint8_t ParseNum::type() const{
+    return ParseStruct::variableNum;
 }
-Variable* ParseInt::run() {
+Variable* ParseNum::run() {
     #ifdef PYTHON___DEBUG
-    std::cout << "New variable \"int " << token << "\"";
+    std::cout << "New variable \"num " << token << "\"";
     #endif
 
     return NewVariable(token, 0);
@@ -82,8 +82,8 @@ Variable* ParseVariable::run() const{
     // TODO: add local here
     if (IsVariable(token)){
         #ifdef PYTHON___DEBUG
-        if (GetVariable(token)->type() == Variable::typeInt){
-            std::cout << "\"int ";
+        if (GetVariable(token)->type() == Variable::typeNum){
+            std::cout << "\"num ";
         }
         else if (GetVariable(token)->type() == Variable::typeString){
             std::cout << "\"string ";

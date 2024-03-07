@@ -50,21 +50,21 @@ ParseCompare::ParseCompare(std::pair <unsigned int, unsigned int> range) {
     std::string valueLeft, valueRight;
     valueLeft = RunValueReturning(left.get(), Variable::none);
     valueRight = RunValueReturning(right.get(), Variable::none);
-    if (IsConvertibleToInt(valueLeft) and IsConvertibleToInt(valueRight)){
+    if (IsConvertibleToNum(valueLeft) and IsConvertibleToNum(valueRight)){
         // int comparison
         switch (compareType){
             case CompareType::equal:
-                return std::stoll(valueLeft) == std::stoll(valueRight);
+                return std::stold(valueLeft) == std::stold(valueRight);
             case CompareType::notEqual:
-                return std::stoll(valueLeft) != std::stoll(valueRight);
+                return std::stold(valueLeft) != std::stold(valueRight);
             case CompareType::greater:
-                return std::stoll(valueLeft) > std::stoll(valueRight);
+                return std::stold(valueLeft) > std::stold(valueRight);
             case CompareType::lesser:
-                return std::stoll(valueLeft) < std::stoll(valueRight);
+                return std::stold(valueLeft) < std::stold(valueRight);
             case CompareType::greaterEqual:
-                return std::stoll(valueLeft) >= std::stoll(valueRight);
+                return std::stold(valueLeft) >= std::stold(valueRight);
             case CompareType::lesserEqual:
-                return std::stoll(valueLeft) <= std::stoll(valueRight);
+                return std::stold(valueLeft) <= std::stold(valueRight);
         }
     }
     // string comparison
