@@ -2,6 +2,14 @@
 #define PYTHON___EXCEPTIONS_HPP
 
 #include <string>
+#include <exception>
+
+class PMMException : public std::exception {
+public:
+    char * what ();
+};
+
+
 
 void ParserException(const std::string& content);
 

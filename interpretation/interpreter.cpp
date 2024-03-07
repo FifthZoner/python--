@@ -12,8 +12,6 @@
 
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
-bool exceptionHappened = false;
-
 int innerLevel = 0;
 
 uint8_t RunLine(std::string line, unsigned long long lineNumber) {
@@ -31,9 +29,11 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
     if (!functionStack.empty()){
         if (innerLevel == 0 and line.starts_with("return")){
-            std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(line, lineNumber);
-            if (exceptionHappened){
-                exceptionHappened = false;
+            std::unique_ptr<ParseStruct> parsed;
+            try {
+                parsed = SplitInterpreterLine(line, lineNumber);
+            }
+            catch (PMMException e) {
                 std::cout << "Parsing of current line has been cancelled!\n";
                 return RunLineOutput::error;
             }
@@ -43,10 +43,10 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 return RunLineOutput::error;
             }
 
-            reinterpret_cast <ParseReturn*> (parsed.get())->run();
-
-            if (exceptionHappened){
-                exceptionHappened = false;
+            try {
+                reinterpret_cast <ParseReturn*> (parsed.get())->run();
+            }
+            catch (PMMException e) {
                 std::cout << "Interpreting of current line has been cancelled!\n";
                 return RunLineOutput::error;
             }
@@ -68,9 +68,11 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 if (interpreterStream->lines[functionStack.top().levels.back().recallLine].starts_with("if")){
                     auto where = functionStack.top().levels.back().recallLine;
 
-                    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], functionStack.top().levels.back().recallLine);
-                    if (exceptionHappened){
-                        exceptionHappened = false;
+                    std::unique_ptr<ParseStruct> parsed;
+                    try {
+                        parsed = SplitInterpreterLine(interpreterStream->lines[where],functionStack.top().levels.back().recallLine);
+                    }
+                    catch (PMMException e) {
                         std::cout << "Parsing of current line has been cancelled!\n";
                         return RunLineOutput::error;
                     }
@@ -119,9 +121,11 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 else if (interpreterStream->lines[functionStack.top().levels.back().recallLine].starts_with("while")) {
                     auto where = functionStack.top().levels.back().recallLine;
 
-                    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], functionStack.top().levels.back().recallLine);
-                    if (exceptionHappened){
-                        exceptionHappened = false;
+                    std::unique_ptr<ParseStruct> parsed;
+                    try {
+                        parsed = SplitInterpreterLine(interpreterStream->lines[where], functionStack.top().levels.back().recallLine);
+                    }
+                    catch (PMMException e) {
                         std::cout << "Parsing of current line has been cancelled!\n";
                         return RunLineOutput::error;
                     }
@@ -162,10 +166,11 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
             }
             if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("if")){
                 auto where = globalLevels.back().recallLine;
-
-                std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
-                if (exceptionHappened){
-                    exceptionHappened = false;
+                std::unique_ptr<ParseStruct> parsed;
+                try {
+                    parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                }
+                catch (PMMException e) {
                     std::cout << "Parsing of current line has been cancelled!\n";
                     return RunLineOutput::error;
                 }
@@ -214,9 +219,11 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
             else if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("while")) {
                 auto where = globalLevels.back().recallLine;
 
-                std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
-                if (exceptionHappened){
-                    exceptionHappened = false;
+                std::unique_ptr<ParseStruct> parsed;
+                try {
+                    parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                }
+                catch (PMMException e) {
                     std::cout << "Parsing of current line has been cancelled!\n";
                     return RunLineOutput::error;
                 }
@@ -275,34 +282,38 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
         return RunLineOutput::success;
     }
 
-    std::unique_ptr<ParseStruct> parsed = SplitInterpreterLine(std::move(line), lineNumber);
-    if (exceptionHappened){
-        exceptionHappened = false;
+    std::unique_ptr<ParseStruct> parsed;
+    try {
+        parsed = SplitInterpreterLine(std::move(line), lineNumber);
+    }
+    catch (PMMException e) {
         std::cout << "Parsing of current line has been cancelled!\n";
         return RunLineOutput::error;
-    }
-
-    // actual running of the code, finally, only first level things here, the rest recursively or something
-    switch (parsed->type()){
-        case ParseStruct::operatorAssign:
-            reinterpret_cast<ParseAssign*>(parsed->getPointer())->run();
-            break;
-        case ParseStruct::operatorFunction:
-            // no return in that case
-            reinterpret_cast <ParseFunction*> (parsed.get())->run();
-            break;
-        case ParseStruct::customFunction:
-            // to avoid exception
-            break;
-
-        default:
-            InterpreterException("Wrong level 1 token!");
-            break;
 
     }
 
-    if (exceptionHappened){
-        exceptionHappened = false;
+
+    try {
+        // actual running of the code, finally, only first level things here, the rest recursively or something
+        switch (parsed->type()){
+            case ParseStruct::operatorAssign:
+                reinterpret_cast<ParseAssign*>(parsed->getPointer())->run();
+                break;
+            case ParseStruct::operatorFunction:
+                // no return in that case
+                reinterpret_cast <ParseFunction*> (parsed.get())->run();
+                break;
+            case ParseStruct::customFunction:
+                // to avoid exception
+                break;
+
+            default:
+                InterpreterException("Wrong level 1 token!");
+                break;
+
+        }
+    }
+    catch (PMMException e) {
         std::cout << "Interpreting of current line has been cancelled!\n";
         return RunLineOutput::error;
     }
