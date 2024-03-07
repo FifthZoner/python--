@@ -105,7 +105,7 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
                 ParserException("Types mismatch in math!");
                 return nullptr;
             }
-            else if (type != ParseStruct::variableString){
+            else if (temp->type() == Variable::typeString and type != ParseStruct::variableString){
                 ParserException("Types mismatch in math!");
                 return nullptr;
             }

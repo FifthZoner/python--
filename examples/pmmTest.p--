@@ -1,0 +1,19 @@
+num Rosnaco(num start, num koniec)
+    num krok = 1
+    while (start < koniec)
+        Println(start)
+        start += krok
+        krok += krok
+    end
+    Println(start)
+    return start
+end
+
+num RosnacoRekurencyjnie(num start, num koniec, num krok)
+    if (start < koniec)
+        return RosnacoRekurencyjnie(start + krok, koniec, krok * 2)
+    end
+    return start
+end
+
+num k = RosnacoRekurencyjnie(1, 5000, 1)

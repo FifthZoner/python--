@@ -13,7 +13,7 @@ InstanceLevel::InstanceLevel(uint64_t recallLine, bool isRunning) {
 
 Variable* NewVariable(std::string& token, long double value){
     if (!functionStack.empty()){
-        if (!functionStack.top().variables.empty()){
+        if (!functionStack.top().levels.empty()){
             // leveled local variable
             functionStack.top().levels.back().variables[token] = std::unique_ptr <Variable> (new VariableNum(value));
             return functionStack.top().levels.back().variables[token].get();
@@ -38,7 +38,7 @@ Variable* NewVariable(std::string& token, long double value){
 
 Variable* NewVariable(std::string& token, std::string& value){
     if (!functionStack.empty()){
-        if (!functionStack.top().variables.empty()){
+        if (!functionStack.top().levels.empty()){
             // leveled local variable
             functionStack.top().levels.back().variables[token] = std::unique_ptr <Variable> (new VariableString(value));
             return functionStack.top().levels.back().variables[token].get();

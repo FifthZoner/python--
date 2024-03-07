@@ -126,6 +126,18 @@ std::string ParseImplicit::run(uint8_t type) const {
                 case ParseStruct::operatorPlus:
                     value += reinterpret_cast<ParsePlus*>(n.get())->run();
                     break;
+                case ParseStruct::operatorMinus:
+                    value += reinterpret_cast<ParseMinus*>(n.get())->run();
+                    break;
+                case ParseStruct::operatorMultiply:
+                    value += reinterpret_cast<ParseMultiply*>(n.get())->run();
+                    break;
+                case ParseStruct::operatorDivide:
+                    value += reinterpret_cast<ParseDivide*>(n.get())->run();
+                    break;
+                case ParseStruct::operatorPower:
+                    value += reinterpret_cast<ParsePower*>(n.get())->run();
+                    break;
                 default:
                     InterpreterException("Wrong implicit called type!");
                     return "0";

@@ -14,6 +14,13 @@ enum CompareType {
 ParseCompare::ParseCompare(std::pair <unsigned int, unsigned int> range) {
     // first a search for the operator is needed
     compareType = CompareType::none;
+    // checking for brackets in expression
+    if (range.second - range.first > 1) {
+        if (parsedLine[range.first] == "(" and parsedLine[range.second - 1] == ")") {
+            range.first++;
+            range.second--;
+        }
+    }
     for (unsigned int n = range.first; n < range.second; n++){
         if (CheckTokenType(parsedLine[n]) == ParseStruct::operatorCompare){
             if (parsedLine[n] == "=="){
