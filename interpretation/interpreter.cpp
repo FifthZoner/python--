@@ -5,6 +5,7 @@
 #include "exceptions.hpp"
 #include "functionStack.hpp"
 #include "checks.hpp"
+#include "runtime.hpp"
 
 #include <iostream>
 #include <memory>
@@ -17,35 +18,15 @@ int innerLevel = 0;
 
 void GetSwitchValue(std::string line, unsigned long long lineNumber, bool globalOrFunction) {
     SplitInterpreterLine(std::move(line), lineNumber);
-    if (parsedLine.size() < 4 or parsedLine[1] != "(" or parsedLine[3] != ")") {
+    if (parsedLine.size() < 2) {
         ParserException("Wrong switch statement!");
     }
-    if (IsVariable(parsedLine[2])) {
-        std::unique_ptr<ParseVariable> value = std::make_unique<ParseVariable> (parsedLine[2]);
-        if (globalOrFunction == 0) {
-            globalLevels.back().switchValue = value->run()->convert(Variable::typeString);
-        }
-        else {
-            functionStack.top().levels.back().switchValue = value->run()->convert(Variable::typeString);
-        }
-    }
-    else if (IsFunction(parsedLine[2])) {
-        std::unique_ptr<ParseFunction> value = std::make_unique<ParseFunction> (std::pair<unsigned int, unsigned int>(2, 3));
-        if (globalOrFunction == 0) {
-            globalLevels.back().switchValue = value->run();
-        }
-        else {
-            functionStack.top().levels.back().switchValue = value->run();
-        }
+
+    if (globalOrFunction == 0) {
+        globalLevels.back().switchValue = RunValueReturning(ParseMathematicalOperation(std::pair <unsigned int, unsigned int> (1, parsedLine.size())), Variable::typeString);
     }
     else {
-        std::unique_ptr<ParseValue> value = std::make_unique<ParseValue> (parsedLine[2]);
-        if (globalOrFunction == 0) {
-            globalLevels.back().switchValue = value->run();
-        }
-        else {
-            functionStack.top().levels.back().switchValue = value->run();
-        }
+        functionStack.top().levels.back().switchValue = RunValueReturning(ParseMathematicalOperation(std::pair <unsigned int, unsigned int> (1, parsedLine.size())), Variable::typeString);
     }
 }
 
@@ -155,6 +136,43 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                     interpreterStream->lines.pop_back();
                     return RunLineOutput::success;
                 }
+                if (interpreterStream->lines[functionStack.top().levels.back().recallLine].starts_with("switch") and not functionStack.top().levels.back().switchValue.empty()){
+
+                    // floating point is annoying
+                    std::string dottedValue;
+                    if (IsConvertibleToNum(functionStack.top().levels.back().switchValue)) {
+                        dottedValue = std::to_string(std::stold(functionStack.top().levels.back().switchValue));
+                        //std::cout << "BEHOLD: " << dottedValue << "\n";
+                    }
+                    unsigned long long foundLine = 0;
+                    // iterate over the contents searching for the needed case
+                    for (unsigned long long n = functionStack.top().levels.back().recallLine; n < lineNumber; n++) {
+                        if (interpreterStream->lines[n].starts_with("case")) {
+                            SplitInterpreterLine(interpreterStream->lines[n], n);
+                            if (parsedLine.size() > 1 and parsedLine[0] == "case") {
+                                // now extracting the value and checking
+                                std::string caseValue = RunValueReturning(ParseMathematicalOperation(std::pair <unsigned int, unsigned int> (1, parsedLine.size())), Variable::typeString);
+                                if (caseValue == functionStack.top().levels.back().switchValue or (IsConvertibleToNum(caseValue) and std::to_string(std::stold(caseValue)) == dottedValue)) {
+                                    foundLine = n;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // can be used as bool because the case statement must be at least second
+                    if (not foundLine) {
+                        // just return a success, no need to worry the user that they can't write a switch
+                        return RunLineOutput::success;
+                    }
+
+                    for (unsigned long long n = foundLine + 1; n < lineNumber and not interpreterStream->lines[n].starts_with("case"); n++){
+                        RunLine(interpreterStream->lines[n], n);
+                    }
+
+
+                    return RunLineOutput::success;
+                }
                 else if (interpreterStream->lines[functionStack.top().levels.back().recallLine].starts_with("while")) {
                     auto where = functionStack.top().levels.back().recallLine;
 
@@ -255,7 +273,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 interpreterStream->lines.pop_back();
                 return RunLineOutput::success;
             }
-            if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("switch")){
+            if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("switch") and not globalLevels.back().switchValue.empty()){
 
                 // floating point is annoying
                 std::string dottedValue;
@@ -270,34 +288,16 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                         SplitInterpreterLine(interpreterStream->lines[n], n);
                         if (parsedLine.size() > 1 and parsedLine[0] == "case") {
                             // now extracting the value and checking
-                            if (IsVariable(parsedLine[1])) {
-                                std::unique_ptr<ParseVariable> value = std::make_unique<ParseVariable> (parsedLine[1]);
-                                std::string result = value->run()->convert(Variable::typeString);
-                                if (result == globalLevels.back().switchValue or result == dottedValue) {
-                                    foundLine = n;
-                                    break;
-                                }
-                            }
-                            else if (IsFunction(parsedLine[1])) {
-                                std::unique_ptr<ParseFunction> value = std::make_unique<ParseFunction> (std::pair<unsigned int, unsigned int>(1, 2));
-                                std::string result = value->run();
-                                if (result == globalLevels.back().switchValue or result == dottedValue) {
-                                    foundLine = n;
-                                    break;
-                                }
-                            }
-                            else {
-                                if (parsedLine[1] == globalLevels.back().switchValue or parsedLine[1] == dottedValue or
-                                        std::to_string(std::stold(parsedLine[1])) == globalLevels.back().switchValue or
-                                        std::to_string(std::stold(parsedLine[1])) == dottedValue) {
-                                    foundLine = n;
-                                    break;
-                                }
+                            std::string caseValue = RunValueReturning(ParseMathematicalOperation(std::pair <unsigned int, unsigned int> (1, parsedLine.size())), Variable::typeString);
+                            if (caseValue == globalLevels.back().switchValue or (IsConvertibleToNum(caseValue) and std::to_string(std::stold(caseValue)) == dottedValue)) {
+                                foundLine = n;
+                                break;
                             }
                         }
                     }
                 }
 
+                // can be used as bool because the case statement must be at least second
                 if (not foundLine) {
                     // just return a success, no need to worry the user that they can't write a switch
                     return RunLineOutput::success;
@@ -309,57 +309,6 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
 
                 return RunLineOutput::success;
-                //auto where = globalLevels.back().recallLine;
-                //std::unique_ptr<ParseStruct> parsed;
-                //try {
-                //    SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
-                //    parsed = ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
-                //}
-                //catch (PMMException& e) {
-                //    std::cout << "Parsing of current line has been cancelled!\n";
-                //    return RunLineOutput::error;
-                //}
-//
-                //if (parsed->type() != ParseStruct::keywordIf){
-                //    std::cout << "Parsing of current line has been cancelled due to invalid if statement!\n";
-                //    return RunLineOutput::error;
-                //}
-//
-                //globalLevels.pop_back();
-                //interpreterStream->lines.push_back(line);
-//
-                //// looking for else
-                //unsigned int elsePos = 0;
-                //for (unsigned long long n = where + 1; n < lineNumber; n++){
-                //    if (interpreterStream->lines[n] == "else"){
-                //        if (elsePos != 0){
-                //            std::cout << "CRITICAL: Parsing of current line has been cancelled due to invalid else placement!\n";
-                //            interpreterStream->lines.pop_back();
-                //            return RunLineOutput::error;
-                //        }
-                //        elsePos = n;
-                //    }
-                //}
-                //if (reinterpret_cast <ParseIf*> (parsed.get())->run()){
-                //    if (elsePos){
-                //        for (unsigned long long n = where + 1; n < elsePos; n++){
-                //            RunLine(interpreterStream->lines[n], n);
-                //        }
-                //    }
-                //    else {
-                //        for (unsigned long long n = where + 1; n < lineNumber; n++){
-                //            RunLine(interpreterStream->lines[n], n);
-                //        }
-                //    }
-                //}
-                //else if (elsePos) {
-                //    for (unsigned long long n = elsePos + 1; n < lineNumber; n++){
-                //        RunLine(interpreterStream->lines[n], n);
-                //    }
-                //}
-                //globalLevels.pop_back();
-                //interpreterStream->lines.pop_back();
-                //return RunLineOutput::success;
             }
             else if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("while")) {
                 auto where = globalLevels.back().recallLine;
