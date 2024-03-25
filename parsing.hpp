@@ -9,8 +9,10 @@
 
 std::vector <std::vector <std::string>> ParseCommandArguments(int argc, char** argv);
 
+std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> range, unsigned long long lineNumber);
+
 // returns a vector of strings containing tokens, keywords, values and operators
-std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line, unsigned long long lineNumber);
+void SplitInterpreterLine(std::string line, unsigned long long lineNumber);
 
 uint8_t CheckTokenType(const std::string& token);
 

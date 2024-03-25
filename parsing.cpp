@@ -148,7 +148,7 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
     return parseStruct;
 }
 
-std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line, unsigned long long lineNumber){
+void SplitInterpreterLine(std::string line, unsigned long long lineNumber){
 
     // deleting tabs
     for (long n = 0; n < line.length(); n++){
@@ -268,6 +268,6 @@ std::unique_ptr<ParseStruct> SplitInterpreterLine(std::string line, unsigned lon
         }
     }
 
-    return ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
+    return;
 }
 

@@ -20,12 +20,32 @@ void GetSwitchValue(std::string line, unsigned long long lineNumber, bool global
     if (parsedLine.size() < 4 or parsedLine[1] != "(" or parsedLine[3] != ")") {
         ParserException("Wrong switch statement!");
     }
-    std::unique_ptr<ParseValue> value = std::make_unique<ParseValue> (parsedLine[2]);
-    if (globalOrFunction == 0) {
-        globalLevels.back().switchValue = value->run();
+    if (IsVariable(parsedLine[2])) {
+        std::unique_ptr<ParseVariable> value = std::make_unique<ParseVariable> (parsedLine[2]);
+        if (globalOrFunction == 0) {
+            globalLevels.back().switchValue = value->run()->convert(Variable::typeString);
+        }
+        else {
+            functionStack.top().levels.back().switchValue = value->run()->convert(Variable::typeString);
+        }
+    }
+    else if (IsFunction(parsedLine[2])) {
+        std::unique_ptr<ParseFunction> value = std::make_unique<ParseFunction> (std::pair<unsigned int, unsigned int>(2, 3));
+        if (globalOrFunction == 0) {
+            globalLevels.back().switchValue = value->run();
+        }
+        else {
+            functionStack.top().levels.back().switchValue = value->run();
+        }
     }
     else {
-        functionStack.top().levels.back().switchValue = value->run();
+        std::unique_ptr<ParseValue> value = std::make_unique<ParseValue> (parsedLine[2]);
+        if (globalOrFunction == 0) {
+            globalLevels.back().switchValue = value->run();
+        }
+        else {
+            functionStack.top().levels.back().switchValue = value->run();
+        }
     }
 }
 
@@ -46,7 +66,8 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
         if (innerLevel == 0 and line.starts_with("return")){
             std::unique_ptr<ParseStruct> parsed;
             try {
-                parsed = SplitInterpreterLine(line, lineNumber);
+                SplitInterpreterLine(line, lineNumber);
+                parsed = ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
             }
             catch (PMMException& e) {
                 std::cout << "Parsing of current line has been cancelled!\n";
@@ -85,7 +106,8 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
                     std::unique_ptr<ParseStruct> parsed;
                     try {
-                        parsed = SplitInterpreterLine(interpreterStream->lines[where],functionStack.top().levels.back().recallLine);
+                        SplitInterpreterLine(interpreterStream->lines[where],functionStack.top().levels.back().recallLine);
+                        parsed = ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
                     }
                     catch (PMMException& e) {
                         std::cout << "Parsing of current line has been cancelled!\n";
@@ -138,7 +160,8 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
                     std::unique_ptr<ParseStruct> parsed;
                     try {
-                        parsed = SplitInterpreterLine(interpreterStream->lines[where], functionStack.top().levels.back().recallLine);
+                        SplitInterpreterLine(interpreterStream->lines[where], functionStack.top().levels.back().recallLine);
+                        parsed = ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
                     }
                     catch (PMMException& e) {
                         std::cout << "Parsing of current line has been cancelled!\n";
@@ -183,7 +206,8 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 auto where = globalLevels.back().recallLine;
                 std::unique_ptr<ParseStruct> parsed;
                 try {
-                    parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                    SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                    parsed = ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
                 }
                 catch (PMMException& e) {
                     std::cout << "Parsing of current line has been cancelled!\n";
@@ -231,12 +255,119 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 interpreterStream->lines.pop_back();
                 return RunLineOutput::success;
             }
+            if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("switch")){
+
+                // floating point is annoying
+                std::string dottedValue;
+                if (IsConvertibleToNum(globalLevels.back().switchValue)) {
+                    dottedValue = std::to_string(std::stold(globalLevels.back().switchValue));
+                    //std::cout << "BEHOLD: " << dottedValue << "\n";
+                }
+                unsigned long long foundLine = 0;
+                // iterate over the contents searching for the needed case
+                for (unsigned long long n = globalLevels.back().recallLine; n < lineNumber; n++) {
+                    if (interpreterStream->lines[n].starts_with("case")) {
+                        SplitInterpreterLine(interpreterStream->lines[n], n);
+                        if (parsedLine.size() > 1 and parsedLine[0] == "case") {
+                            // now extracting the value and checking
+                            if (IsVariable(parsedLine[1])) {
+                                std::unique_ptr<ParseVariable> value = std::make_unique<ParseVariable> (parsedLine[1]);
+                                std::string result = value->run()->convert(Variable::typeString);
+                                if (result == globalLevels.back().switchValue or result == dottedValue) {
+                                    foundLine = n;
+                                    break;
+                                }
+                            }
+                            else if (IsFunction(parsedLine[1])) {
+                                std::unique_ptr<ParseFunction> value = std::make_unique<ParseFunction> (std::pair<unsigned int, unsigned int>(1, 2));
+                                std::string result = value->run();
+                                if (result == globalLevels.back().switchValue or result == dottedValue) {
+                                    foundLine = n;
+                                    break;
+                                }
+                            }
+                            else {
+                                if (parsedLine[1] == globalLevels.back().switchValue or parsedLine[1] == dottedValue or
+                                        std::to_string(std::stold(parsedLine[1])) == globalLevels.back().switchValue or
+                                        std::to_string(std::stold(parsedLine[1])) == dottedValue) {
+                                    foundLine = n;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (not foundLine) {
+                    // just return a success, no need to worry the user that they can't write a switch
+                    return RunLineOutput::success;
+                }
+
+                for (unsigned long long n = foundLine + 1; n < lineNumber and not interpreterStream->lines[n].starts_with("case"); n++){
+                    RunLine(interpreterStream->lines[n], n);
+                }
+
+
+                return RunLineOutput::success;
+                //auto where = globalLevels.back().recallLine;
+                //std::unique_ptr<ParseStruct> parsed;
+                //try {
+                //    SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                //    parsed = ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
+                //}
+                //catch (PMMException& e) {
+                //    std::cout << "Parsing of current line has been cancelled!\n";
+                //    return RunLineOutput::error;
+                //}
+//
+                //if (parsed->type() != ParseStruct::keywordIf){
+                //    std::cout << "Parsing of current line has been cancelled due to invalid if statement!\n";
+                //    return RunLineOutput::error;
+                //}
+//
+                //globalLevels.pop_back();
+                //interpreterStream->lines.push_back(line);
+//
+                //// looking for else
+                //unsigned int elsePos = 0;
+                //for (unsigned long long n = where + 1; n < lineNumber; n++){
+                //    if (interpreterStream->lines[n] == "else"){
+                //        if (elsePos != 0){
+                //            std::cout << "CRITICAL: Parsing of current line has been cancelled due to invalid else placement!\n";
+                //            interpreterStream->lines.pop_back();
+                //            return RunLineOutput::error;
+                //        }
+                //        elsePos = n;
+                //    }
+                //}
+                //if (reinterpret_cast <ParseIf*> (parsed.get())->run()){
+                //    if (elsePos){
+                //        for (unsigned long long n = where + 1; n < elsePos; n++){
+                //            RunLine(interpreterStream->lines[n], n);
+                //        }
+                //    }
+                //    else {
+                //        for (unsigned long long n = where + 1; n < lineNumber; n++){
+                //            RunLine(interpreterStream->lines[n], n);
+                //        }
+                //    }
+                //}
+                //else if (elsePos) {
+                //    for (unsigned long long n = elsePos + 1; n < lineNumber; n++){
+                //        RunLine(interpreterStream->lines[n], n);
+                //    }
+                //}
+                //globalLevels.pop_back();
+                //interpreterStream->lines.pop_back();
+                //return RunLineOutput::success;
+            }
             else if (interpreterStream->lines[globalLevels.back().recallLine].starts_with("while")) {
                 auto where = globalLevels.back().recallLine;
 
                 std::unique_ptr<ParseStruct> parsed;
                 try {
-                    parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                    SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
+                    parsed = ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
                 }
                 catch (PMMException& e) {
                     std::cout << "Parsing of current line has been cancelled!\n";
@@ -282,6 +413,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
         if (innerLevel == 0){
             if (functionStack.empty()){
                 try {
+                    globalLevels.emplace_back(lineNumber, false);
                     GetSwitchValue(line, lineNumber, 0);
                 }
                 catch (PMMException& e) {
@@ -292,6 +424,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
             }
             else {
                 try {
+                    functionStack.top().levels.emplace_back(lineNumber, false);
                     GetSwitchValue(line, lineNumber, 1);
                 }
                 catch (PMMException& e) {
@@ -299,9 +432,9 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                     return RunLineOutput::error;
                 }
             }
-            return RunLineOutput::success;
         }
         innerLevel++;
+        return RunLineOutput::success;
     }
     else if (line.starts_with("while")){
         if (innerLevel == 0){
@@ -325,7 +458,8 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
     std::unique_ptr<ParseStruct> parsed;
     try {
-        parsed = SplitInterpreterLine(std::move(line), lineNumber);
+        SplitInterpreterLine(std::move(line), lineNumber);
+        parsed = ParseLine(std::make_pair<unsigned int, unsigned int>(0, parsedLine.size()), lineNumber);
     }
     catch (PMMException& e) {
         std::cout << "Parsing of current line has been cancelled!\n";

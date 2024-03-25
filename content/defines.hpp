@@ -1,6 +1,6 @@
 #ifndef PYTHON___DEFINES_HPP
 #define PYTHON___DEFINES_HPP
 
-//#define PYTHON___DEBUG
+#define PYTHON___DEBUG
 
 #endif //PYTHON___DEFINES_HPP
