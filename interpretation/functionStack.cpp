@@ -4,9 +4,10 @@
 
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
-InstanceLevel::InstanceLevel(uint64_t recallLine, bool isRunning) {
+InstanceLevel::InstanceLevel(uint64_t recallLine, bool isRunning, std::string switchValue) {
     this->recallLine = recallLine;
     this->isRunning = isRunning;
+    this->switchValue = switchValue;
 }
 
 #include <iostream>

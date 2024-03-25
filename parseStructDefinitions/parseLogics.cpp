@@ -143,6 +143,7 @@ void ParseReturn::run() {
         InterpreterException("Running return statement outside function!");
     }
     returnValueString = RunValueReturning(value.get(), Variable::none);
+    //std::cout << "Returned: " << returnValueString << "\n";
 }
 
 ParseWhile::ParseWhile(std::pair <unsigned int, unsigned int> range, unsigned long long recall) {

@@ -35,7 +35,7 @@ std::vector <std::vector <std::string>> ParseCommandArguments(const int argc, ch
     }
     return vec;
 }
-std::string specialCharacters = ",(){}[]=+-*/%^!<>:";
+std::string specialCharacters = ",(){}=+-*/%^!<>:";
 std::pair<char, char> doubleOperators[9] =
         {
         std::make_pair<char, char>('=', '='),

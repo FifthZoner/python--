@@ -10,7 +10,6 @@ int main(int argc, char** argv) {
     PrepareStandardLibrary();
 
     auto arguments = ParseCommandArguments(argc, argv);
-
     // command line with arguments
     if (arguments.size() > 1 and !arguments[0].empty() > 0 and arguments[0][0] == "p--" and !arguments[1].empty() > 0){
         RunInterpreter((new InterpreterFromFile(arguments[1])));

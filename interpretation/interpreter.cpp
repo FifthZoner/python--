@@ -7,12 +7,27 @@
 #include "checks.hpp"
 
 #include <iostream>
+#include <memory>
 #include <unordered_map>
 #include <utility>
 
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 int innerLevel = 0;
+
+void GetSwitchValue(std::string line, unsigned long long lineNumber, bool globalOrFunction) {
+    SplitInterpreterLine(std::move(line), lineNumber);
+    if (parsedLine.size() < 4 or parsedLine[1] != "(" or parsedLine[3] != ")") {
+        ParserException("Wrong switch statement!");
+    }
+    std::unique_ptr<ParseValue> value = std::make_unique<ParseValue> (parsedLine[2]);
+    if (globalOrFunction == 0) {
+        globalLevels.back().switchValue = value->run();
+    }
+    else {
+        functionStack.top().levels.back().switchValue = value->run();
+    }
+}
 
 uint8_t RunLine(std::string line, unsigned long long lineNumber) {
     #ifdef PYTHON___DEBUG
@@ -33,7 +48,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
             try {
                 parsed = SplitInterpreterLine(line, lineNumber);
             }
-            catch (PMMException e) {
+            catch (PMMException& e) {
                 std::cout << "Parsing of current line has been cancelled!\n";
                 return RunLineOutput::error;
             }
@@ -46,7 +61,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
             try {
                 reinterpret_cast <ParseReturn*> (parsed.get())->run();
             }
-            catch (PMMException e) {
+            catch (PMMException& e) {
                 std::cout << "Interpreting of current line has been cancelled!\n";
                 return RunLineOutput::error;
             }
@@ -72,7 +87,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                     try {
                         parsed = SplitInterpreterLine(interpreterStream->lines[where],functionStack.top().levels.back().recallLine);
                     }
-                    catch (PMMException e) {
+                    catch (PMMException& e) {
                         std::cout << "Parsing of current line has been cancelled!\n";
                         return RunLineOutput::error;
                     }
@@ -125,7 +140,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                     try {
                         parsed = SplitInterpreterLine(interpreterStream->lines[where], functionStack.top().levels.back().recallLine);
                     }
-                    catch (PMMException e) {
+                    catch (PMMException& e) {
                         std::cout << "Parsing of current line has been cancelled!\n";
                         return RunLineOutput::error;
                     }
@@ -170,7 +185,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 try {
                     parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
                 }
-                catch (PMMException e) {
+                catch (PMMException& e) {
                     std::cout << "Parsing of current line has been cancelled!\n";
                     return RunLineOutput::error;
                 }
@@ -223,7 +238,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                 try {
                     parsed = SplitInterpreterLine(interpreterStream->lines[where], globalLevels.back().recallLine);
                 }
-                catch (PMMException e) {
+                catch (PMMException& e) {
                     std::cout << "Parsing of current line has been cancelled!\n";
                     return RunLineOutput::error;
                 }
@@ -251,7 +266,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
         }
     }
     // running globally
-    if (line.starts_with("if")){
+    if (line.starts_with("if")) {
         if (innerLevel == 0){
             if (functionStack.empty()){
                 globalLevels.emplace_back(lineNumber, false);
@@ -259,6 +274,32 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
             else {
                 functionStack.top().levels.emplace_back(lineNumber, false);
             }
+        }
+        innerLevel++;
+    }
+    else if (line.starts_with("switch")) {
+        std::cout << "Switch: " << line << "\n";
+        if (innerLevel == 0){
+            if (functionStack.empty()){
+                try {
+                    GetSwitchValue(line, lineNumber, 0);
+                }
+                catch (PMMException& e) {
+                    std::cout << "Parsing of current line has been cancelled!\n";
+                    return RunLineOutput::error;
+                }
+
+            }
+            else {
+                try {
+                    GetSwitchValue(line, lineNumber, 1);
+                }
+                catch (PMMException& e) {
+                    std::cout << "Parsing of current line has been cancelled!\n";
+                    return RunLineOutput::error;
+                }
+            }
+            return RunLineOutput::success;
         }
         innerLevel++;
     }
@@ -286,7 +327,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
     try {
         parsed = SplitInterpreterLine(std::move(line), lineNumber);
     }
-    catch (PMMException e) {
+    catch (PMMException& e) {
         std::cout << "Parsing of current line has been cancelled!\n";
         return RunLineOutput::error;
 
@@ -313,7 +354,7 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
         }
     }
-    catch (PMMException e) {
+    catch (PMMException& e) {
         std::cout << "Interpreting of current line has been cancelled!\n";
         return RunLineOutput::error;
     }

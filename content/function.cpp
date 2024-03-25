@@ -45,6 +45,7 @@ std::string FunctionBinding::run(std::vector <std::string>& arguments){
     functionWrapper(arguments);
     if (returnTypeValue != Variable::none){
         if (returnTypeValue == Variable::typeNum or returnTypeValue == Variable::typeString){
+            //std::cout << "Returning: " << returnValueString << "\n";
             return returnValueString;
         }
         InterpreterException("Wrong return type of function!");
@@ -120,6 +121,7 @@ void ParseNewFunction(std::pair<unsigned int, unsigned int> range){
     }
 
     if (!globalLevels.empty() or !functionStack.empty() or innerLevel != 0){
+        //std::cout << globalLevels.empty() << " " << functionStack.size() << " " << innerLevel << "\n";
         ParserException("Cannot define function inside something else!");
         return;
     }
@@ -206,6 +208,10 @@ void ParseNewFunction(std::pair<unsigned int, unsigned int> range){
 void PushNewFunction(unsigned long long endIndex){
     newFunctionRange.second = endIndex;
     functions[newFunctionName] = std::unique_ptr <Function> (new FunctionCustom(newFunctionRange, newFunctionReturnType, newFunctionVariables));
+    globalLevels.clear();
+    while (!functionStack.empty()) {
+        functionStack.pop();
+    }
     #ifdef PYTHON___DEBUG
     std::cout << "Pushed new function : " << newFunctionName << " with range of lines from " << newFunctionRange.first << " to " << newFunctionRange.second <<"\n";
     #endif

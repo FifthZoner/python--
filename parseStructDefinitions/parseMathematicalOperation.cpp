@@ -102,16 +102,16 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
                 return nullptr;
             }
             if (temp->type() == Variable::typeNum and type != ParseStruct::variableNum){
-                ParserException("Types mismatch in math!");
+                ParserException("Types mismatch in math, num!");
                 return nullptr;
             }
             else if (temp->type() == Variable::typeString and type != ParseStruct::variableString){
-                ParserException("Types mismatch in math!");
+                ParserException("Types mismatch in math, string!");
                 return nullptr;
             }
         }
-        else if (parsedLine[n] != "(" and parsedLine[n] != ")" and parsedLine[n] != "+" and parsedLine[n] != "-" and parsedLine[n] != "*" and parsedLine[n] != "/" and parsedLine[n] != "^"){
-            ParserException("Cannot get token type!");
+        else if (!IsFunction(parsedLine[n]) and parsedLine[n] != "(" and parsedLine[n] != ")" and parsedLine[n] != "+" and parsedLine[n] != "-" and parsedLine[n] != "*" and parsedLine[n] != "/" and parsedLine[n] != "^"){
+            ParserException("Cannot get token type! " + parsedLine[n]);
             return nullptr;
         }
 

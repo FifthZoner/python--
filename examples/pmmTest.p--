@@ -12,8 +12,18 @@ end
 num RosnacoRekurencyjnie(num start, num koniec, num krok)
     if (start < koniec)
         return RosnacoRekurencyjnie(start + krok, koniec, krok * 2)
+    else
+        return start
     end
-    return start
 end
 
-num k = RosnacoRekurencyjnie(1, 5000, 1)
+num fun(num n)
+    return n
+end
+
+num fun2(num n)
+    return 2 * fun(n)
+end
+
+Println(RosnacoRekurencyjnie(1, 5000, 1))
+Println(fun2(1))

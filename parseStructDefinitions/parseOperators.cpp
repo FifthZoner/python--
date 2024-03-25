@@ -289,7 +289,7 @@ std::string ParsePlus::run() const{
             value += std::stold(reinterpret_cast <ParsePower*> (right->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator in right side integer condition!");
+            InterpreterException("Wrong operator in right side integer condition (plus)!");
             return "0";
         }
 
@@ -414,7 +414,7 @@ std::string ParseMinus::run() const{
             value -= std::stold(reinterpret_cast <ParsePower*> (right->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator in right side integer condition!");
+            InterpreterException("Wrong operator in right side integer condition (minus)!");
             return "0";
         }
 
@@ -498,7 +498,7 @@ std::string ParseMultiply::run() const{
             value *= std::stold(reinterpret_cast <ParsePower*> (right->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator in right side integer condition!");
+            InterpreterException("Wrong operator in right side integer condition (multiply)!" + std::to_string(right->type()));
             return "0";
         }
 
@@ -582,7 +582,7 @@ std::string ParseDivide::run() const{
              value /= std::stold(reinterpret_cast <ParsePower*> (right->getPointer())->run());
         }
         else {
-            InterpreterException("Wrong operator in right side integer condition!");
+            InterpreterException("Wrong operator in right side integer condition (divide)!");
             return "0";
         }
 
@@ -666,7 +666,7 @@ std::string ParsePower::run() const{
             value = (long double)(powl(value, std::stold(reinterpret_cast <ParsePower*> (right->getPointer())->run())));
         }
         else {
-            InterpreterException("Wrong operator in right side integer condition!");
+            InterpreterException("Wrong operator in right side integer condition (power)!");
             return "0";
         }
 
