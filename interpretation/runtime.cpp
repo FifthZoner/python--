@@ -58,7 +58,20 @@ std::vector <std::string> RunArrayValueReturning(ParseStruct* runnable) {
     }
 
     if (runnable->type() == ParseStruct::variableVariable) {
-        ParserException("Taking values from other array not yet implemented!");
+        Variable* arr = GetVariable(reinterpret_cast<ParseVariable*>(runnable)->token);
+        std::vector <std::string> values;
+        if (arr->type() == Variable::typeNum) {
+            for (auto& n : reinterpret_cast<VariableNum*>(arr)->values) {
+                values.push_back(std::to_string(n.value));
+            }
+        }
+        else {
+            reinterpret_cast<VariableString*>(arr)->values.clear();
+            for (auto& n : reinterpret_cast<VariableString*>(arr)->values) {
+                values.push_back(n.value);
+            }
+        }
+        return values;
     }
 
     InterpreterException("Unknown value returning candidate!");

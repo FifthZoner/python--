@@ -1,12 +1,16 @@
 #include <utility>
 #include <unordered_map>
+#include <cmath>
 
 #include "parsing.hpp"
 #include "content/defines.hpp"
 #include "interpretation/checks.hpp"
+#include "interpretation/runtime.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
+#include <cmath>
+
 #endif
 
 std::vector <std::string> ParseCommandLine(const std::string& line) {
@@ -122,6 +126,103 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
         and parsedLine[range.first + 2] == "(" and parsedLine[range.second - 1] == ")") {
             return std::make_unique <ParseCustomFunction> (std::pair <unsigned int, unsigned int> (range.first, range.second));
         }
+    }
+    if (range.second - range.first >= 5 and IsArray(parsedLine[range.first]) and parsedLine[range.first + 1] == ":"
+        and parsedLine[range.first + 3] == "(" and parsedLine[range.second - 1] == ")") {
+        // this is the case with array functions
+        Variable* arr = GetVariable(parsedLine[range.first]);
+        if (parsedLine[range.first + 2] == "clear") {
+            if (arr->type() == Variable::typeNum) {
+                reinterpret_cast<VariableNum*>(arr)->values.clear();
+                return nullptr;
+            }
+            else {
+                reinterpret_cast<VariableString*>(arr)->values.clear();
+                return nullptr;
+            }
+        }
+        else if (parsedLine[range.first + 2] == "push") {
+            std::unique_ptr <ParseStruct> temp =
+                    std::unique_ptr <ParseStruct> (ParseMathematicalOperation(
+                            std::pair<unsigned int, unsigned int> (range.first + 4, range.second - 1)));
+            std::string valueString = RunValueReturning(temp.get(), Variable::typeNum);
+            if (arr->type() == Variable::typeNum) {
+                if (not IsConvertibleToNum(valueString)) {
+                    ParserException("Cannot assign a string to a numeric array!");
+                }
+                reinterpret_cast<VariableNum*>(arr)->values.emplace_back(std::stold(valueString));
+                return nullptr;
+            }
+            else {
+                reinterpret_cast<VariableString*>(arr)->values.emplace_back(valueString);
+                return nullptr;
+            }
+        }
+        else if (parsedLine[range.first + 2] == "resize") {
+            std::unique_ptr <ParseStruct> temp =
+                    std::unique_ptr <ParseStruct> (ParseMathematicalOperation(
+                            std::pair<unsigned int, unsigned int> (range.first + 4, range.second - 1)));
+            std::string valueString = RunValueReturning(temp.get(), Variable::typeNum);
+            if (not IsConvertibleToNum(valueString)) {
+                ParserException("Array index number cannot be a string!");
+            }
+            long long size = std::floor(std::stold(valueString));
+            long long arraySize = 0;
+            if (arr->type() == Variable::typeNum) {
+                arraySize = reinterpret_cast<VariableNum*>(arr)->values.size();
+            }
+            else {
+                arraySize = reinterpret_cast<VariableString*>(arr)->values.size();
+            }
+            if (size  < 0) {
+                ParserException("Given size is negative!");
+            }
+            if (arr->type() == Variable::typeNum) {
+                if (size > arraySize) {
+                    for (unsigned long long n = arraySize; n < size; n++) {
+                        reinterpret_cast<VariableNum*>(arr)->values.emplace_back(0);
+                    }
+                }
+                else {
+                    for (long long n = arraySize; n != size; n--) {
+                        reinterpret_cast<VariableNum*>(arr)->values.pop_back();
+                    }
+                }
+
+                return nullptr;
+            }
+            else {
+                if (size > arraySize) {
+                    for (unsigned long long n = arraySize; n < size; n++) {
+                        reinterpret_cast<VariableString*>(arr)->values.emplace_back("0");
+                    }
+                }
+                else {
+                    for (long long n = arraySize; n != size; n--) {
+                        reinterpret_cast<VariableString*>(arr)->values.pop_back();
+                    }
+                }
+                return nullptr;
+            }
+        }
+        else if (parsedLine[range.first + 2] == "pop") {
+            if (arr->type() == Variable::typeNum) {
+                if (reinterpret_cast<VariableNum*>(arr)->values.empty()) {
+                    ParserException("Cannot pop an empty array!");
+                }
+                reinterpret_cast<VariableNum*>(arr)->values.pop_back();
+                return nullptr;
+            }
+            else {
+                if (reinterpret_cast<VariableString*>(arr)->values.empty()) {
+                    ParserException("Cannot pop an empty array!");
+                }
+                reinterpret_cast<VariableString*>(arr)->values.pop_back();
+                return nullptr;
+            }
+        }
+        ParserException("Invalid array method!");
+
     }
     // definition of a new array
     if (range.second - range.first >= 6){

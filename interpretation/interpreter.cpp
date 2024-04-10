@@ -420,6 +420,9 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
 
     }
 
+    if (parsed == nullptr) {
+        return RunLineOutput::success;
+    }
 
     try {
         // actual running of the code, finally, only first level things here, the rest recursively or something

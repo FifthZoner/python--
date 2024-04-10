@@ -81,6 +81,19 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
         return new ParseValue(values);
     }
 
+    if (range.second - range.first == 3 and IsArray(parsedLine[range.first])
+        and parsedLine[range.first + 1] == ":"){
+        if (parsedLine[range.first + 2] == "size") {
+            Variable* arr = GetVariable(parsedLine[range.first]);
+            if (arr->type() == Variable::typeNum) {
+                return new ParseValue(std::to_string(reinterpret_cast<VariableNum*>(arr)->values.size()));
+            }
+            else {
+                return new ParseValue(std::to_string(reinterpret_cast<VariableString*>(arr)->values.size()));
+            }
+        }
+    }
+
     // the value is an array index
     if (range.second - range.first >= 4 and IsArray(parsedLine[range.first])
     and parsedLine[range.first + 1] == "[" and parsedLine[range.second - 1] == "]") {
@@ -134,39 +147,25 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
 
     // checking condition types, if all aren't string or all aren't int, exception
     uint8_t type;
-    if (IsConvertibleToString(parsedLine[range.first])){
-        type = ParseStruct::variableString;
-    }
-    else if (IsConvertibleToNum(parsedLine[range.first])){
-        type = ParseStruct::variableNum;
-    }
-    else if (IsVariable(parsedLine[range.first])){
-        auto* temp = GetVariable(parsedLine[range.first]);
-        if (temp == nullptr){
-            ParserException("Cannot get variable for math!");
-            return nullptr;
-        }
-        if (temp->type() == Variable::typeNum){
-            type = ParseStruct::variableNum;
-        }
-        else {
-            type = ParseStruct::variableString;
-        }
-    }
-    else {
-        ParserException("Cannot get token type!");
-        return nullptr;
-    }
 
-    for (unsigned int n = range.first + 1; n < range.second; n++){
+    bool isFirst = true;
+    for (unsigned int n = range.first; n < range.second; n++){
         if (IsConvertibleToString(parsedLine[n])){
-            if (type != ParseStruct::variableString){
+            if (isFirst) {
+                type = Variable::typeString;
+                isFirst = false;
+            }
+            else if (type != ParseStruct::variableString){
                 ParserException("Wrong type in math parsing!");
                 return nullptr;
             }
         }
         else if (IsConvertibleToNum(parsedLine[n])){
-            if (type != ParseStruct::variableNum){
+            if (isFirst) {
+                type = Variable::typeNum;
+                isFirst = false;
+            }
+            else if (type != ParseStruct::variableNum){
                 ParserException("Wrong type in math parsing!");
                 return nullptr;
             }
@@ -177,13 +176,23 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
                 ParserException("Cannot get variable for math!");
                 return nullptr;
             }
-            if (temp->type() == Variable::typeNum and type != ParseStruct::variableNum){
-                ParserException("Types mismatch in math, num!");
-                return nullptr;
+            if (temp->type() == Variable::typeNum){
+                if (isFirst) {
+                    type = Variable::typeNum;
+                    isFirst = false;
+                }
+                else if (type != Variable::typeNum){
+                    ParserException("Types mismatch in math, num!");
+                }
             }
-            else if (temp->type() == Variable::typeString and type != ParseStruct::variableString){
-                ParserException("Types mismatch in math, string!");
-                return nullptr;
+            else if (temp->type() == Variable::typeString){
+                if (isFirst) {
+                    type = Variable::typeString;
+                    isFirst = false;
+                }
+                else if (type != ParseStruct::variableString) {
+                    ParserException("Types mismatch in math, string!");
+                }
             }
         }
         else if (!IsFunction(parsedLine[n]) and parsedLine[n] != "("
