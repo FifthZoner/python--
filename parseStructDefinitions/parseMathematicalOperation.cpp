@@ -3,6 +3,7 @@
 #include "../interpretation/checks.hpp"
 #include "../content/defines.hpp"
 #include "../interpretation/runtime.hpp"
+#include <cmath>
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
@@ -80,6 +81,39 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
         return new ParseValue(values);
     }
 
+    // the value is an array index
+    if (range.second - range.first >= 4 and IsArray(parsedLine[range.first])
+    and parsedLine[range.first + 1] == "[" and parsedLine[range.second - 1] == "]") {
+        std::unique_ptr <ParseStruct> temp =
+                std::unique_ptr <ParseStruct> (ParseMathematicalOperation(
+                        std::pair<unsigned int, unsigned int> (range.first + 2, range.second - 1)));
+        std::string indexString = RunValueReturning(temp.get(), Variable::typeNum);
+        if (not IsConvertibleToNum(indexString)) {
+            ParserException("Array index number cannot be a string!");
+        }
+        long long index = std::floor(std::stold(indexString));
+        long long arraySize = 0;
+        Variable* var = GetVariable(parsedLine[range.first]);
+        if (var->type() == Variable::typeNum) {
+            arraySize = reinterpret_cast<VariableNum*>(var)->values.size();
+        }
+        else {
+            arraySize = reinterpret_cast<VariableString*>(var)->values.size();
+        }
+        if (index >= arraySize or index < -arraySize) {
+            ParserException("Given index exceeds array size!");
+        }
+        if (index < 0) {
+            index = arraySize + index;
+        }
+        if (var->type() == Variable::typeNum) {
+            return new ParseValue(std::to_string(reinterpret_cast<VariableNum*>(var)->values[index].value));
+        }
+        else {
+            return new ParseValue(reinterpret_cast<VariableString*>(var)->values[index].value);
+        }
+    }
+
     unsigned int bracketLevel = 0;
     for (unsigned int n = range.first; n < range.second; n++) {
         if (parsedLine[n] == "("){
@@ -152,7 +186,10 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
                 return nullptr;
             }
         }
-        else if (!IsFunction(parsedLine[n]) and parsedLine[n] != "(" and parsedLine[n] != ")" and parsedLine[n] != "+" and parsedLine[n] != "-" and parsedLine[n] != "*" and parsedLine[n] != "/" and parsedLine[n] != "^"){
+        else if (!IsFunction(parsedLine[n]) and parsedLine[n] != "("
+            and parsedLine[n] != ")" and parsedLine[n] != "+" and parsedLine[n] != "-"
+            and parsedLine[n] != "*" and parsedLine[n] != "/" and parsedLine[n] != "^"
+            and parsedLine[n] != "[" and parsedLine[n] != "]"){
             ParserException("Cannot get token type! " + parsedLine[n]);
             return nullptr;
         }

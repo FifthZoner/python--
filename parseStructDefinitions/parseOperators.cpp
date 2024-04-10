@@ -75,10 +75,10 @@ ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<u
             std::cout << "Added implicit to left\n";
             #endif
         }
-        if (left.second - left.first > 2){
-            ParserException("Left side is wrong!");
-            return;
-        }
+        //if (left.second - left.first > 2){
+        //    ParserException("Left side is wrong!");
+        //    return;
+        //}
         if (left.second - left.first == 2){
             if (parsedLine[left.first] == "string"){
                 #ifdef PYTHON___DEBUG
@@ -101,6 +101,41 @@ ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<u
             else {
                 ParserException("Left side is not a variable!");
                 return;
+            }
+        }
+        else if (left.second - left.first >= 4 and IsArray(parsedLine[left.first]) and
+            parsedLine[left.first + 1] == "[" and parsedLine[left.second - 1] == "]") {
+            // assigning value to an array index
+            Variable* arr = GetVariable(parsedLine[left.first]);
+
+            std::unique_ptr <ParseStruct> temp =
+                    std::unique_ptr <ParseStruct> (ParseMathematicalOperation(
+                            std::pair<unsigned int, unsigned int> (left.first + 2, left.second - 1)));
+            std::string indexString = RunValueReturning(temp.get(), Variable::typeNum);
+            if (not IsConvertibleToNum(indexString)) {
+                ParserException("Array index number cannot be a string!");
+            }
+            long long index = std::floor(std::stold(indexString));
+            long long arraySize = 0;
+
+            if (arr->type() == Variable::typeNum) {
+                arraySize = reinterpret_cast<VariableNum*>(arr)->values.size();
+            }
+            else {
+                arraySize = reinterpret_cast<VariableString*>(arr)->values.size();
+            }
+            if (index >= arraySize or index < -arraySize) {
+                ParserException("Given index exceeds array size!");
+            }
+            if (index < 0) {
+                index = arraySize + index;
+            }
+
+            if (arr->type() == Variable::typeNum) {
+                target = std::unique_ptr<ParseStruct>(new ParseVariable(&reinterpret_cast<VariableNum*>(arr)->values[index]));
+            }
+            else {
+                target = std::unique_ptr<ParseStruct>(new ParseVariable(&reinterpret_cast<VariableString*>(arr)->values[index]));
             }
         }
         else {
@@ -153,7 +188,48 @@ void ParseAssign::run() const{
 
         auto values = RunArrayValueReturning(from.get());
         // TODO: put the values from vector into the variable structs in the variable
+        if (not var->isArray) {
+            ParserException("Assigning array type to non array type is illegal! Straight to jail!");
+        }
 
+        #ifdef PYTHON___DEBUG
+        std::cout << "Assigned values to array:\n";
+        #endif
+
+        if (var->type() == Variable::typeNum) {
+            std::vector <long double> converted;
+            converted.resize(values.size());
+            for (unsigned int n = 0; n < converted.size(); n++) {
+                if (not IsConvertibleToNum(values[n])) {
+                    ParserException("Non numeric value in numeric array! (should not happen)");
+                }
+                converted[n] = std::stold(values[n]);
+            }
+            // assigning the values
+            #ifdef PYTHON___DEBUG
+            for (auto& n : converted) {
+                std::cout << n << "\n";
+            }
+            #endif
+            reinterpret_cast<VariableNum*>(var)->values.clear();
+            for (auto& n : converted) {
+                reinterpret_cast<VariableNum*>(var)->values.emplace_back(n);
+            }
+
+        }
+        else {
+            #ifdef PYTHON___DEBUG
+            for (auto& n : values) {
+                std::cout << n << "\n";
+            }
+            #endif
+            reinterpret_cast<VariableString*>(var)->values.clear();
+            for (auto& n : values) {
+                reinterpret_cast<VariableString*>(var)->values.emplace_back(n);
+            }
+        }
+
+        return;
     }
     else {
         switch (from->type()){

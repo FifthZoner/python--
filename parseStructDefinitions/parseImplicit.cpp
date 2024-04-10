@@ -62,7 +62,7 @@ ParseImplicit::ParseImplicit(std::pair<unsigned int, unsigned int> range){
                 tokens.push_back(std::unique_ptr<ParseStruct>(new ParseValue(parsedLine[n])));
             }
         }
-        else if (parsedLine[n] != "+"){
+        else if (parsedLine[n] != "+" and parsedLine[n] != "[" and parsedLine[n] != "]"){
             ParserException("Invalid operator \"" + parsedLine[n] + "\" in implicit variable!");
             return;
         }

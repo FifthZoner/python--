@@ -109,7 +109,9 @@ struct ParseNum : ParseStruct {
 
 struct ParseVariable : ParseStruct {
     std::string token;
+    Variable* var = nullptr;
     explicit ParseVariable(const std::string& token);
+    explicit ParseVariable(Variable* var);
     [[nodiscard]] const uint8_t type() const override;
     [[nodiscard]] Variable* run() const;
 };

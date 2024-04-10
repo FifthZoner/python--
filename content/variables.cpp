@@ -22,7 +22,10 @@ VariableString::VariableString(const std::string& value) {
     this->value = value;
 }
 VariableString::VariableString(std::vector <std::string>& values) {
-    this->values = std::move(values);
+    this->values.clear();
+    for (auto& n : values) {
+        this->values.emplace_back(n);
+    }
     isArray = true;
 }
 const uint8_t VariableString::type() const {
@@ -49,7 +52,10 @@ VariableNum::VariableNum(const long double value) {
     this->value = value;
 }
 VariableNum::VariableNum(std::vector <long double>& values) {
-    this->values = std::move(values);
+    this->values.clear();
+    for (auto& n : values) {
+        this->values.emplace_back(n);
+    }
     isArray = true;
 }
 const uint8_t VariableNum::type() const {

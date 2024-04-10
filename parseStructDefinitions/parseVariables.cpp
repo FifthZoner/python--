@@ -110,10 +110,17 @@ Variable* ParseString::run() {
 ParseVariable::ParseVariable(const std::string& token){
     this->token = token;
 }
+ParseVariable::ParseVariable(Variable* var) {
+    this->var = var;
+}
 const uint8_t ParseVariable::type() const{
     return ParseStruct::variableVariable;
 }
 Variable* ParseVariable::run() const{
+
+    if (var != nullptr) {
+        return var;
+    }
 
     // TODO: add local here
     if (IsVariable(token)){

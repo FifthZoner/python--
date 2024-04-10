@@ -277,7 +277,9 @@ void SplitInterpreterLine(std::string line, unsigned long long lineNumber){
                 parsedLine.insert(parsedLine.begin() + n + 1, "(");
                 parsedLine.insert(parsedLine.end(), 1, ")");
                 parsedLine.insert(parsedLine.begin() + n + 1, std::string(1, m[0]));
-                parsedLine.insert(parsedLine.begin() + n + 1, parsedLine[n - 1]);
+                for (long long k = n - 1; k >= 0; k--) {
+                    parsedLine.insert(parsedLine.begin() + n + 1, parsedLine[k]);
+                }
                 parsedLine[n] = std::string(1, m[1]);
                 break;
             }

@@ -21,7 +21,7 @@ struct Variable {
 
 struct VariableString : Variable {
     std::string value;
-    std::vector <std::string> values;
+    std::vector <VariableString> values;
     explicit VariableString(const std::string& value);
     explicit VariableString(std::vector <std::string>& values);
     [[nodiscard]] const uint8_t type() const override;
@@ -30,7 +30,7 @@ struct VariableString : Variable {
 
 struct VariableNum : Variable {
     long double value = 0;
-    std::vector <long double> values;
+    std::vector <VariableNum> values;
     explicit VariableNum(long double value);
     explicit VariableNum(std::vector <long double>& values);
     [[nodiscard]] const uint8_t type() const override;
