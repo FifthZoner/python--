@@ -2,6 +2,7 @@
 #include "../parsing.hpp"
 #include "../interpretation/checks.hpp"
 #include "../content/defines.hpp"
+#include "../interpretation/runtime.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
@@ -36,6 +37,47 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     // this is the case when brackets take the whole equation;
     if (parsedLine[range.first] == "(" and parsedLine[range.second - 1] == ")"){
         return ParseMathematicalOperation(std::pair <unsigned int, unsigned int> (range.first + 1, range.second - 1));
+    }
+
+    // array values, iterate over all of this mess and return it
+    if (parsedLine[range.first] == "[" and parsedLine[range.second - 1] == "]") {
+        unsigned int bracketLevel = 0;
+        unsigned int start = range.first + 1;
+        std::vector <std::string> values;
+        for (unsigned int n = range.first + 1; n < range.second - 1; n += 1) {
+            // iterate but miss every ,
+            // also first take all values
+            if (parsedLine[n] == "(" or parsedLine[n] == "[") {
+                bracketLevel++;
+            }
+            else if (parsedLine[n] == ")" or parsedLine[n] == "]") {
+                if (bracketLevel == 0) {
+                    ParserException("Too many closing brackets in array value expression!");
+                }
+                bracketLevel--;
+            }
+
+            if (parsedLine[n] == "," and bracketLevel == 0) {
+                // take all the values prior and put them through this function again
+                std::unique_ptr <ParseStruct> temp =
+                        std::unique_ptr <ParseStruct> (ParseMathematicalOperation(
+                                std::pair<unsigned int, unsigned int> (start, n)));
+                values.push_back(RunValueReturning(temp.get(), ParseStruct::variableString));
+                start = n + 1;
+            }
+
+            if (n == range.second - 2) {
+                if (bracketLevel != 0) {
+                    ParserException("Too few closing brackets in array value expression!");
+                }
+                // take all the values prior and put them through this function again
+                std::unique_ptr <ParseStruct> temp =
+                        std::unique_ptr <ParseStruct> (ParseMathematicalOperation(
+                                std::pair<unsigned int, unsigned int> (start, n + 1)));
+                values.push_back(RunValueReturning(temp.get(), ParseStruct::variableString));
+            }
+        }
+        return new ParseValue(values);
     }
 
     unsigned int bracketLevel = 0;

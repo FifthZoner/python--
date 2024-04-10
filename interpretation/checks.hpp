@@ -12,6 +12,8 @@ bool IsConvertibleToString(const std::string& token);
 
 bool IsVariable(const std::string& token);
 
+bool IsArray(const std::string& token);
+
 bool IsFunction(const std::string& token);
 
 bool DoesReturnValue(const std::string& token);

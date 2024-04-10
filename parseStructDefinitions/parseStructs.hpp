@@ -32,7 +32,9 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
 struct ParseAssign : ParseStruct {
     std::unique_ptr<ParseStruct> target;
     std::unique_ptr<ParseStruct> from;
-    ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<unsigned int, unsigned int> right);
+    std::vector <std::unique_ptr<ParseStruct>> arrayValues;
+    bool isArray = false;
+    ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<unsigned int, unsigned int> right, bool isArray = false);
     [[nodiscard]] const uint8_t type() const override;
     void run() const;
 };
@@ -80,21 +82,27 @@ struct ParsePower : ParseStruct {
 struct ParseValue : ParseStruct {
     std::string value;
     uint8_t valueType;
+    bool isArray = false;
+    std::vector <std::string> values;
     explicit ParseValue(const std::string& value);
+    // pass the values inside brackets, divided by ,
+    explicit ParseValue(std::vector<std::string> values);
     [[nodiscard]] const uint8_t type() const override;
     [[nodiscard]] std::string run() const;
 };
 
 struct ParseString : ParseStruct {
     std::string token;
-    explicit ParseString(const std::string& token);
+    explicit ParseString(const std::string& token, bool isArray = false);
+    bool isArray = false;
     [[nodiscard]] const uint8_t type() const override;
     [[nodiscard]] Variable* run();
 };
 
 struct ParseNum : ParseStruct {
     std::string token;
-    explicit ParseNum(const std::string& token);
+    explicit ParseNum(const std::string& token, bool isArray = false);
+    bool isArray = false;
     [[nodiscard]] const uint8_t type() const override;
     [[nodiscard]] Variable* run();
 };

@@ -54,6 +54,13 @@ bool IsVariable(const std::string& token){
     return false;
 }
 
+bool IsArray(const std::string& token){
+    if (not IsVariable(token)) {
+        return false;
+    }
+    return GetVariable(token)->isArray;
+}
+
 bool IsFunction(const std::string& token) {
     if (auto found = functions.find(token); found != functions.end()) {
         return true;

@@ -166,8 +166,10 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                         return RunLineOutput::success;
                     }
 
-                    for (unsigned long long n = foundLine + 1; n < lineNumber and not interpreterStream->lines[n].starts_with("case"); n++){
-                        RunLine(interpreterStream->lines[n], n);
+                    for (unsigned long long n = foundLine + 1; n < lineNumber and not interpreterStream->lines[n].starts_with("break"); n++){
+                        if (not interpreterStream->lines[n].starts_with("case")) {
+                            RunLine(interpreterStream->lines[n], n);
+                        }
                     }
 
 
@@ -303,8 +305,10 @@ uint8_t RunLine(std::string line, unsigned long long lineNumber) {
                     return RunLineOutput::success;
                 }
 
-                for (unsigned long long n = foundLine + 1; n < lineNumber and not interpreterStream->lines[n].starts_with("case"); n++){
-                    RunLine(interpreterStream->lines[n], n);
+                for (unsigned long long n = foundLine + 1; n < lineNumber and not interpreterStream->lines[n].starts_with("break"); n++){
+                    if (not interpreterStream->lines[n].starts_with("case")) {
+                        RunLine(interpreterStream->lines[n], n);
+                    }
                 }
 
 

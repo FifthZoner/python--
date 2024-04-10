@@ -27,6 +27,31 @@ ParseValue::ParseValue(const std::string& value){
         ParserException("Value somehow could not be created!");
     }
 }
+ParseValue::ParseValue(std::vector<std::string> values) {
+    isArray = true;
+    if (not values.empty()) {
+        if (IsConvertibleToNum(values.front())){
+            valueType = ParseStruct::variableNum;
+        }
+        else if (not values.front().empty()){
+            valueType = ParseStruct::variableString;
+        }
+    }
+    else {
+        return;
+    }
+    for (auto& n : values) {
+        if (valueType == ParseStruct::variableNum) {
+            if (not IsConvertibleToNum(n)){
+                ParserException("Mixed values in array value get!");
+            }
+            this->values.push_back(n);
+        }
+        else if (valueType == ParseStruct::variableString) {
+            this->values.push_back(n);
+        }
+    }
+}
 const uint8_t ParseValue::type() const{
     return ParseStruct::variableValue;
 }
@@ -37,7 +62,8 @@ std::string ParseValue::run() const{
     return value;
 }
 
-ParseNum::ParseNum(const std::string& token){
+ParseNum::ParseNum(const std::string& token, bool isArray){
+    this->isArray = isArray;
     this->token = token;
     if (IsVariable(token)){
         ParserException("Variable redefinition!");
@@ -51,11 +77,16 @@ Variable* ParseNum::run() {
     std::cout << "New variable \"num " << token << "\"";
     #endif
 
+    if (isArray) {
+        return NewVariable(token, std::vector<long double>());
+    }
+
     return NewVariable(token, 0);
 }
 
-ParseString::ParseString(const std::string& token){
+ParseString::ParseString(const std::string& token, bool isArray){
     this->token = token;
+    this->isArray = isArray;
     if (IsVariable(token)){
         ParserException("Variable redefinition!");
     }
@@ -68,6 +99,11 @@ Variable* ParseString::run() {
     std::cout << "New variable \"string " << token << "\"";
     #endif
     std::string temp = "0";
+
+    if (isArray) {
+        return NewVariable(token, std::vector<std::string>());
+    }
+
     return NewVariable(token, temp);
 }
 

@@ -5,6 +5,7 @@
 #include "../interpretation/checks.hpp"
 #include "../content/defines.hpp"
 #include "../parsing.hpp"
+#include "../interpretation/runtime.hpp"
 
 #ifdef PYTHON___DEBUG
 #include <iostream>
@@ -13,7 +14,7 @@
 extern std::unordered_map <std::string, std::unique_ptr <Variable>> globalVariables;
 
 
-ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<unsigned int, unsigned int> right){
+ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<unsigned int, unsigned int> right, bool isArray){
     #ifdef PYTHON___DEBUG
     std::cout << "Parsing assign operator with left input:\n";
     for (unsigned int n = left.first; n < left.second; n++){
@@ -26,61 +27,100 @@ ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<u
     std::cout << "\n";
     #endif
 
-    bool isImplicit = false;
+    if (isArray) {
+        // parsing that thing into an array
+        this->isArray = true;
+        if (right.second - right.first == 0) {
+            ParserException("Unexpected array assign right side!");
+        }
 
-    // left side parsing
-    if (parsedLine[left.first] == "implicit"){
-        isImplicit = true;
-        left.first++;
-        #ifdef PYTHON___DEBUG
-        std::cout << "Added implicit to left\n";
-        #endif
-    }
-    if (left.second - left.first > 2){
-        ParserException("Left side is wrong!");
-        return;
-    }
-    if (left.second - left.first == 2){
-        if (parsedLine[left.first] == "string"){
-            #ifdef PYTHON___DEBUG
-            std::cout << "Added string to left\n";
-            #endif
-            target = std::unique_ptr<ParseStruct>(new ParseString(parsedLine[left.first + 1]));
-        }
-        else if (parsedLine[left.first] == "num"){
-            #ifdef PYTHON___DEBUG
-            std::cout << "Added int to left\n";
-            #endif
-            target = std::unique_ptr<ParseStruct>(new ParseNum(parsedLine[left.first + 1]));
-        }
-    }
-    else if (left.second - left.first == 1){
-        // existing variable check
-        if (IsVariable(parsedLine[left.first])){
-            target = std::unique_ptr<ParseStruct>(new ParseVariable(parsedLine[left.first]));
+        from = std::unique_ptr <ParseStruct> (ParseMathematicalOperation(right));
+
+        // checking if the left side is an existing variable or a new one
+        if (parsedLine[left.first] == "num" or parsedLine[left.first] == "string") {
+            if (IsArray(parsedLine[left.first])) {
+                ParserException("Cannot create an array that does already exist!");
+            }
+            if (parsedLine[left.first] == "string"){
+                #ifdef PYTHON___DEBUG
+                std::cout << "Added string[] to left\n";
+                #endif
+                target = std::unique_ptr<ParseStruct>(new ParseString(parsedLine[left.first + 1], true));
+            }
+            else if (parsedLine[left.first] == "num"){
+                #ifdef PYTHON___DEBUG
+                std::cout << "Added num[] to left\n";
+                #endif
+                target = std::unique_ptr<ParseStruct>(new ParseNum(parsedLine[left.first + 1], true));
+            }
         }
         else {
-            ParserException("Left side is not a variable!");
-            return;
+            // assuming it's an existing array
+            if (not IsArray(parsedLine[left.first])) {
+                ParserException("Cannot assign to array that does not exist!");
+            }
+            target = std::unique_ptr<ParseStruct>(new ParseVariable(parsedLine[left.first]));
         }
+
+
     }
     else {
-        ParserException("Error that I forgot what it means!");
-        return;
+        bool isImplicit = false;
+
+        // left side parsing
+        if (parsedLine[left.first] == "implicit"){
+            isImplicit = true;
+            left.first++;
+            #ifdef PYTHON___DEBUG
+            std::cout << "Added implicit to left\n";
+            #endif
+        }
+        if (left.second - left.first > 2){
+            ParserException("Left side is wrong!");
+            return;
+        }
+        if (left.second - left.first == 2){
+            if (parsedLine[left.first] == "string"){
+                #ifdef PYTHON___DEBUG
+                std::cout << "Added string to left\n";
+                #endif
+                target = std::unique_ptr<ParseStruct>(new ParseString(parsedLine[left.first + 1]));
+            }
+            else if (parsedLine[left.first] == "num"){
+                #ifdef PYTHON___DEBUG
+                std::cout << "Added num to left\n";
+                #endif
+                target = std::unique_ptr<ParseStruct>(new ParseNum(parsedLine[left.first + 1]));
+            }
+        }
+        else if (left.second - left.first == 1){
+            // existing variable check
+            if (IsVariable(parsedLine[left.first])){
+                target = std::unique_ptr<ParseStruct>(new ParseVariable(parsedLine[left.first]));
+            }
+            else {
+                ParserException("Left side is not a variable!");
+                return;
+            }
+        }
+        else {
+            ParserException("Error that I forgot what it means!");
+            return;
+        }
+
+
+        if (right.second - left.first == 0){
+            ParserException("No values on right side!");
+            return;
+        }
+
+        if (isImplicit){
+            from = std::unique_ptr <ParseStruct> (new ParseImplicit(right));
+            return;
+        }
+
+        from = std::unique_ptr <ParseStruct> (ParseMathematicalOperation(right));
     }
-
-
-    if (right.second - left.first == 0){
-        ParserException("No values on right side!");
-        return;
-    }
-
-    if (isImplicit){
-        from = std::unique_ptr <ParseStruct> (new ParseImplicit(right));
-        return;
-    }
-
-    from = std::unique_ptr <ParseStruct> (ParseMathematicalOperation(right));
 }
 const uint8_t ParseAssign::type() const {
     return ParseStruct::operatorAssign;
@@ -109,102 +149,110 @@ void ParseAssign::run() const{
     std::cout << " was assigned value ";
     #endif
 
-    switch (from->type()){
-        case ParseStruct::variableValue:
+    if (isArray) {
 
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseValue*>(from->getPointer())->run());
-                    break;
-                case Variable::typeString:
-                    reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <ParseValue*>(from->getPointer())->run();
-                    break;
-            }
-            break;
-        case ParseStruct::variableVariable:
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = reinterpret_cast <VariableNum*> (reinterpret_cast <ParseVariable*> (from->getPointer())->run())->value;
-                    break;
-                case Variable::typeString:
-                    reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <VariableString*> (reinterpret_cast <ParseVariable*> (from->getPointer())->run())->value;
-                    break;
-            }
-            break;
-        case ParseStruct::keywordImplicit:
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast<ParseImplicit*>(from.get())->run(ParseStruct::variableNum));
-                    break;
-                case Variable::typeString:
-                    reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast<ParseImplicit*>(from.get())->run(ParseStruct::variableString);
-                    break;
-            }
-            break;
-        case ParseStruct::operatorPlus:
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParsePlus*> (from->getPointer())->run());
-                    break;
-                case Variable::typeString:
-                    reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <ParsePlus*> (from->getPointer())->run();
-                    break;
-            }
-            break;
-        case ParseStruct::operatorMinus:
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseMinus*> (from->getPointer())->run());
-                    break;
-                case Variable::typeString:
-                    InterpreterException("Cannot subtract strings!");
-                    return;
-            }
-            break;
-        case ParseStruct::operatorFunction:
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseFunction*> (from->getPointer())->run());
-                    break;
-                case Variable::typeString:
-                    reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <ParseFunction*> (from->getPointer())->run();
-                    return;
-            }
-            break;
-        case ParseStruct::operatorMultiply:
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseMultiply*> (from->getPointer())->run());
-                    break;
-                case Variable::typeString:
-                    InterpreterException("Cannot multiply strings!");
-                    return;
-            }
-            break;
-        case ParseStruct::operatorDivide:
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseDivide*> (from->getPointer())->run());
-                    break;
-                case Variable::typeString:
-                    InterpreterException("Cannot divide strings!");
-                    return;
-            }
-            break;
-        case ParseStruct::operatorPower:
-            switch (var->type()){
-                case Variable::typeNum:
-                    reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParsePower*> (from->getPointer())->run());
-                    break;
-                case Variable::typeString:
-                    InterpreterException("Cannot power-ize strings!");
-                    return;
-            }
-            break;
+        auto values = RunArrayValueReturning(from.get());
+        // TODO: put the values from vector into the variable structs in the variable
 
-        default:
-            InterpreterException("Wrong assignment origin!");
-           return;
+    }
+    else {
+        switch (from->type()){
+            case ParseStruct::variableValue:
+
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseValue*>(from->getPointer())->run());
+                        break;
+                    case Variable::typeString:
+                        reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <ParseValue*>(from->getPointer())->run();
+                        break;
+                }
+                break;
+            case ParseStruct::variableVariable:
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = reinterpret_cast <VariableNum*> (reinterpret_cast <ParseVariable*> (from->getPointer())->run())->value;
+                        break;
+                    case Variable::typeString:
+                        reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <VariableString*> (reinterpret_cast <ParseVariable*> (from->getPointer())->run())->value;
+                        break;
+                }
+                break;
+            case ParseStruct::keywordImplicit:
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast<ParseImplicit*>(from.get())->run(ParseStruct::variableNum));
+                        break;
+                    case Variable::typeString:
+                        reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast<ParseImplicit*>(from.get())->run(ParseStruct::variableString);
+                        break;
+                }
+                break;
+            case ParseStruct::operatorPlus:
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParsePlus*> (from->getPointer())->run());
+                        break;
+                    case Variable::typeString:
+                        reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <ParsePlus*> (from->getPointer())->run();
+                        break;
+                }
+                break;
+            case ParseStruct::operatorMinus:
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseMinus*> (from->getPointer())->run());
+                        break;
+                    case Variable::typeString:
+                        InterpreterException("Cannot subtract strings!");
+                        return;
+                }
+                break;
+            case ParseStruct::operatorFunction:
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseFunction*> (from->getPointer())->run());
+                        break;
+                    case Variable::typeString:
+                        reinterpret_cast <VariableString*>(var->getPointer())->value = reinterpret_cast <ParseFunction*> (from->getPointer())->run();
+                        return;
+                }
+                break;
+            case ParseStruct::operatorMultiply:
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseMultiply*> (from->getPointer())->run());
+                        break;
+                    case Variable::typeString:
+                        InterpreterException("Cannot multiply strings!");
+                        return;
+                }
+                break;
+            case ParseStruct::operatorDivide:
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParseDivide*> (from->getPointer())->run());
+                        break;
+                    case Variable::typeString:
+                        InterpreterException("Cannot divide strings!");
+                        return;
+                }
+                break;
+            case ParseStruct::operatorPower:
+                switch (var->type()){
+                    case Variable::typeNum:
+                        reinterpret_cast <VariableNum*>(var->getPointer())->value = std::stold(reinterpret_cast <ParsePower*> (from->getPointer())->run());
+                        break;
+                    case Variable::typeString:
+                        InterpreterException("Cannot power-ize strings!");
+                        return;
+                }
+                break;
+
+            default:
+                InterpreterException("Wrong assignment origin!");
+                return;
+        }
     }
 
     #ifdef PYTHON___DEBUG

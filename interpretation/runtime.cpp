@@ -48,3 +48,19 @@ std::string RunValueReturning(ParseStruct* runnable, uint8_t type){
     InterpreterException("Unknown value returning candidate!");
     return "0";
 }
+
+std::vector <std::string> RunArrayValueReturning(ParseStruct* runnable) {
+    switch (runnable->type()){
+        case ParseStruct::variableValue:
+            return reinterpret_cast<ParseValue*> (runnable)->values;
+        default:
+            break;
+    }
+
+    if (runnable->type() == ParseStruct::variableVariable) {
+        ParserException("Taking values from other array not yet implemented!");
+    }
+
+    InterpreterException("Unknown value returning candidate!");
+    return { "0" };
+}

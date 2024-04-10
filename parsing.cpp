@@ -35,7 +35,7 @@ std::vector <std::vector <std::string>> ParseCommandArguments(const int argc, ch
     }
     return vec;
 }
-std::string specialCharacters = ",(){}=+-*/%^!<>:";
+std::string specialCharacters = ",(){}[]=+-*/%^!<>:";
 std::pair<char, char> doubleOperators[9] =
         {
         std::make_pair<char, char>('=', '='),
@@ -121,6 +121,22 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
         if ((parsedLine[range.first] == "num" or parsedLine[range.first] == "string" or parsedLine[range.first] == "void")
         and parsedLine[range.first + 2] == "(" and parsedLine[range.second - 1] == ")") {
             return std::make_unique <ParseCustomFunction> (std::pair <unsigned int, unsigned int> (range.first, range.second));
+        }
+    }
+    // definition of a new array
+    if (range.second - range.first >= 6){
+        if ((parsedLine[range.first] == "num" or parsedLine[range.first] == "string")
+            and parsedLine[range.first + 2] == "[" and parsedLine[range.first + 3] == "]"
+            and parsedLine[range.first + 4] == "=") {
+            return std::make_unique <ParseAssign> (std::pair <unsigned int, unsigned int> (range.first, range.first + 4)
+                    ,std::pair <unsigned int, unsigned int> (range.first + 5, range.second),  true);
+        }
+    }
+    if (range.second - range.first >= 3){
+        if (IsArray(parsedLine[range.first])
+            and parsedLine[range.first + 1] == "=") {
+            return std::make_unique <ParseAssign> (std::pair <unsigned int, unsigned int> (range.first, range.first + 3)
+                    ,std::pair <unsigned int, unsigned int> (range.first + 3, range.second),  true);
         }
     }
     for (unsigned int n = range.first; n < range.second; n++){

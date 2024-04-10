@@ -10,6 +10,8 @@
 
 Variable* NewVariable(std::string& token, long double value);
 Variable* NewVariable(std::string& token, std::string& value);
+Variable* NewVariable(std::string& token, std::vector<long double> values);
+Variable* NewVariable(std::string& token, std::vector<std::string> values);
 
 struct InstanceLevel {
     std::unordered_map <std::string, std::unique_ptr <Variable>> variables;
