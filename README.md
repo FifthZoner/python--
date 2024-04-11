@@ -1,7 +1,7 @@
 <h1>Welcome to "python--"!</h1>
 <h5>! This is in no shape or form associated with the real python project and not meant to ridicule it, I was just lazy with the name. !</h5>
 <h3>What is it?</h3>
-This heresy of a language has been (or is being) created by me as an alternative form of passing my C++ exercises at Rzeszów University of Technology. It's loosely based on python's syntax with some personal touches.
+This heresy of a language has been (or is being) created by me as an alternative form of passing my C++ exercises at Rzeszów University of Technology, also for passing Advanced C++ laboratories. It's loosely based on python's syntax with some personal touches.
 <h3>And what does it do?</h3>
 It's a simple interpreted language, with support for reading .p-- files and reading user input directly. It's supposed to be able to do simple math and print operations, maybye file saving/reading.
 <h3>Why is everything in english if this is for a polish university?</h3>
@@ -20,6 +20,7 @@ Why not? I like using english in programming.
 </ul>
 <h2>Syntax:</h2>
 A "Hello world" in python--:
+
 ```
 Print("Hello world!")
 > Hello world!
@@ -62,11 +63,40 @@ implicit num foo(string a)
     
 implicit num b = 5 + " + " + 7 + " = " + (5 + 7) <- exception here
 ```
-The "implicit" keyword henerally allows for type conversions:
+The "implicit" keyword generally allows for type conversions:
 ```
 num var = 5
 string str = "This equals "
 implicit str += var;
 ```
 
-<h3>The rest of this and the language in under construction, even the functions here don't work yet, hold on!</h3>
+### Now, did you think that's all? It isn't!
+
+After the latest batch of work Python-- now supports switch statement, arrays, file reading via functions and system console calls!
+
+Arrays are declared like this:
+
+```
+num array[] = [1, 2, 3, 4, 5]
+```
+
+Arrays are indexed from 0 and that's about the only normal thing about the behaviour of those godforsaken constructs.
+
+They support negative indexing. I haven't explicitly added support for two-dimensional arrays, but I guess it could be possible with enough determination to force this abomination to allow for it. Now, wanna print an array?
+
+```
+num arr[] = [1, 2, 3]
+num n = 0;
+while (num < arr:size)
+    Println((arr[n]))
+    n += 1
+end
+```
+Wait, but shouldn't it be Println(arr[n])?
+
+NOPE, with the way implicit works it quite a bit of work to make it function in other ways, or at least I don't want to put this work in,
+
+## So how to make this glorious thing reside on my device?
+In the latest release there's a x86_64 executable for linux (compiled on fedora to be precise). I won't bother myself with compiling it on windows unless asked, there's nothing stopping you from compiling it for anything though! There are no platform specific libraries or commands used!
+
+Once you link it to your bash you can use it as a standalone command or as an interpreter program!
