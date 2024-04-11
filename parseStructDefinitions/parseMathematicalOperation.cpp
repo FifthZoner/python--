@@ -146,63 +146,79 @@ ParseStruct* ParseMathematicalOperation(std::pair <unsigned int, unsigned int> r
     }
 
     // checking condition types, if all aren't string or all aren't int, exception
-    uint8_t type;
+    uint8_t  type = Variable::typeNum;
 
     bool isFirst = true;
+    bracketLevel = 0;
     for (unsigned int n = range.first; n < range.second; n++){
-        if (IsConvertibleToString(parsedLine[n])){
-            if (isFirst) {
-                type = Variable::typeString;
-                isFirst = false;
-            }
-            else if (type != ParseStruct::variableString){
-                ParserException("Wrong type in math parsing!");
-                return nullptr;
-            }
+        if (parsedLine[n] == "("){
+            bracketLevel++;
         }
-        else if (IsConvertibleToNum(parsedLine[n])){
-            if (isFirst) {
-                type = Variable::typeNum;
-                isFirst = false;
+        else if (parsedLine[n] == ")") {
+            if (bracketLevel == 0){
+                ParserException("Mathematical condition invalid due to brackets!");
+                return new ParseStruct();
             }
-            else if (type != ParseStruct::variableNum){
-                ParserException("Wrong type in math parsing!");
-                return nullptr;
-            }
+            bracketLevel--;
         }
-        else if (IsVariable(parsedLine[n])){
-            auto* temp = GetVariable(parsedLine[n]);
-            if (temp == nullptr){
-                ParserException("Cannot get variable for math!");
-                return nullptr;
+        if (bracketLevel == 0) {
+            if (IsFunction(parsedLine[n])) {
+                continue;
             }
-            if (temp->type() == Variable::typeNum){
+            else if (IsVariable(parsedLine[n])){
+                auto* temp = GetVariable(parsedLine[n]);
+                if (temp == nullptr){
+                    ParserException("Cannot get variable for math!");
+                    return nullptr;
+                }
+                if (temp->type() == Variable::typeNum){
+                    if (isFirst) {
+                        type = Variable::typeNum;
+                        isFirst = false;
+                    }
+                    else if (type != Variable::typeNum){
+                        ParserException("Types mismatch in math, num!");
+                    }
+                }
+                else if (temp->type() == Variable::typeString){
+                    if (isFirst) {
+                        type = Variable::typeString;
+                        isFirst = false;
+                    }
+                    else if (type != ParseStruct::variableString) {
+                        ParserException("Types mismatch in math, string!");
+                    }
+                }
+            }
+            else if (IsConvertibleToNum(parsedLine[n])){
                 if (isFirst) {
                     type = Variable::typeNum;
                     isFirst = false;
                 }
-                else if (type != Variable::typeNum){
-                    ParserException("Types mismatch in math, num!");
+                else if (type != ParseStruct::variableNum){
+                    ParserException("Wrong type in math parsing : " + parsedLine[n]);
+                    return nullptr;
                 }
             }
-            else if (temp->type() == Variable::typeString){
+            else if (IsConvertibleToString(parsedLine[n])){
                 if (isFirst) {
                     type = Variable::typeString;
                     isFirst = false;
                 }
-                else if (type != ParseStruct::variableString) {
-                    ParserException("Types mismatch in math, string!");
+                else if (type != ParseStruct::variableString){
+                    ParserException("Wrong type in math parsing : " + parsedLine[n]);
+                    return nullptr;
                 }
             }
-        }
-        else if (!IsFunction(parsedLine[n]) and parsedLine[n] != "("
-            and parsedLine[n] != ")" and parsedLine[n] != "+" and parsedLine[n] != "-"
-            and parsedLine[n] != "*" and parsedLine[n] != "/" and parsedLine[n] != "^"
-            and parsedLine[n] != "[" and parsedLine[n] != "]"){
-            ParserException("Cannot get token type! " + parsedLine[n]);
-            return nullptr;
-        }
+            else if (!IsFunction(parsedLine[n]) and parsedLine[n] != "("
+                     and parsedLine[n] != ")" and parsedLine[n] != "+" and parsedLine[n] != "-"
+                     and parsedLine[n] != "*" and parsedLine[n] != "/" and parsedLine[n] != "^"
+                     and parsedLine[n] != "[" and parsedLine[n] != "]" and parsedLine[n] != ","){
+                ParserException("Cannot get token type! " + parsedLine[n]);
+                return nullptr;
+            }
 
+        }
     }
 
     // checking for operators from the last in order to first that is:

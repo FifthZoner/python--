@@ -20,7 +20,13 @@ ParseValue::ParseValue(const std::string& value){
         valueType = ParseStruct::variableNum;
     }
     else if (value.length() > 0){
-        this->value = value.substr(1, value.size() - 2);
+        // this is not perfect but oh well
+        if (value.length() >= 2 and value.front() == '\"' and value.back() == '\"') {
+            this->value = value.substr(1, value.size() - 2);
+        }
+        else {
+            this->value = value;
+        }
         valueType = ParseStruct::variableString;
     }
     else {

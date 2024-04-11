@@ -36,4 +36,6 @@ add_executable(python__ main.cpp
         interpretation/functionStack.hpp
         interpretation/functionStack.cpp
         content/pmmstdlib/math.cpp
+        content/pmmstdlib/systemThings.cpp
+        content/pmmstdlib/fileAccess.cpp
 )

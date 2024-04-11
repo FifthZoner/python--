@@ -1,0 +1,23 @@
+System("cd ../examples")
+
+Println("Performing a system ls command:")
+System("rm values.output")
+System("ls")
+
+string inputHandle = FileReadOpen("values.input")
+string outputHandle = FileWriteOpen("values.output")
+
+while (FileReadIsOpen(inputHandle) == 1)
+    FileWrite(outputHandle, (FileReadNum(inputHandle) ^ 2.5) + " ")
+end
+
+FileWriteClose(outputHandle)
+FileReadClose(inputHandle)
+
+Println("Performing another system ls command after filling the output with values to power of 2.5:")
+System("ls")
+
+Println("Cat of input:")
+System("echo `cat values.input`")
+Println("Cat of output:")
+System("echo `cat values.output`")

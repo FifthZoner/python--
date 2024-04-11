@@ -495,6 +495,9 @@ std::string ParseMinus::run() const{
         else if (left->type() == ParseStruct::variableValue){
             value = std::stold(reinterpret_cast <ParseValue*> (left->getPointer())->run());
         }
+        else if (left->type() == ParseStruct::operatorFunction){
+            value = std::stold(reinterpret_cast <ParseFunction*> (left->getPointer())->run());
+        }
         else if (left->type() == ParseStruct::operatorPlus){
             value = std::stold(reinterpret_cast <ParsePlus*> (left->getPointer())->run());
         }
@@ -578,6 +581,9 @@ std::string ParseMultiply::run() const{
         }
         else if (left->type() == ParseStruct::variableValue){
             value = std::stold(reinterpret_cast <ParseValue*> (left->getPointer())->run());
+        }
+        else if (left->type() == ParseStruct::operatorFunction){
+            value = std::stold(reinterpret_cast <ParseFunction*> (left->getPointer())->run());
         }
         else if (left->type() == ParseStruct::operatorPlus){
             value = std::stold(reinterpret_cast <ParsePlus*> (left->getPointer())->run());
@@ -663,6 +669,9 @@ std::string ParseDivide::run() const{
         else if (left->type() == ParseStruct::variableValue){
             value = std::stold(reinterpret_cast <ParseValue*> (left->getPointer())->run());
         }
+        else if (left->type() == ParseStruct::operatorFunction){
+            value = std::stold(reinterpret_cast <ParseFunction*> (left->getPointer())->run());
+        }
         else if (left->type() == ParseStruct::operatorPlus){
             value = std::stold(reinterpret_cast <ParsePlus*> (left->getPointer())->run());
         }
@@ -746,6 +755,9 @@ std::string ParsePower::run() const{
         }
         else if (left->type() == ParseStruct::variableValue){
             value = std::stold(reinterpret_cast <ParseValue*> (left->getPointer())->run());
+        }
+        else if (left->type() == ParseStruct::operatorFunction){
+            value = std::stold(reinterpret_cast <ParseFunction*> (left->getPointer())->run());
         }
         else if (left->type() == ParseStruct::operatorPlus){
             value = std::stold(reinterpret_cast <ParsePlus*> (left->getPointer())->run());
