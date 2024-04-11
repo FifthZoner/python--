@@ -235,6 +235,14 @@ std::unique_ptr<ParseStruct> ParseLine(std::pair<unsigned int, unsigned int> ran
     }
     if (range.second - range.first >= 3){
         if (IsArray(parsedLine[range.first])
+            and parsedLine[range.first + 1] == "=" and (IsArray(parsedLine[range.first + 2])
+            or (parsedLine[range.first + 2] == "[" and parsedLine[range.second - 1] == "]"))) {
+            return std::make_unique <ParseAssign> (std::pair <unsigned int, unsigned int> (range.first, range.first + 1)
+                    ,std::pair <unsigned int, unsigned int> (range.first + 2, range.second),  true);
+        }
+    }
+    if (range.second - range.first >= 3){
+        if (IsArray(parsedLine[range.first])
             and parsedLine[range.first + 1] == "=") {
             return std::make_unique <ParseAssign> (std::pair <unsigned int, unsigned int> (range.first, range.first + 3)
                     ,std::pair <unsigned int, unsigned int> (range.first + 3, range.second),  true);

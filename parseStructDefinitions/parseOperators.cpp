@@ -27,6 +27,10 @@ ParseAssign::ParseAssign(std::pair<unsigned int, unsigned int> left, std::pair<u
     std::cout << "\n";
     #endif
 
+    if (left.second - right.second == 1 and IsArray(parsedLine[left.first])) {
+        isArray = true;
+    }
+
     if (isArray) {
         // parsing that thing into an array
         this->isArray = true;
@@ -187,7 +191,6 @@ void ParseAssign::run() const{
     if (isArray) {
 
         auto values = RunArrayValueReturning(from.get());
-        // TODO: put the values from vector into the variable structs in the variable
         if (not var->isArray) {
             ParserException("Assigning array type to non array type is illegal! Straight to jail!");
         }
